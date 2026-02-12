@@ -53,6 +53,15 @@ export const googleTokens = sqliteTable("google_tokens", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const sessions = sqliteTable("sessions", {
+  id: text("id").primaryKey(), // ULID — used as cookie value
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  expiresAt: integer("expires_at").notNull(), // Unix timestamp
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
 export const rateLimits = sqliteTable("rate_limits", {
   userId: text("user_id")
     .primaryKey()

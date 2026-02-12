@@ -11,6 +11,7 @@ import { usageRoutes } from "./routes/usage";
 import { healthRoutes } from "./routes/health";
 import { googleAuthRoutes } from "./routes/google-auth";
 import { landingRoutes } from "./routes/landing";
+import { dashboardRoutes } from "./routes/dashboard";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -37,6 +38,7 @@ app.route("/", keysRoutes);
 app.route("/", usageRoutes);
 app.route("/", mcpRoutes);
 app.route("/", googleAuthRoutes);
+app.route("/", dashboardRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

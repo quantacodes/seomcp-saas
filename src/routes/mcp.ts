@@ -154,11 +154,13 @@ mcpRoutes.post("/mcp", async (c) => {
 
   // Batch JSON response
   const responses = await handleBatch(auth, sessionId, requests);
-  // Add rate limit headers for batch
-  const rl = getRateLimitStatus(auth.userId, auth.plan);
-  c.header("X-RateLimit-Limit", String(rl.limit === Infinity ? -1 : rl.limit));
-  c.header("X-RateLimit-Remaining", String(rl.remaining === Infinity ? -1 : rl.remaining));
-  c.header("X-RateLimit-Used", String(rl.used));
+  // Add rate limit headers if batch contains tool calls
+  if (requests.some((r) => r.method === "tools/call")) {
+    const rl = getRateLimitStatus(auth.userId, auth.plan);
+    c.header("X-RateLimit-Limit", String(rl.limit === Infinity ? -1 : rl.limit));
+    c.header("X-RateLimit-Remaining", String(rl.remaining === Infinity ? -1 : rl.remaining));
+    c.header("X-RateLimit-Used", String(rl.used));
+  }
   return c.json(responses);
 });
 

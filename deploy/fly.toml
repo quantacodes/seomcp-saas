@@ -35,11 +35,6 @@ primary_region = "iad"
   destination = "/data"
   initial_size = 1
 
-[[services.tcp_checks]]
-  grace_period = "10s"
-  interval = "30s"
-  timeout = "5s"
-
 [checks.health]
   grace_period = "10s"
   interval = "30s"

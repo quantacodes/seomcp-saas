@@ -21,7 +21,7 @@ const app = new Hono();
 app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
 
 app.use("*", cors({
-  origin: ["https://seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
+  origin: ["https://seomcp.dev", "https://www.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
   allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
   exposeHeaders: ["Mcp-Session-Id"],

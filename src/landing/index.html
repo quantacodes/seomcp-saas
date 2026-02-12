@@ -756,7 +756,7 @@
             <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
             <li><a href="#" class="hover:text-white transition">Blog</a></li>
             <li><a href="#" class="hover:text-white transition">Status</a></li>
-            <li><a href="https://github.com" class="hover:text-white transition">GitHub</a></li>
+            <li><a href="https://github.com" class="hover:text-white transition" target="_blank" rel="noopener noreferrer">GitHub</a></li>
           </ul>
         </div>
         <div>
@@ -769,7 +769,7 @@
         </div>
       </div>
       <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
-        <span>© 2026 seomcp.dev — Built by <a href="https://quantacodes.ai" class="text-slate-400 hover:text-white transition">QuantaCodes</a></span>
+        <span>© 2026 seomcp.dev — Built by <a href="https://quantacodes.ai" class="text-slate-400 hover:text-white transition" target="_blank" rel="noopener noreferrer">QuantaCodes</a></span>
         <span>Powered by Rust 🦀</span>
       </div>
     </div>
@@ -891,6 +891,11 @@
 
         if (!res.ok) {
           throw new Error(data.error || 'Signup failed');
+        }
+
+        // Validate API key format
+        if (!data.apiKey || !data.apiKey.startsWith('sk_live_')) {
+          throw new Error('Unexpected response from server. Please try again.');
         }
 
         // Show API key

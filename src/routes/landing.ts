@@ -12,7 +12,12 @@ function getLandingHtml(): string {
 
   // Resolve path relative to this file → ../landing/index.html
   const htmlPath = join(dirname(new URL(import.meta.url).pathname), "..", "landing", "index.html");
-  cachedHtml = readFileSync(htmlPath, "utf-8");
+  try {
+    cachedHtml = readFileSync(htmlPath, "utf-8");
+  } catch (e) {
+    console.error(`Landing page not found at ${htmlPath}:`, e);
+    return `<!DOCTYPE html><html><body><h1>Landing page not found</h1><p>Expected at: ${htmlPath}</p></body></html>`;
+  }
   return cachedHtml;
 }
 

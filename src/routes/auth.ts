@@ -1,0 +1,132 @@
+import { Hono } from "hono";
+import { eq } from "drizzle-orm";
+import { db, schema } from "../db/index";
+import { generateApiKey } from "../auth/keys";
+
+// Simple ULID generator (no dep needed)
+function ulid(): string {
+  const t = Date.now().toString(36).padStart(10, "0");
+  const r = Array.from({ length: 16 }, () =>
+    Math.floor(Math.random() * 36).toString(36),
+  ).join("");
+  return (t + r).toUpperCase();
+}
+
+export const authRoutes = new Hono();
+
+/**
+ * POST /api/auth/signup
+ * Create account + get API key in one step.
+ */
+authRoutes.post("/api/auth/signup", async (c) => {
+  const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
+
+  if (!body.email || !body.password) {
+    return c.json({ error: "email and password are required" }, 400);
+  }
+
+  // Validate email format (basic)
+  if (!body.email.includes("@") || body.email.length < 5) {
+    return c.json({ error: "Invalid email format" }, 400);
+  }
+
+  if (body.password.length < 8) {
+    return c.json({ error: "Password must be at least 8 characters" }, 400);
+  }
+
+  // Check if email already exists
+  const existing = db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, body.email.toLowerCase()))
+    .limit(1)
+    .all()[0];
+
+  if (existing) {
+    return c.json({ error: "Email already registered" }, 409);
+  }
+
+  // Hash password
+  const passwordHash = await Bun.password.hash(body.password, { algorithm: "bcrypt" });
+
+  // Create user
+  const userId = ulid();
+  const now = new Date();
+
+  db.insert(schema.users)
+    .values({
+      id: userId,
+      email: body.email.toLowerCase(),
+      passwordHash,
+      plan: "free",
+      createdAt: now,
+      updatedAt: now,
+    })
+    .run();
+
+  // Generate API key
+  const { raw, hash, prefix } = generateApiKey();
+  const keyId = ulid();
+
+  db.insert(schema.apiKeys)
+    .values({
+      id: keyId,
+      userId,
+      keyHash: hash,
+      keyPrefix: prefix,
+      name: "Default",
+      isActive: true,
+      createdAt: now,
+    })
+    .run();
+
+  return c.json(
+    {
+      user: {
+        id: userId,
+        email: body.email.toLowerCase(),
+        plan: "free",
+      },
+      apiKey: raw, // Only shown once!
+      apiKeyPrefix: prefix,
+      message: "Save your API key — it won't be shown again.",
+    },
+    201,
+  );
+});
+
+/**
+ * POST /api/auth/login
+ * Returns user info (no JWT for MVP — use API keys for everything).
+ */
+authRoutes.post("/api/auth/login", async (c) => {
+  const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
+
+  if (!body.email || !body.password) {
+    return c.json({ error: "email and password are required" }, 400);
+  }
+
+  const user = db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, body.email.toLowerCase()))
+    .limit(1)
+    .all()[0];
+
+  if (!user) {
+    return c.json({ error: "Invalid credentials" }, 401);
+  }
+
+  const valid = await Bun.password.verify(body.password, user.passwordHash);
+  if (!valid) {
+    return c.json({ error: "Invalid credentials" }, 401);
+  }
+
+  return c.json({
+    user: {
+      id: user.id,
+      email: user.email,
+      plan: user.plan,
+    },
+  });
+});

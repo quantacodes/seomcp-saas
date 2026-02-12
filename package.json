@@ -1,0 +1,24 @@
+{
+  "name": "seo-mcp-saas",
+  "version": "0.1.0",
+  "description": "SEO MCP SaaS — 35 SEO tools as a hosted MCP server",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run src/index.ts",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "bun run src/db/migrate.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "hono": "^4.7.0",
+    "drizzle-orm": "^0.39.0",
+    "better-sqlite3": "^11.8.0",
+    "@types/better-sqlite3": "^7.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "drizzle-kit": "^0.30.0",
+    "@types/bun": "^1.2.0"
+  }
+}

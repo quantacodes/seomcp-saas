@@ -76,7 +76,7 @@ describe("Token Encryption", () => {
 
 describe("OAuth State Parameter", () => {
   it("generates and validates state correctly", () => {
-    const userId = "01TESTUSER12345678901234";
+    const userId = "01ABCDEF9876543210ABCDEF";
     const state = generateState(userId);
     expect(typeof state).toBe("string");
     expect(state.length).toBeGreaterThan(20);
@@ -86,7 +86,7 @@ describe("OAuth State Parameter", () => {
   });
 
   it("rejects tampered state", () => {
-    const state = generateState("01TESTUSER12345678901234");
+    const state = generateState("01ABCDEF9876543210ABCDEF");
     const tampered = state.slice(0, -5) + "XXXXX";
     expect(validateState(tampered)).toBeNull();
   });
@@ -97,17 +97,16 @@ describe("OAuth State Parameter", () => {
   });
 
   it("generates different states each time (includes timestamp)", () => {
-    const s1 = generateState("01USER1");
-    const s2 = generateState("01USER1");
-    // May be same if called within the same millisecond, but HMAC makes it unlikely
-    // Just verify both validate correctly
-    expect(validateState(s1)).toBe("01USER1");
-    expect(validateState(s2)).toBe("01USER1");
+    const s1 = generateState("01AAAAAAAABBBBBBCCCCCCDDDD");
+    const s2 = generateState("01AAAAAAAABBBBBBCCCCCCDDDD");
+    // Both should validate correctly
+    expect(validateState(s1)).toBe("01AAAAAAAABBBBBBCCCCCCDDDD");
+    expect(validateState(s2)).toBe("01AAAAAAAABBBBBBCCCCCCDDDD");
   });
 });
 
 describe("Per-User Config", () => {
-  const testUserId = "01TESTCONFIGUSER12345678";
+  const testUserId = "01ABCDEF0123456789ABCDEF01";
 
   it("writes basic config without Google tokens", () => {
     const path = writeUserConfig(testUserId);
@@ -139,7 +138,7 @@ describe("Per-User Config", () => {
 
   it("hasUserConfig returns correct status", () => {
     expect(hasUserConfig(testUserId)).toBe(true);
-    expect(hasUserConfig("01NONEXISTENTUSER99999")).toBe(false);
+    expect(hasUserConfig("01ZZZZZZZZZZZZZZZZZZZZZZZ9")).toBe(false);
   });
 
   it("deleteUserConfig removes files", () => {

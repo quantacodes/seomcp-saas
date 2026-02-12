@@ -14,9 +14,20 @@ import { config } from "../config";
 const BASE_DIR = "/tmp/seo-mcp-saas";
 
 /**
+ * Validate user ID format (must be ULID — uppercase alphanumeric, 26-32 chars).
+ * Prevents path traversal attacks.
+ */
+function validateUserId(userId: string): void {
+  if (!/^[A-Z0-9]{26,32}$/.test(userId)) {
+    throw new Error(`Invalid user ID format: ${userId.slice(0, 10)}...`);
+  }
+}
+
+/**
  * Get the config directory for a user.
  */
 export function getUserConfigDir(userId: string): string {
+  validateUserId(userId);
   return join(BASE_DIR, userId);
 }
 
@@ -62,10 +73,10 @@ export function writeUserConfig(userId: string, tokens?: UserGoogleTokens): stri
       client_secret: config.googleClientSecret,
       refresh_token: tokens.refreshToken,
     });
-    writeFileSync(credsPath, credsJson, "utf-8");
+    writeFileSync(credsPath, credsJson, { encoding: "utf-8", mode: 0o600 });
   } else {
     // No Google connection — write empty creds (binary starts but Google APIs fail gracefully)
-    writeFileSync(credsPath, "{}", "utf-8");
+    writeFileSync(credsPath, "{}", { encoding: "utf-8", mode: 0o600 });
   }
 
   toml += `[credentials]\n`;

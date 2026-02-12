@@ -5,6 +5,7 @@
  * Each encryption uses a unique 12-byte IV.
  */
 
+import { createCipheriv, createDecipheriv, randomBytes } from "crypto";
 import { config } from "../config";
 
 const ALGORITHM = "aes-256-gcm";
@@ -28,15 +29,12 @@ function getKey(): Buffer {
  */
 export function encryptToken(plaintext: string): string {
   const key = getKey();
-  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const iv = randomBytes(IV_LENGTH);
 
-  // Use Web Crypto-compatible approach (works in Bun)
   const encoder = new TextEncoder();
   const data = encoder.encode(plaintext);
 
-  // Bun supports Node.js crypto module
-  const { createCipheriv } = require("crypto");
-  const cipher = createCipheriv(ALGORITHM, key, Buffer.from(iv));
+  const cipher = createCipheriv(ALGORITHM, key, iv);
 
   const encrypted = Buffer.concat([
     cipher.update(data),
@@ -46,7 +44,7 @@ export function encryptToken(plaintext: string): string {
   const tag = cipher.getAuthTag();
 
   // Format: base64(iv):base64(ciphertext):base64(tag)
-  return `${Buffer.from(iv).toString("base64")}:${encrypted.toString("base64")}:${tag.toString("base64")}`;
+  return `${iv.toString("base64")}:${encrypted.toString("base64")}:${tag.toString("base64")}`;
 }
 
 /**
@@ -73,7 +71,6 @@ export function decryptToken(encrypted: string): string {
     throw new Error(`Invalid auth tag length: ${tag.length} (expected ${TAG_LENGTH})`);
   }
 
-  const { createDecipheriv } = require("crypto");
   const decipher = createDecipheriv(ALGORITHM, key, iv);
   decipher.setAuthTag(tag);
 

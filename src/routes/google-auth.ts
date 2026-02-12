@@ -159,7 +159,7 @@ googleAuthRoutes.get("/api/auth/google/callback", async (c) => {
     console.error("Google OAuth callback error:", err);
     return c.html(renderCallbackPage({
       success: false,
-      message: `Failed to connect Google account: ${err.message}`,
+      message: "Failed to connect Google account. Please try again.",
     }), 500);
   }
 });
@@ -233,13 +233,28 @@ googleAuthRoutes.delete("/api/auth/google", authMiddleware, async (c) => {
 });
 
 /**
+ * Escape HTML special characters to prevent XSS.
+ */
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
  * Render a simple HTML page for the OAuth callback.
  * This is what users see after Google redirects back.
+ * All dynamic values are HTML-escaped to prevent XSS.
  */
 function renderCallbackPage(opts: { success: boolean; message: string; email?: string }): string {
   const icon = opts.success ? "✅" : "❌";
   const color = opts.success ? "#22c55e" : "#ef4444";
   const title = opts.success ? "Connected!" : "Connection Failed";
+  const safeMessage = escapeHtml(opts.message);
+  const safeEmail = opts.email ? escapeHtml(opts.email) : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -279,8 +294,8 @@ function renderCallbackPage(opts: { success: boolean; message: string; email?: s
   <div class="card">
     <div class="icon">${icon}</div>
     <h1>${title}</h1>
-    <p>${opts.message}</p>
-    ${opts.email ? `<p>Connected as: <span class="email">${opts.email}</span></p>` : ""}
+    <p>${safeMessage}</p>
+    ${safeEmail ? `<p>Connected as: <span class="email">${safeEmail}</span></p>` : ""}
     <p class="close-hint">
       ${opts.success 
         ? "You can close this window. Your AI tools will now have access to Google Search Console and Analytics data."

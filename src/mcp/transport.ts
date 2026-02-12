@@ -4,7 +4,7 @@ import { sessionManager } from "./session";
 import { checkAndIncrementRateLimit } from "../ratelimit/middleware";
 import { logUsage } from "../usage/tracker";
 import { config, VERSION } from "../config";
-import { existsSync } from "fs";
+import { existsSync, statSync } from "fs";
 import {
   getUserConfigPath as getPerUserConfigPath,
   writeUserConfig,
@@ -12,6 +12,9 @@ import {
 } from "../config/user-config";
 import { sqlite } from "../db/index";
 import { decryptToken } from "../crypto/tokens";
+
+// Cache: userId → last token updated_at timestamp when config was written
+const configTimestampCache = new Map<string, number>();
 
 // Methods that don't count against rate limits
 const EXEMPT_METHODS = new Set([
@@ -37,27 +40,34 @@ function getUserConfigPath(userId: string): string {
 
   // Check if user has Google tokens
   const tokenRow = sqlite.prepare(
-    "SELECT access_token_enc, refresh_token_enc, expires_at FROM google_tokens WHERE user_id = ?"
-  ).get(userId) as { access_token_enc: string; refresh_token_enc: string; expires_at: number } | undefined;
+    "SELECT access_token_enc, refresh_token_enc, expires_at, updated_at FROM google_tokens WHERE user_id = ?"
+  ).get(userId) as { access_token_enc: string; refresh_token_enc: string; expires_at: number; updated_at: number } | undefined;
 
   if (tokenRow) {
-    // Decrypt tokens and generate config with Google OAuth
-    try {
-      const accessToken = decryptToken(tokenRow.access_token_enc);
-      const refreshToken = decryptToken(tokenRow.refresh_token_enc);
-      writeUserConfig(userId, {
-        accessToken,
-        refreshToken,
-        expiresAt: tokenRow.expires_at,
-      });
-    } catch (err) {
-      console.error(`Failed to decrypt tokens for user ${userId}:`, err);
-      // Fall through to basic config
-      writeUserConfig(userId);
+    // Only regenerate config if tokens have changed since last write
+    const cachedTimestamp = configTimestampCache.get(userId);
+    const needsRewrite = !cachedTimestamp || cachedTimestamp !== tokenRow.updated_at || !hasUserConfig(userId);
+
+    if (needsRewrite) {
+      try {
+        const accessToken = decryptToken(tokenRow.access_token_enc);
+        const refreshToken = decryptToken(tokenRow.refresh_token_enc);
+        writeUserConfig(userId, {
+          accessToken,
+          refreshToken,
+          expiresAt: tokenRow.expires_at,
+        });
+        configTimestampCache.set(userId, tokenRow.updated_at);
+      } catch (err) {
+        console.error(`Failed to decrypt tokens for user ${userId}:`, err);
+        writeUserConfig(userId);
+        configTimestampCache.delete(userId);
+      }
     }
   } else if (!hasUserConfig(userId)) {
     // No Google connection — write basic config
     writeUserConfig(userId);
+    configTimestampCache.delete(userId);
   }
 
   return getPerUserConfigPath(userId);

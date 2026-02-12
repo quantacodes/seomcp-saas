@@ -9,6 +9,7 @@
  * 5. Generate per-user config for seo-mcp binary
  */
 
+import { createHmac, timingSafeEqual } from "crypto";
 import { config } from "../config";
 
 const GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth";
@@ -41,18 +42,16 @@ export interface GoogleUserInfo {
 
 /**
  * Generate a state parameter for CSRF protection.
- * Format: base64(userId:timestamp:hmac)
+ * Format: base64url(userId:timestamp:fullHmac)
+ * Uses full 256-bit HMAC (no truncation) + timing-safe comparison on validation.
  */
 export function generateState(userId: string): string {
   const timestamp = Date.now().toString();
   const payload = `${userId}:${timestamp}`;
   
-  // Simple HMAC using the JWT secret
-  const { createHmac } = require("crypto");
   const hmac = createHmac("sha256", config.jwtSecret)
     .update(payload)
-    .digest("hex")
-    .slice(0, 16); // Truncate for URL friendliness
+    .digest("hex"); // Full 64-char hex = 256-bit HMAC
 
   return Buffer.from(`${payload}:${hmac}`).toString("base64url");
 }
@@ -60,22 +59,32 @@ export function generateState(userId: string): string {
 /**
  * Validate and decode a state parameter.
  * Returns userId if valid, null if invalid/expired.
+ * Uses timing-safe comparison to prevent timing attacks.
  */
 export function validateState(state: string): string | null {
   try {
     const decoded = Buffer.from(state, "base64url").toString();
-    const [userId, timestamp, hmac] = decoded.split(":");
+    // Split into exactly 3 parts: userId:timestamp:hmac
+    const firstColon = decoded.indexOf(":");
+    const lastColon = decoded.lastIndexOf(":");
 
-    if (!userId || !timestamp || !hmac) return null;
+    if (firstColon === -1 || lastColon === firstColon) return null;
 
-    // Verify HMAC
-    const { createHmac } = require("crypto");
+    const userId = decoded.slice(0, firstColon);
+    const timestamp = decoded.slice(firstColon + 1, lastColon);
+    const receivedHmac = decoded.slice(lastColon + 1);
+
+    if (!userId || !timestamp || !receivedHmac) return null;
+
+    // Verify HMAC with timing-safe comparison
     const expectedHmac = createHmac("sha256", config.jwtSecret)
       .update(`${userId}:${timestamp}`)
-      .digest("hex")
-      .slice(0, 16);
+      .digest("hex");
 
-    if (hmac !== expectedHmac) return null;
+    const a = Buffer.from(receivedHmac, "utf-8");
+    const b = Buffer.from(expectedHmac, "utf-8");
+
+    if (a.length !== b.length || !timingSafeEqual(a, b)) return null;
 
     // Check expiry (10 minutes)
     const age = Date.now() - parseInt(timestamp);

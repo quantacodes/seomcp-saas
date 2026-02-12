@@ -227,9 +227,53 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - [ ] Domain purchase: seomcp.dev
 - [ ] Google Cloud project setup (OAuth client ID/secret)
 - [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
-- [ ] Deploy to Hetzner VPS or Fly.io
-- [ ] DNS + SSL setup
-- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Deploy to Fly.io (deploy script ready: `./deploy/deploy.sh --first-run`)
+- [ ] DNS + SSL setup (`fly certs add seomcp.dev`)
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64 (`cross build --release --target x86_64-unknown-linux-gnu`)
 - [ ] Smoke test in production
-- [ ] X announcement thread
-- [ ] Product Hunt prep
+- [ ] X announcement thread (draft ready: LAUNCH.md)
+- [ ] Product Hunt prep (copy ready: LAUNCH.md)
+
+---
+
+## Session 4 — 2026-02-13 05:20 IST
+
+### Production Polish & Launch Prep
+
+**Build:**
+- README.md — Full project documentation (architecture, setup, endpoints, tools, structure)
+- LAUNCH.md — Complete launch copy (X thread 9 tweets, Product Hunt listing, Reddit r/SEO + r/artificial, HN Show post)
+- deploy/fly.toml — Fly.io production config (shared-cpu-2x, 1GB RAM, IAD region, health checks)
+- deploy/deploy.sh — Automated deploy script with first-run setup (secrets, volumes, app creation)
+- Enhanced /health — DB liveness check, memory stats, returns 503 when degraded
+- X-RateLimit-* headers — Standard rate limit headers on all tool call responses
+- X-Request-Id — Correlation ID header on all requests (pass-through or generated)
+- CORS — Exposed rate limit + request ID headers to cross-origin clients
+- Removed dead /docs placeholder from landing.ts (real docs served by docsRoutes)
+- Updated .gitignore (binary, logs)
+
+**Review:** ✅ Spawned Barnacle — pending
+**Test:** ✅ 102 tests, 261 assertions, ALL PASSING
+
+**Commits:**
+- 5f3d2d7 — "Session 4: Production polish"
+
+### Session 4 Stats
+- **Total tests:** 102 (all passing)
+- **Total assertions:** 261
+- **Source files:** ~30
+- **Total commits:** 15
+
+### What Works (End of Session 4)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Full documentation page (8 sections)
+- ✅ Dockerfile + docker-compose + Fly.io deploy config
+- ✅ Security headers + CSRF protection + rate limit headers + request IDs
+- ✅ Health endpoint with DB liveness + memory stats
+- ✅ README + launch copy (X, PH, Reddit, HN) ready
+- ✅ 102 tests, 261 assertions, ALL PASSING

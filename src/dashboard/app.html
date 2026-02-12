@@ -212,6 +212,14 @@
       </div>
     </section>
 
+    <!-- Billing -->
+    <section id="billing-section" class="hidden">
+      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
+        <h2 class="text-lg font-bold mb-2">Billing</h2>
+        <div id="billing-status"></div>
+      </div>
+    </section>
+
     <!-- Recent Activity -->
     <section id="activity-section" class="hidden">
       <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
@@ -326,6 +334,9 @@
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied</div>
 
+  <!-- Lemon Squeezy checkout overlay -->
+  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
+
   <script>
     // ── State ──
     let dashData = null;
@@ -385,6 +396,9 @@
 
       // Google
       renderGoogle(d.google);
+
+      // Billing
+      renderBilling(d.billing, d.user.plan);
 
       // Activity
       renderActivity(d.recentCalls);
@@ -579,6 +593,177 @@
       }).join('');
     }
 
+    // ── Billing ──
+    function renderBilling(billing, currentPlan) {
+      const section = document.getElementById('billing-section');
+      section.classList.remove('hidden');
+      const statusEl = document.getElementById('billing-status');
+
+      if (!billing && currentPlan === 'free') {
+        // Free plan — show upgrade options
+        statusEl.innerHTML = `
+          <p class="text-sm text-slate-400 mb-4">You're on the <span class="text-white font-medium">Free</span> plan (50 calls/mo).</p>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="p-4 bg-surface-700/50 border border-white/5 rounded-xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold text-white">Pro</span>
+                <span class="text-brand-400 font-bold">$29/mo</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-3">2,000 calls/mo · 5 sites · 5 API keys</p>
+              <button onclick="handleUpgrade('pro')" class="w-full py-2 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">
+                Upgrade to Pro
+              </button>
+            </div>
+            <div class="p-4 bg-surface-700/50 border border-brand-500/20 rounded-xl">
+              <div class="flex items-center justify-between mb-2">
+                <span class="font-semibold text-white">Agency</span>
+                <span class="text-brand-400 font-bold">$79/mo</span>
+              </div>
+              <p class="text-xs text-slate-400 mb-3">10,000 calls/mo · Unlimited sites · 20 keys</p>
+              <button onclick="handleUpgrade('agency')" class="w-full py-2 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">
+                Upgrade to Agency
+              </button>
+            </div>
+          </div>`;
+      } else if (billing) {
+        const isActive = billing.status === 'active' && !billing.cancelAtPeriodEnd;
+        const isCancelling = billing.cancelAtPeriodEnd;
+        const isPastDue = billing.status === 'past_due';
+        const renewDate = billing.renewsAt ? new Date(billing.renewsAt).toLocaleDateString() : 'N/A';
+
+        let statusHtml = '';
+
+        if (isPastDue) {
+          statusHtml = `
+            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl mb-4">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-lg">⚠️</span>
+                <span class="font-semibold text-red-400">Payment Failed</span>
+              </div>
+              <p class="text-sm text-red-300/80">Your last payment failed. Please update your payment method to keep access.</p>
+              ${billing.updatePaymentUrl ? `<a href="${escHtml(billing.updatePaymentUrl)}" target="_blank" class="inline-block mt-2 px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition">Update Payment →</a>` : ''}
+            </div>`;
+        }
+
+        if (isCancelling) {
+          statusHtml += `
+            <div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-semibold text-white capitalize">${escHtml(billing.plan)} Plan</span>
+                    <span class="px-2 py-0.5 rounded text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20">Cancelling</span>
+                  </div>
+                  <p class="text-sm text-slate-400">Access until ${renewDate}</p>
+                </div>
+                <button onclick="handleResume()" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Resume</button>
+              </div>
+            </div>`;
+        } else if (isActive) {
+          statusHtml += `
+            <div class="p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
+              <div class="flex items-center justify-between">
+                <div>
+                  <div class="flex items-center gap-2 mb-1">
+                    <span class="font-semibold text-white capitalize">${escHtml(billing.plan)} Plan</span>
+                    <span class="px-2 py-0.5 rounded text-xs font-medium badge-active">Active</span>
+                  </div>
+                  <p class="text-sm text-slate-400">Renews ${renewDate}</p>
+                </div>
+                <div class="flex gap-2">
+                  ${billing.portalUrl ? `<a href="${escHtml(billing.portalUrl)}" target="_blank" class="px-3 py-2 text-xs text-slate-400 hover:text-white border border-white/10 rounded-lg transition">Manage →</a>` : ''}
+                  <button onclick="handleCancel()" class="px-3 py-2 text-xs text-red-400 hover:text-red-300 border border-red-500/20 rounded-lg transition">Cancel</button>
+                </div>
+              </div>
+            </div>`;
+
+          // Show upgrade option if on Pro
+          if (billing.plan === 'pro') {
+            statusHtml += `
+              <div class="mt-3 p-3 bg-surface-700/30 border border-white/5 rounded-lg flex items-center justify-between">
+                <span class="text-sm text-slate-400">Need more? Agency: 10K calls, unlimited sites</span>
+                <button onclick="handleUpgrade('agency')" class="px-3 py-1.5 text-xs font-medium bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 rounded-lg transition">Upgrade →</button>
+              </div>`;
+          }
+        } else {
+          // Expired or other status
+          statusHtml += `
+            <div class="p-4 bg-surface-700/50 border border-white/5 rounded-xl">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="font-semibold text-slate-300 capitalize">${escHtml(billing.plan)} Plan</span>
+                <span class="px-2 py-0.5 rounded text-xs font-medium badge-revoked">${escHtml(billing.status)}</span>
+              </div>
+              <p class="text-sm text-slate-500 mb-3">Your subscription has ended.</p>
+              <button onclick="handleUpgrade('${billing.plan}')" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Resubscribe</button>
+            </div>`;
+        }
+
+        statusEl.innerHTML = statusHtml;
+      }
+    }
+
+    async function handleUpgrade(plan) {
+      try {
+        const res = await fetch('/api/billing/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ plan }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Failed to create checkout');
+          return;
+        }
+
+        // Try Lemon.js overlay first, fallback to redirect
+        if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) {
+          LemonSqueezy.Url.Open(data.url);
+        } else {
+          window.open(data.url, '_blank');
+        }
+      } catch (err) {
+        alert('Failed to start checkout');
+      }
+    }
+
+    async function handleCancel() {
+      if (!confirm('Are you sure you want to cancel? You\'ll keep access until the end of your billing period.')) return;
+      try {
+        const res = await fetch('/api/billing/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        if (res.ok) {
+          loadDashboard();
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Failed to cancel');
+        }
+      } catch (err) {
+        alert('Failed to cancel subscription');
+      }
+    }
+
+    async function handleResume() {
+      try {
+        const res = await fetch('/api/billing/resume', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
+        if (res.ok) {
+          loadDashboard();
+        } else {
+          const data = await res.json();
+          alert(data.error || 'Failed to resume');
+        }
+      } catch (err) {
+        alert('Failed to resume subscription');
+      }
+    }
+
     // ── Key Management ──
     function openCreateKey() {
       document.getElementById('create-key-modal').classList.add('active');
@@ -744,6 +929,18 @@
     });
 
     // ── Init ──
+    // Check for upgrade redirect
+    if (new URLSearchParams(window.location.search).get('upgraded') === 'true') {
+      // Clean URL and show a brief success message
+      history.replaceState(null, '', '/dashboard');
+      setTimeout(() => {
+        const toast = document.getElementById('copy-toast');
+        toast.textContent = '🎉 Plan upgraded!';
+        toast.classList.add('show');
+        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 3000);
+      }, 1000);
+    }
+
     loadDashboard();
   </script>
 </body>

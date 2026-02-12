@@ -275,6 +275,21 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
     .limit(1)
     .all()[0];
 
+  // Subscription / billing
+  const subscription = db
+    .select({
+      plan: schema.subscriptions.plan,
+      status: schema.subscriptions.status,
+      currentPeriodEnd: schema.subscriptions.currentPeriodEnd,
+      cancelAtPeriodEnd: schema.subscriptions.cancelAtPeriodEnd,
+      customerPortalUrl: schema.subscriptions.customerPortalUrl,
+      updatePaymentUrl: schema.subscriptions.updatePaymentUrl,
+    })
+    .from(schema.subscriptions)
+    .where(eq(schema.subscriptions.userId, session.userId))
+    .limit(1)
+    .all()[0];
+
   // Recent calls (last 20)
   const recentCalls = db
     .select({
@@ -332,6 +347,18 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
       durationMs: r.durationMs,
       createdAt: r.createdAt.toISOString(),
     })),
+    billing: subscription
+      ? {
+          plan: subscription.plan,
+          status: subscription.status,
+          renewsAt: subscription.currentPeriodEnd
+            ? new Date(subscription.currentPeriodEnd * 1000).toISOString()
+            : null,
+          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+          portalUrl: subscription.customerPortalUrl,
+          updatePaymentUrl: subscription.updatePaymentUrl,
+        }
+      : null,
   });
 });
 

@@ -40,6 +40,17 @@ export const config = {
     enterprise: { callsPerMonth: Infinity, maxSites: Infinity, maxKeys: Infinity },
   } as Record<string, { callsPerMonth: number; maxSites: number; maxKeys: number }>,
 
+  // Lemon Squeezy billing
+  lemonSqueezy: {
+    apiKey: process.env.LEMONSQUEEZY_API_KEY || "",
+    storeId: process.env.LEMONSQUEEZY_STORE_ID || "",
+    webhookSecret: process.env.LEMONSQUEEZY_WEBHOOK_SECRET || "",
+    variantIds: {
+      pro: process.env.LEMONSQUEEZY_PRO_VARIANT_ID || "",
+      agency: process.env.LEMONSQUEEZY_AGENCY_VARIANT_ID || "",
+    },
+  },
+
   // Binary management
   binaryIdleTimeoutMs: 5 * 60 * 1000, // 5 minutes
   binaryRequestTimeoutMs: 60 * 1000,   // 60 seconds per tool call

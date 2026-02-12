@@ -62,6 +62,35 @@ export const sessions = sqliteTable("sessions", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
+export const subscriptions = sqliteTable("subscriptions", {
+  id: text("id").primaryKey(), // ULID
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id),
+  lsSubscriptionId: text("ls_subscription_id").notNull().unique(), // Lemon Squeezy subscription ID
+  lsCustomerId: text("ls_customer_id"),
+  lsOrderId: text("ls_order_id"),
+  lsVariantId: text("ls_variant_id").notNull(),
+  plan: text("plan").notNull(), // 'pro' | 'agency'
+  status: text("status").notNull(), // 'active' | 'cancelled' | 'expired' | 'past_due' | 'paused' | 'on_trial' | 'unpaid'
+  currentPeriodEnd: integer("current_period_end"), // Unix timestamp
+  cancelAtPeriodEnd: integer("cancel_at_period_end", { mode: "boolean" }).notNull().default(false),
+  updatePaymentUrl: text("update_payment_url"),
+  customerPortalUrl: text("customer_portal_url"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const webhookEvents = sqliteTable("webhook_events", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  eventName: text("event_name").notNull(),
+  lsId: text("ls_id").notNull(), // Lemon Squeezy object ID
+  payload: text("payload").notNull(), // Full JSON for audit/replay
+  processedAt: integer("processed_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
 export const rateLimits = sqliteTable("rate_limits", {
   userId: text("user_id")
     .primaryKey()

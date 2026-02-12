@@ -9,6 +9,7 @@ import { authRoutes } from "./routes/auth";
 import { keysRoutes } from "./routes/keys";
 import { usageRoutes } from "./routes/usage";
 import { healthRoutes } from "./routes/health";
+import { landingRoutes } from "./routes/landing";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -34,6 +35,7 @@ app.route("/", authRoutes);
 app.route("/", keysRoutes);
 app.route("/", usageRoutes);
 app.route("/", mcpRoutes);
+app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler
 app.notFound((c) => {

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>seomcp.dev — 35 SEO Tools for Any AI Agent | MCP Server</title>
+  <meta name="description" content="Give any AI agent SEO superpowers. 35 tools including Google Search Console, Analytics, site audits, and IndexNow. One MCP endpoint. $29/mo.">
+  <meta property="og:title" content="seomcp.dev — SEO Tools for AI Agents">
+  <meta property="og:description" content="35 SEO tools. One MCP endpoint. Your real Google data. Not estimates.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://seomcp.dev">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="seomcp.dev — SEO Tools for AI Agents">
+  <meta name="twitter:description" content="35 SEO tools. One MCP endpoint. Your real Google data.">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              200: '#bae6fd',
+              300: '#7dd3fc',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+            },
+            surface: {
+              900: '#0f172a',
+              800: '#1e293b',
+              700: '#334155',
+              600: '#475569',
+            }
+          },
+          animation: {
+            'fade-in': 'fadeIn 0.6s ease-out',
+            'slide-up': 'slideUp 0.6s ease-out',
+            'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+          },
+          keyframes: {
+            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+            slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+            pulseGlow: { '0%, 100%': { boxShadow: '0 0 20px rgba(14,165,233,0.3)' }, '50%': { boxShadow: '0 0 40px rgba(14,165,233,0.6)' } },
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    body { background: #0f172a; color: #f8fafc; }
+    .gradient-text {
+      background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #7dd3fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
+      padding: 1px;
+      border-radius: 0.75rem;
+    }
+    .gradient-border > div { background: #1e293b; border-radius: calc(0.75rem - 1px); }
+    .code-block { background: #0d1117; border: 1px solid #30363d; }
+    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(14,165,233,0.15); }
+    .pricing-card.featured { border: 2px solid #0ea5e9; }
+    .hero-glow {
+      position: absolute;
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
+      top: -200px; left: 50%; transform: translateX(-50%);
+      pointer-events: none;
+    }
+    /* Signup modal */
+    .modal-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.active { display: flex; }
+    .check-icon { color: #22c55e; }
+    .copy-toast {
+      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
+      background: #22c55e; color: white; padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem; font-weight: 600;
+      transform: translateY(100px); opacity: 0;
+      transition: all 0.3s ease;
+    }
+    .copy-toast.show { transform: translateY(0); opacity: 1; }
+    @media (max-width: 768px) {
+      .hero-glow { width: 300px; height: 300px; }
+    }
+  </style>
+</head>
+<body class="font-sans antialiased">
+
+  <!-- Nav -->
+  <nav class="fixed top-0 w-full z-40 bg-surface-900/80 backdrop-blur-xl border-b border-white/5">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 text-lg font-bold">
+        <span class="text-2xl">🔍</span>
+        <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
+      </a>
+      <div class="hidden md:flex items-center gap-8 text-sm text-slate-300">
+        <a href="#tools" class="hover:text-white transition">Tools</a>
+        <a href="#pricing" class="hover:text-white transition">Pricing</a>
+        <a href="#faq" class="hover:text-white transition">FAQ</a>
+        <a href="/docs" class="hover:text-white transition">Docs</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="openSignup()" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition">
+          Get API Key →
+        </button>
+        <button onclick="openSignup()" class="sm:hidden px-3 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg">
+          Sign Up
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="relative pt-32 pb-20 px-4 sm:px-6 overflow-hidden">
+    <div class="hero-glow"></div>
+    <div class="max-w-4xl mx-auto text-center relative z-10">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-sm font-medium mb-6 animate-fade-in">
+        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+        First hosted SEO MCP — no setup required
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6 animate-slide-up">
+        Give any AI agent<br>
+        <span class="gradient-text">SEO superpowers</span>
+      </h1>
+
+      <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mb-8 animate-slide-up" style="animation-delay: 0.1s">
+        35 SEO tools. One MCP endpoint. <strong class="text-white">Your real Google data</strong>, not third-party estimates.
+        Works with Claude, Cursor, Windsurf, and any MCP client.
+      </p>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-slide-up" style="animation-delay: 0.2s">
+        <button onclick="openSignup()" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition animate-pulse-glow">
+          Get Free API Key →
+        </button>
+        <a href="#how-it-works" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-slate-200 bg-surface-800 hover:bg-surface-700 rounded-xl border border-white/10 transition">
+          See How It Works
+        </a>
+      </div>
+
+      <!-- Config snippet -->
+      <div class="max-w-xl mx-auto animate-slide-up" style="animation-delay: 0.3s">
+        <div class="code-block rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
+            <div class="flex gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+            </div>
+            <span class="text-xs text-slate-500 font-mono">claude_desktop_config.json</span>
+            <button onclick="copyCode('hero-code')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+          </div>
+          <pre class="p-4 text-sm font-mono text-left overflow-x-auto"><code id="hero-code" class="text-slate-300">{
+  <span class="text-brand-400">"mcpServers"</span>: {
+    <span class="text-green-400">"seo"</span>: {
+      <span class="text-brand-400">"url"</span>: <span class="text-amber-300">"https://seomcp.dev/mcp"</span>,
+      <span class="text-brand-400">"headers"</span>: {
+        <span class="text-brand-400">"Authorization"</span>: <span class="text-amber-300">"Bearer sk_live_REDACTED_key"</span>
+      }
+    }
+  }
+}</code></pre>
+        </div>
+        <p class="text-sm text-slate-500 mt-3">That's it. One line. Your AI agent now has 35 SEO tools.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social proof bar -->
+  <section class="border-y border-white/5 py-6 bg-surface-800/50">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center gap-8 text-sm text-slate-400">
+      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">35</span> SEO tools</span>
+      <span class="text-slate-600">·</span>
+      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">0</span> setup required</span>
+      <span class="text-slate-600">·</span>
+      <span class="flex items-center gap-2">Built on <span class="text-white font-medium">Google APIs</span></span>
+      <span class="text-slate-600">·</span>
+      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">Rust</span> powered</span>
+      <span class="text-slate-600">·</span>
+      <span class="flex items-center gap-2">From <span class="text-amber-300 font-bold">$0</span>/mo</span>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section id="how-it-works" class="py-24 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Three steps. Under a minute.</h2>
+        <p class="text-slate-400 text-lg">No credit card. No OAuth dance. No Docker containers.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <!-- Step 1 -->
+        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">1</div>
+          <h3 class="text-xl font-semibold mb-3">Get your API key</h3>
+          <p class="text-slate-400">Sign up with email — takes 5 seconds. You get a free tier with 50 calls/month. No credit card needed.</p>
+        </div>
+        <!-- Step 2 -->
+        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">2</div>
+          <h3 class="text-xl font-semibold mb-3">Add one line of config</h3>
+          <p class="text-slate-400">Paste the MCP server URL into Claude Desktop, Cursor, Windsurf, or any MCP-compatible AI tool. Done.</p>
+        </div>
+        <!-- Step 3 -->
+        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
+          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">3</div>
+          <h3 class="text-xl font-semibold mb-3">Ask your AI anything SEO</h3>
+          <p class="text-slate-400">"Audit my site." "What are my top pages?" "Submit these URLs to IndexNow." Your AI handles it all.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Real Data -->
+  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <div>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm font-medium mb-4">
+            No more guesswork
+          </div>
+          <h2 class="text-3xl sm:text-4xl font-bold mb-6">
+            Your <span class="gradient-text">real</span> Google data.<br>Not estimates.
+          </h2>
+          <p class="text-slate-300 text-lg mb-6">
+            Ahrefs, Semrush, and DataForSEO sell you <em>approximations</em> of your search data. We connect directly to <strong class="text-white">Google Search Console</strong> and <strong class="text-white">Google Analytics</strong> — the same data Google shows you.
+          </p>
+          <ul class="space-y-3 text-slate-300">
+            <li class="flex items-start gap-3">
+              <span class="text-green-400 mt-1">✓</span>
+              <span><strong class="text-white">Search Console:</strong> Actual impressions, clicks, CTR, average position</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-green-400 mt-1">✓</span>
+              <span><strong class="text-white">Analytics:</strong> Real sessions, engagement, traffic sources</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-green-400 mt-1">✓</span>
+              <span><strong class="text-white">PageSpeed:</strong> Google's official Core Web Vitals</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="text-green-400 mt-1">✓</span>
+              <span><strong class="text-white">IndexNow:</strong> Submit URLs for instant indexing</span>
+            </li>
+          </ul>
+        </div>
+        <div class="code-block rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
+            <span class="text-xs text-slate-500 font-mono">Claude conversation</span>
+          </div>
+          <div class="p-5 space-y-4 text-sm">
+            <div class="flex gap-3">
+              <span class="text-brand-400 font-medium shrink-0">You:</span>
+              <span class="text-slate-300">What are my top performing pages this week?</span>
+            </div>
+            <div class="flex gap-3">
+              <span class="text-green-400 font-medium shrink-0">Claude:</span>
+              <div class="text-slate-300">
+                <p class="mb-2">I'll check your Search Console data:</p>
+                <div class="code-block rounded-lg p-3 text-xs font-mono">
+                  <span class="text-slate-500">Using</span> <span class="text-brand-400">gsc_performance</span><br>
+                  <span class="text-slate-500">Site:</span> <span class="text-amber-300">example.com</span><br>
+                  <span class="text-slate-500">Period:</span> <span class="text-amber-300">last 7 days</span>
+                </div>
+                <p class="mt-2">Your top 3 pages by clicks:</p>
+                <ol class="list-decimal list-inside mt-1 space-y-1 text-xs">
+                  <li>/blog/seo-guide — <span class="text-green-400">842 clicks</span>, pos 3.2</li>
+                  <li>/tools/audit — <span class="text-green-400">456 clicks</span>, pos 5.1</li>
+                  <li>/pricing — <span class="text-green-400">321 clicks</span>, pos 2.8</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tools Grid -->
+  <section id="tools" class="py-24 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">35 tools. Every SEO workflow.</h2>
+        <p class="text-slate-400 text-lg">From quick audits to bulk URL inspection. All through one MCP endpoint.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Crawl -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">🕷️</span>
+            <h3 class="text-lg font-semibold">Site Crawling</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Rust-powered crawler. Fast, thorough, finds everything.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">site_audit</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">crawl_page</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">test_robots_txt</span>
+          </div>
+        </div>
+
+        <!-- GSC -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">📊</span>
+            <h3 class="text-lg font-semibold">Search Console</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Direct GSC API access. Real impressions, clicks, positions.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_performance</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_inspect_url</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_list_sitemaps</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_submit_sitemap</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">+4 more</span>
+          </div>
+        </div>
+
+        <!-- GA4 -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">📈</span>
+            <h3 class="text-lg font-semibold">Google Analytics</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">GA4 reports, realtime data, traffic sources, geography.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_report</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_realtime</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_top_pages</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_traffic_sources</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">+5 more</span>
+          </div>
+        </div>
+
+        <!-- IndexNow -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">⚡</span>
+            <h3 class="text-lg font-semibold">IndexNow</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Instant indexing. Submit URLs to Bing, Yandex, and more.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_url</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_batch_submit</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_sitemap</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_file</span>
+          </div>
+        </div>
+
+        <!-- Schema -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">🏗️</span>
+            <h3 class="text-lg font-semibold">Schema & Validation</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">Validate structured data, check robots.txt, find issues.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">validate_schema</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">analyze_robots_txt</span>
+          </div>
+        </div>
+
+        <!-- Reports -->
+        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-brand-500/30 transition-all duration-200 relative overflow-hidden">
+          <div class="absolute top-3 right-3 px-2 py-0.5 rounded text-xs font-medium bg-brand-500/20 text-brand-300 border border-brand-500/30">⭐ Popular</div>
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">📋</span>
+            <h3 class="text-lg font-semibold">Full Audit Report</h3>
+          </div>
+          <p class="text-slate-400 text-sm mb-4">One command → comprehensive SEO audit with health score, issues, and recommendations.</p>
+          <div class="flex flex-wrap gap-2">
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-brand-500/20 text-brand-300 border border-brand-500/30">generate_report</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">core_web_vitals</span>
+            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">version</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Stop overpaying for SEO data</h2>
+        <p class="text-slate-400 text-lg">Your Google data is free. Why pay $129/mo for approximations?</p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm">
+          <thead>
+            <tr class="border-b border-white/10">
+              <th class="pb-4 pr-4 text-slate-400 font-medium">Feature</th>
+              <th class="pb-4 px-4 text-center">
+                <span class="gradient-text font-bold text-base">seomcp.dev</span>
+              </th>
+              <th class="pb-4 px-4 text-center text-slate-300">Ahrefs</th>
+              <th class="pb-4 px-4 text-center text-slate-300">DataForSEO</th>
+              <th class="pb-4 px-4 text-center text-slate-300 hidden sm:table-cell">FetchSERP</th>
+            </tr>
+          </thead>
+          <tbody class="text-slate-300">
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">Starting price</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">Free / $29</td>
+              <td class="py-3 px-4 text-center">$129/mo</td>
+              <td class="py-3 px-4 text-center">$50 min</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell">Credit-based</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">Real Google data</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">✅ Direct API</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌ Estimates</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌ Estimates</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌ Scraped</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">MCP native</td>
+              <td class="py-3 px-4 text-center text-green-400">✅</td>
+              <td class="py-3 px-4 text-center text-green-400">✅</td>
+              <td class="py-3 px-4 text-center text-green-400">✅</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell text-green-400">✅</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">Hosted (zero setup)</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">✅</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌ Bundled</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌ Self-host</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell text-green-400">✅</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">Tools included</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">35</td>
+              <td class="py-3 px-4 text-center">Varies</td>
+              <td class="py-3 px-4 text-center">9 modules</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell">15</td>
+            </tr>
+            <tr class="border-b border-white/5">
+              <td class="py-3 pr-4 font-medium">IndexNow support</td>
+              <td class="py-3 px-4 text-center text-green-400">✅</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌</td>
+            </tr>
+            <tr>
+              <td class="py-3 pr-4 font-medium">One-command full audit</td>
+              <td class="py-3 px-4 text-center text-green-400 font-bold">✅</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌</td>
+              <td class="py-3 px-4 text-center text-slate-500">❌</td>
+              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section id="pricing" class="py-24 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
+        <p class="text-slate-400 text-lg">Start free. Scale as you grow. No surprises.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <!-- Free -->
+        <div class="pricing-card p-8 rounded-2xl bg-surface-800 border border-white/5">
+          <h3 class="text-lg font-semibold text-slate-300 mb-2">Free</h3>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="text-4xl font-extrabold">$0</span>
+            <span class="text-slate-400">/mo</span>
+          </div>
+          <p class="text-slate-500 text-sm mb-8">Perfect for trying it out</p>
+          <ul class="space-y-3 mb-8 text-sm text-slate-300">
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 50 tool calls / month</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 1 connected site</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 1 API key</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Community support</li>
+          </ul>
+          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-surface-700 hover:bg-surface-600 text-white border border-white/10 transition">
+            Get Started Free
+          </button>
+        </div>
+
+        <!-- Pro -->
+        <div class="pricing-card featured p-8 rounded-2xl bg-surface-800 relative">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-brand-500 text-xs font-bold text-white">
+            MOST POPULAR
+          </div>
+          <h3 class="text-lg font-semibold text-white mb-2">Pro</h3>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="text-4xl font-extrabold">$29</span>
+            <span class="text-slate-400">/mo</span>
+          </div>
+          <p class="text-slate-500 text-sm mb-8">For freelancers & developers</p>
+          <ul class="space-y-3 mb-8 text-sm text-slate-300">
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> <strong class="text-white">2,000</strong> tool calls / month</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 5 connected sites</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 5 API keys</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 30-day audit history</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Email reports</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Priority support</li>
+          </ul>
+          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white shadow-lg shadow-brand-500/25 transition">
+            Start Pro →
+          </button>
+        </div>
+
+        <!-- Agency -->
+        <div class="pricing-card p-8 rounded-2xl bg-surface-800 border border-white/5">
+          <h3 class="text-lg font-semibold text-slate-300 mb-2">Agency</h3>
+          <div class="flex items-baseline gap-1 mb-1">
+            <span class="text-4xl font-extrabold">$79</span>
+            <span class="text-slate-400">/mo</span>
+          </div>
+          <p class="text-slate-500 text-sm mb-8">For agencies & teams</p>
+          <ul class="space-y-3 mb-8 text-sm text-slate-300">
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> <strong class="text-white">10,000</strong> tool calls / month</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Unlimited sites</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 20 API keys</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 90-day audit history</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Team seats</li>
+            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Dedicated support</li>
+          </ul>
+          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-surface-700 hover:bg-surface-600 text-white border border-white/10 transition">
+            Start Agency →
+          </button>
+        </div>
+      </div>
+
+      <p class="text-center text-slate-500 text-sm mt-8">
+        Need more? <a href="mailto:hello@seomcp.dev" class="text-brand-400 hover:underline">Contact us</a> for Enterprise pricing (unlimited everything, SLA, custom tools).
+      </p>
+    </div>
+  </section>
+
+  <!-- Compatible With -->
+  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
+    <div class="max-w-6xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Works with your favorite AI tools</h2>
+        <p class="text-slate-400 text-lg">Any MCP-compatible client. One config line.</p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
+          <div class="text-3xl mb-3">🤖</div>
+          <h3 class="font-semibold mb-1">Claude Desktop</h3>
+          <p class="text-xs text-slate-400">Anthropic's AI assistant</p>
+        </div>
+        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
+          <div class="text-3xl mb-3">⌨️</div>
+          <h3 class="font-semibold mb-1">Cursor</h3>
+          <p class="text-xs text-slate-400">AI-powered code editor</p>
+        </div>
+        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
+          <div class="text-3xl mb-3">🏄</div>
+          <h3 class="font-semibold mb-1">Windsurf</h3>
+          <p class="text-xs text-slate-400">AI development platform</p>
+        </div>
+        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
+          <div class="text-3xl mb-3">🔧</div>
+          <h3 class="font-semibold mb-1">Any MCP Client</h3>
+          <p class="text-xs text-slate-400">Standard protocol</p>
+        </div>
+      </div>
+
+      <!-- Config examples -->
+      <div class="mt-12 grid md:grid-cols-2 gap-6">
+        <div>
+          <h4 class="text-sm font-medium text-slate-400 mb-3">Claude Desktop / Cursor config</h4>
+          <div class="code-block rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
+              <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
+              <button onclick="copyCode('config-claude')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+            </div>
+            <pre class="p-4 text-xs font-mono overflow-x-auto"><code id="config-claude" class="text-slate-300">{
+  "mcpServers": {
+    "seo": {
+      "url": "https://seomcp.dev/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}</code></pre>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-sm font-medium text-slate-400 mb-3">OpenAI API / programmatic</h4>
+          <div class="code-block rounded-xl overflow-hidden">
+            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
+              <span class="text-xs text-slate-500 font-mono">curl</span>
+              <button onclick="copyCode('config-curl')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+            </div>
+            <pre class="p-4 text-xs font-mono overflow-x-auto"><code id="config-curl" class="text-slate-300">curl -X POST https://seomcp.dev/mcp \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/list",
+    "id": 1
+  }'</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" class="py-24 px-4 sm:px-6">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Frequently asked questions</h2>
+      </div>
+
+      <div class="space-y-4">
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            What is MCP?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            MCP (Model Context Protocol) is an open standard by Anthropic that lets AI tools connect to external services. Think of it like USB-C for AI — one protocol, any tool. Claude, Cursor, Windsurf, and OpenAI all support MCP. When you add seomcp.dev as an MCP server, your AI instantly gains access to all 35 SEO tools.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            Do I need a Google account?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            <strong class="text-white">Not for basic tools.</strong> Site crawling, schema validation, robots.txt analysis, and IndexNow all work without Google. To use Search Console and Analytics tools, you'll connect your Google account through a simple OAuth flow — we never store your password, only a secure API token.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            What AI tools does this work with?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            Any MCP-compatible client: <strong class="text-white">Claude Desktop, Cursor, Windsurf, VS Code (with MCP extension), OpenAI API, and any custom MCP client.</strong> We use the standard Streamable HTTP transport, which is the official MCP remote protocol. If your tool supports MCP remote servers, it works with us.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            How is this different from Ahrefs or Semrush?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            <strong class="text-white">We use your actual Google data.</strong> Ahrefs and Semrush sell estimated metrics based on their crawlers. We connect to Google Search Console and Google Analytics directly — so you get the exact same numbers you see in Google's own dashboards. Plus, we're $29/mo vs $129+/mo. We focus on what Google gives you for free; they focus on proprietary data like backlinks and keyword databases.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            What counts as a "tool call"?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            Each invocation of an MCP tool counts as one call. For example, <code class="bg-surface-700 px-1 rounded font-mono text-xs">generate_report</code> = 1 call. <code class="bg-surface-700 px-1 rounded font-mono text-xs">gsc_performance</code> = 1 call. Session initialization and tool listing are free. The free tier gives you 50 calls/month — enough for a couple of full audits.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            Is my data secure?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            Yes. API keys are SHA-256 hashed (we can't read them). Google tokens are encrypted at rest. Each user gets an isolated binary process. All communication is over HTTPS. We never store your SEO data — it flows through our server and directly to your AI tool. We're a proxy, not a database.
+          </div>
+        </details>
+
+        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
+          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+            Can I cancel anytime?
+            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
+          </summary>
+          <div class="px-5 pb-5 text-slate-400 text-sm">
+            Of course. No contracts, no commitments. Cancel in your dashboard and you'll keep access until the end of your billing period. You can also downgrade to the free tier anytime.
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl font-bold mb-6">
+        Ready to give your AI agent<br><span class="gradient-text">SEO superpowers</span>?
+      </h2>
+      <p class="text-slate-300 text-lg mb-8">
+        Free tier. No credit card. 35 tools in under a minute.
+      </p>
+      <button onclick="openSignup()" class="px-10 py-4 text-lg font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition animate-pulse-glow">
+        Get Free API Key →
+      </button>
+      <p class="text-slate-500 text-sm mt-4">Join developers already using seomcp.dev</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-white/5 py-12 px-4 sm:px-6">
+    <div class="max-w-6xl mx-auto">
+      <div class="grid sm:grid-cols-4 gap-8 mb-12">
+        <div>
+          <div class="flex items-center gap-2 text-lg font-bold mb-4">
+            <span class="text-2xl">🔍</span>
+            <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
+          </div>
+          <p class="text-sm text-slate-500">35 SEO tools for any AI agent.<br>Built on Google's free APIs.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-sm text-slate-300 mb-4">Product</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#tools" class="hover:text-white transition">Tools</a></li>
+            <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
+            <li><a href="/docs" class="hover:text-white transition">Documentation</a></li>
+            <li><a href="#" class="hover:text-white transition">Changelog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-sm text-slate-300 mb-4">Resources</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
+            <li><a href="#" class="hover:text-white transition">Blog</a></li>
+            <li><a href="#" class="hover:text-white transition">Status</a></li>
+            <li><a href="https://github.com" class="hover:text-white transition">GitHub</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-sm text-slate-300 mb-4">Legal</h4>
+          <ul class="space-y-2 text-sm text-slate-500">
+            <li><a href="#" class="hover:text-white transition">Terms of Service</a></li>
+            <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+            <li><a href="mailto:hello@seomcp.dev" class="hover:text-white transition">Contact</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
+        <span>© 2026 seomcp.dev — Built by <a href="https://quantacodes.ai" class="text-slate-400 hover:text-white transition">QuantaCodes</a></span>
+        <span>Powered by Rust 🦀</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Signup Modal -->
+  <div id="signup-modal" class="modal-overlay">
+    <div class="w-full max-w-md mx-4 p-8 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
+      <!-- Step 1: Signup Form -->
+      <div id="signup-step-1">
+        <div class="text-center mb-6">
+          <span class="text-3xl">🔍</span>
+          <h3 class="text-xl font-bold mt-2">Get your API key</h3>
+          <p class="text-sm text-slate-400 mt-1">Free tier — 50 calls/month, no credit card</p>
+        </div>
+        <form id="signup-form" onsubmit="handleSignup(event)">
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
+              <input type="email" id="signup-email" required placeholder="you@example.com"
+                class="w-full px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
+              <input type="password" id="signup-password" required minlength="8" placeholder="Min 8 characters"
+                class="w-full px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+            </div>
+            <div id="signup-error" class="hidden text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3"></div>
+            <button type="submit" id="signup-btn" class="w-full py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white transition">
+              Create Account & Get Key
+            </button>
+          </div>
+        </form>
+        <button onclick="closeSignup()" class="w-full mt-3 py-2 text-sm text-slate-500 hover:text-white transition">Cancel</button>
+      </div>
+
+      <!-- Step 2: Show API Key -->
+      <div id="signup-step-2" class="hidden">
+        <div class="text-center mb-6">
+          <span class="text-4xl check-icon">✓</span>
+          <h3 class="text-xl font-bold mt-2">You're in!</h3>
+          <p class="text-sm text-slate-400 mt-1">Here's your API key — save it somewhere safe</p>
+        </div>
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-slate-300 mb-2">Your API Key <span class="text-amber-400">(shown once)</span></label>
+          <div class="flex items-center gap-2">
+            <input type="text" id="api-key-display" readonly
+              class="flex-1 px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg font-mono text-sm text-green-400 select-all">
+            <button onclick="copyApiKey()" class="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 rounded-lg text-sm font-medium text-white transition shrink-0">
+              Copy
+            </button>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-slate-300 mb-2">Add to your MCP config</label>
+          <div class="code-block rounded-lg overflow-hidden">
+            <div class="flex items-center justify-between px-3 py-2 border-b border-white/5">
+              <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
+              <button onclick="copyCode('signup-config')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+            </div>
+            <pre class="p-3 text-xs font-mono overflow-x-auto"><code id="signup-config" class="text-slate-300"></code></pre>
+          </div>
+        </div>
+        <button onclick="closeSignup()" class="w-full mt-6 py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white transition">
+          Done — Start Building
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Copy Toast -->
+  <div id="copy-toast" class="copy-toast">✓ Copied to clipboard</div>
+
+  <script>
+    // ── Signup Modal ──
+    function openSignup() {
+      document.getElementById('signup-modal').classList.add('active');
+      document.getElementById('signup-step-1').classList.remove('hidden');
+      document.getElementById('signup-step-2').classList.add('hidden');
+      document.getElementById('signup-error').classList.add('hidden');
+      document.getElementById('signup-email').value = '';
+      document.getElementById('signup-password').value = '';
+      setTimeout(() => document.getElementById('signup-email').focus(), 100);
+    }
+
+    function closeSignup() {
+      document.getElementById('signup-modal').classList.remove('active');
+    }
+
+    // Close on overlay click
+    document.getElementById('signup-modal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeSignup();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSignup();
+    });
+
+    async function handleSignup(e) {
+      e.preventDefault();
+      const btn = document.getElementById('signup-btn');
+      const errEl = document.getElementById('signup-error');
+      const email = document.getElementById('signup-email').value.trim();
+      const password = document.getElementById('signup-password').value;
+
+      btn.textContent = 'Creating account...';
+      btn.disabled = true;
+      errEl.classList.add('hidden');
+
+      try {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Signup failed');
+        }
+
+        // Show API key
+        document.getElementById('api-key-display').value = data.apiKey;
+        document.getElementById('signup-config').textContent = JSON.stringify({
+          mcpServers: {
+            seo: {
+              url: 'https://seomcp.dev/mcp',
+              headers: { Authorization: `Bearer ${data.apiKey}` }
+            }
+          }
+        }, null, 2);
+
+        document.getElementById('signup-step-1').classList.add('hidden');
+        document.getElementById('signup-step-2').classList.remove('hidden');
+      } catch (err) {
+        errEl.textContent = err.message;
+        errEl.classList.remove('hidden');
+      } finally {
+        btn.textContent = 'Create Account & Get Key';
+        btn.disabled = false;
+      }
+    }
+
+    function copyApiKey() {
+      const key = document.getElementById('api-key-display').value;
+      navigator.clipboard.writeText(key).then(() => showToast());
+    }
+
+    // ── Copy Code ──
+    function copyCode(id) {
+      const el = document.getElementById(id);
+      const text = el.textContent;
+      navigator.clipboard.writeText(text).then(() => showToast());
+    }
+
+    function showToast() {
+      const toast = document.getElementById('copy-toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    // ── Smooth scroll for nav links ──
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', (e) => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // ── Nav background on scroll ──
+    const nav = document.querySelector('nav');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 50) {
+        nav.classList.add('shadow-lg');
+      } else {
+        nav.classList.remove('shadow-lg');
+      }
+    });
+  </script>
+</body>
+</html>

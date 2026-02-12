@@ -13,6 +13,7 @@ import { googleAuthRoutes } from "./routes/google-auth";
 import { landingRoutes } from "./routes/landing";
 import { dashboardRoutes } from "./routes/dashboard";
 import { billingRoutes } from "./routes/billing";
+import { docsRoutes } from "./routes/docs";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -32,6 +33,17 @@ app.use("*", cors({
 
 app.use("*", logger());
 
+// Security headers
+app.use("*", async (c, next) => {
+  await next();
+  c.header("X-Content-Type-Options", "nosniff");
+  c.header("X-Frame-Options", "DENY");
+  c.header("Referrer-Policy", "strict-origin-when-cross-origin");
+  if (process.env.NODE_ENV === "production") {
+    c.header("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+});
+
 // Routes
 app.route("/", healthRoutes);
 app.route("/", authRoutes);
@@ -41,6 +53,7 @@ app.route("/", mcpRoutes);
 app.route("/", googleAuthRoutes);
 app.route("/", dashboardRoutes);
 app.route("/", billingRoutes);
+app.route("/", docsRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

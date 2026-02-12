@@ -1,0 +1,14 @@
+node_modules
+data
+.env
+*.db
+*.db-wal
+*.db-shm
+.git
+tests
+BUILD-LOG.md
+PLAN.md
+SPECS*.md
+RESEARCH.md
+*.md
+!README.md

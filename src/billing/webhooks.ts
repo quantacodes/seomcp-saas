@@ -31,38 +31,37 @@ export function verifyWebhookSignature(
 }
 
 /**
- * Check if a webhook event has already been processed (idempotency).
- * Uses event_name + ls_id combo — same subscription can have different event types.
+ * Try to store a webhook event atomically (idempotency gate).
+ * Returns true if stored (new event), false if already exists (duplicate).
+ * Uses UNIQUE(event_name, ls_id) constraint — no SELECT-then-INSERT race.
  */
-function isEventProcessed(eventName: string, lsId: string): boolean {
-  const existing = db
-    .select({ id: schema.webhookEvents.id })
-    .from(schema.webhookEvents)
-    .where(
-      and(
-        eq(schema.webhookEvents.eventName, eventName),
-        eq(schema.webhookEvents.lsId, lsId),
-      ),
-    )
-    .limit(1)
-    .all();
-  return existing.length > 0;
+function tryStoreWebhookEvent(eventName: string, lsId: string, payload: string): boolean {
+  const now = new Date();
+  try {
+    db.insert(schema.webhookEvents)
+      .values({
+        eventName,
+        lsId,
+        payload,
+        processedAt: now,
+        createdAt: now,
+      })
+      .run();
+    return true; // New event — proceed with processing
+  } catch (err: any) {
+    // UNIQUE constraint violation = duplicate event
+    if (err.message?.includes("UNIQUE constraint failed") || err.code === "SQLITE_CONSTRAINT_UNIQUE") {
+      return false;
+    }
+    throw err; // Re-throw unexpected errors
+  }
 }
 
 /**
- * Store a webhook event for audit trail.
+ * Store a webhook event for audit trail (unconditional — for events without idempotency).
  */
 function storeWebhookEvent(eventName: string, lsId: string, payload: string): void {
-  const now = new Date();
-  db.insert(schema.webhookEvents)
-    .values({
-      eventName,
-      lsId,
-      payload,
-      processedAt: now,
-      createdAt: now,
-    })
-    .run();
+  tryStoreWebhookEvent(eventName, lsId, payload);
 }
 
 interface WebhookPayload {
@@ -110,10 +109,12 @@ export function processWebhookEvent(rawPayload: string): {
   const lsId = payload.data.id;
   const attrs = payload.data.attributes;
 
-  // Idempotency check
-  if (isEventProcessed(eventName, lsId)) {
+  // Idempotency: try to store event atomically — if duplicate, skip processing
+  if (!tryStoreWebhookEvent(eventName, lsId, rawPayload)) {
     return { success: true, message: "Event already processed (idempotent)" };
   }
+
+  // Event is now stored — process it
 
   // Get user_id from custom data
   const userId = payload.meta.custom_data?.user_id;
@@ -261,7 +262,11 @@ function handleSubscriptionUpdated(
     return { success: false, message: `Subscription not found: ${lsId}` };
   }
 
-  const plan = variantToPlan(attrs.variant_id) || sub.plan;
+  const mappedPlan = variantToPlan(attrs.variant_id);
+  if (!mappedPlan) {
+    console.warn(`⚠️ Unknown variant ${attrs.variant_id} in subscription_updated — keeping existing plan: ${sub.plan}`);
+  }
+  const plan = mappedPlan || sub.plan;
   const now = new Date();
   const renewsAt = attrs.renews_at ? Math.floor(new Date(attrs.renews_at).getTime() / 1000) : null;
 
@@ -394,6 +399,12 @@ function handleSubscriptionResumed(
       updatedAt: now,
     })
     .where(eq(schema.subscriptions.lsSubscriptionId, lsId))
+    .run();
+
+  // Restore user's plan (may have been downgraded to free after expiry)
+  db.update(schema.users)
+    .set({ plan: sub.plan, updatedAt: now })
+    .where(eq(schema.users.id, sub.userId))
     .run();
 
   storeWebhookEvent(eventName, lsId, rawPayload);

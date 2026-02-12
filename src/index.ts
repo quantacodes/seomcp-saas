@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { bodyLimit } from "hono/body-limit";
 import { config } from "./config";
 import { runMigrations } from "./db/migrate";
 import { mcpRoutes } from "./routes/mcp";
@@ -16,6 +17,8 @@ runMigrations();
 const app = new Hono();
 
 // Global middleware
+app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
+
 app.use("*", cors({
   origin: ["https://seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
   allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],

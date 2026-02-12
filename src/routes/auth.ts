@@ -2,15 +2,7 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
-
-// Simple ULID generator (no dep needed)
-function ulid(): string {
-  const t = Date.now().toString(36).padStart(10, "0");
-  const r = Array.from({ length: 16 }, () =>
-    Math.floor(Math.random() * 36).toString(36),
-  ).join("");
-  return (t + r).toUpperCase();
-}
+import { ulid } from "../utils/ulid";
 
 export const authRoutes = new Hono();
 

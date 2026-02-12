@@ -19,6 +19,10 @@ export class BinaryInstance {
   private idleTimer: ReturnType<typeof setTimeout> | null = null;
   private alive = false;
   private initPromise: Promise<void> | null = null;
+  private restartAttempts = 0;
+  private lastRestartAt = 0;
+  private static MAX_RESTART_ATTEMPTS = 3;
+  private static RESTART_COOLDOWN_MS = 30_000; // 30 seconds
 
   constructor(
     private configPath: string,
@@ -46,8 +50,25 @@ export class BinaryInstance {
 
   /**
    * Start the binary process and perform MCP initialization.
+   * Includes restart protection to prevent tight respawn loops.
    */
   private async start(): Promise<void> {
+    const now = Date.now();
+    
+    // Reset attempt counter if cooldown has passed
+    if (now - this.lastRestartAt > BinaryInstance.RESTART_COOLDOWN_MS) {
+      this.restartAttempts = 0;
+    }
+    
+    if (this.restartAttempts >= BinaryInstance.MAX_RESTART_ATTEMPTS) {
+      throw new Error(
+        `Binary failed to start ${BinaryInstance.MAX_RESTART_ATTEMPTS} times in ${BinaryInstance.RESTART_COOLDOWN_MS / 1000}s. Giving up.`
+      );
+    }
+    
+    this.restartAttempts++;
+    this.lastRestartAt = now;
+
     this.process = spawn({
       cmd: [config.seoMcpBinary],
       stdin: "pipe",
@@ -191,7 +212,7 @@ export class BinaryInstance {
         // Log stderr but don't crash
         const text = decoder.decode(value, { stream: true });
         if (text.trim()) {
-          // Could forward to structured logging
+          console.warn(`[binary:stderr] ${text.trim()}`);
         }
       }
     } catch {

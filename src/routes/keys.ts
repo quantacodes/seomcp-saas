@@ -4,14 +4,7 @@ import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
 import { authMiddleware } from "../auth/middleware";
 import { config } from "../config";
-
-function ulid(): string {
-  const t = Date.now().toString(36).padStart(10, "0");
-  const r = Array.from({ length: 16 }, () =>
-    Math.floor(Math.random() * 36).toString(36),
-  ).join("");
-  return (t + r).toUpperCase();
-}
+import { ulid } from "../utils/ulid";
 
 export const keysRoutes = new Hono();
 

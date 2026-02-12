@@ -38,12 +38,12 @@ export const usageLogs = sqliteTable("usage_logs", {
 });
 
 export const rateLimits = sqliteTable("rate_limits", {
-  apiKeyId: text("api_key_id")
-    .primaryKey()
-    .references(() => apiKeys.id),
   userId: text("user_id")
-    .notNull()
+    .primaryKey()
     .references(() => users.id),
+  apiKeyId: text("api_key_id")
+    .notNull()
+    .references(() => apiKeys.id), // Last key that triggered an increment
   windowStart: integer("window_start").notNull(), // Unix timestamp (start of month)
   callCount: integer("call_count").notNull().default(0),
 });

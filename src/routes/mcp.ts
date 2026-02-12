@@ -96,17 +96,27 @@ mcpRoutes.post("/mcp", async (c) => {
     );
   }
 
+  // Verify session belongs to this user (prevents session hijacking)
+  const session = sessionManager.get(sessionId);
+  if (!session || session.auth.userId !== auth.userId) {
+    return c.json(
+      {
+        jsonrpc: "2.0",
+        error: { code: -32600, message: "Session not found or expired. Send a new initialize request." },
+        id: null,
+      },
+      404,
+    );
+  }
+
   // Check if all messages are notifications/responses (no id = notification)
   const hasRequests = messages.some((m: any) => m.id !== undefined && m.method);
   const isOnlyNotifications = !hasRequests;
 
   if (isOnlyNotifications) {
     // Handle notifications — just forward to binary, return 202
-    const session = sessionManager.get(sessionId);
-    if (session) {
-      for (const msg of messages) {
-        session.binary.notify(msg as JsonRpcRequest);
-      }
+    for (const msg of messages) {
+      session.binary.notify(msg as JsonRpcRequest);
     }
     return new Response(null, { status: 202 });
   }
@@ -152,17 +162,21 @@ mcpRoutes.get("/mcp", (c) => {
 
 /**
  * DELETE /mcp — Terminate session.
+ * Verifies session belongs to the authenticated user.
  */
 mcpRoutes.delete("/mcp", (c) => {
+  const auth = c.get("auth");
   const sessionId = c.req.header("Mcp-Session-Id");
   if (!sessionId) {
     return c.json({ error: "Missing Mcp-Session-Id header" }, 400);
   }
 
-  const destroyed = sessionManager.destroy(sessionId);
-  if (!destroyed) {
+  // Verify ownership before destroying
+  const session = sessionManager.get(sessionId);
+  if (!session || session.auth.userId !== auth.userId) {
     return new Response(null, { status: 404 });
   }
 
+  sessionManager.destroy(sessionId);
   return new Response(null, { status: 200 });
 });

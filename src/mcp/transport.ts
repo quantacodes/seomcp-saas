@@ -1,9 +1,9 @@
 import type { JsonRpcRequest, JsonRpcResponse, AuthContext } from "../types";
 import { binaryPool, type BinaryInstance } from "./binary";
 import { sessionManager } from "./session";
-import { checkRateLimit, incrementRateLimit } from "../ratelimit/middleware";
+import { checkAndIncrementRateLimit } from "../ratelimit/middleware";
 import { logUsage } from "../usage/tracker";
-import { config } from "../config";
+import { config, VERSION } from "../config";
 import { mkdirSync, writeFileSync, existsSync } from "fs";
 import { join } from "path";
 
@@ -23,6 +23,10 @@ const TOOL_CALL_METHOD = "tools/call";
  * For MVP: uses a shared config. In Phase 1.5, per-user Google OAuth.
  */
 function getUserConfigPath(userId: string): string {
+  // Validate userId format to prevent path traversal
+  if (!/^[A-Z0-9]{26,32}$/.test(userId)) {
+    throw new Error("Invalid user ID format");
+  }
   const userDir = join("/tmp", "seo-mcp-saas", userId);
   const configPath = join(userDir, "config.toml");
 
@@ -80,7 +84,7 @@ export async function handleInitialize(
       },
       serverInfo: {
         name: "seo-mcp-saas",
-        version: "0.1.0",
+        version: VERSION,
       },
     },
   };
@@ -98,7 +102,7 @@ export async function handleRequest(
   request: JsonRpcRequest,
 ): Promise<JsonRpcResponse> {
   const session = sessionManager.get(sessionId);
-  if (!session) {
+  if (!session || session.auth.userId !== auth.userId) {
     return {
       jsonrpc: "2.0",
       id: request.id ?? null,
@@ -109,9 +113,10 @@ export async function handleRequest(
     };
   }
 
-  // Rate limit check (only for tool calls)
-  if (!EXEMPT_METHODS.has(request.method)) {
-    const rateCheck = await checkRateLimit(auth);
+  // Atomic rate limit check + increment (only for tool calls)
+  const isToolCall = request.method === TOOL_CALL_METHOD;
+  if (isToolCall) {
+    const rateCheck = checkAndIncrementRateLimit(auth);
     if (!rateCheck.allowed) {
       const toolName = extractToolName(request);
       logUsage(auth, toolName || request.method, "rate_limited", 0);
@@ -143,10 +148,9 @@ export async function handleRequest(
 
     const durationMs = Date.now() - startTime;
 
-    // Track usage for tool calls
-    if (request.method === TOOL_CALL_METHOD) {
+    // Track usage for tool calls (rate limit already incremented atomically above)
+    if (isToolCall) {
       const toolName = extractToolName(request);
-      incrementRateLimit(auth.apiKeyId);
       logUsage(auth, toolName || "unknown", response.error ? "error" : "success", durationMs);
     }
 
@@ -155,7 +159,7 @@ export async function handleRequest(
     const durationMs = Date.now() - startTime;
     const toolName = extractToolName(request);
 
-    if (request.method === TOOL_CALL_METHOD) {
+    if (isToolCall) {
       logUsage(auth, toolName || "unknown", "error", durationMs);
     }
 

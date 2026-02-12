@@ -1,10 +1,9 @@
-import { eq } from "drizzle-orm";
-import { db, schema } from "../db/index";
+import { sqlite } from "../db/index";
 import { config } from "../config";
 import type { AuthContext } from "../types";
 
 /**
- * Get the start of the current month as a Unix timestamp.
+ * Get the start of the current month as a Unix timestamp (seconds).
  */
 function getCurrentWindowStart(): number {
   const now = new Date();
@@ -12,15 +11,16 @@ function getCurrentWindowStart(): number {
 }
 
 /**
- * Check rate limit for a given auth context.
- * Returns { allowed, used, limit } or throws if DB error.
+ * Atomic check-and-increment rate limit for a user.
+ * Uses a SQLite transaction to prevent TOCTOU race conditions.
+ * Rate limits are per-USER (not per-key) to prevent multi-key bypass.
  */
-export async function checkRateLimit(auth: AuthContext): Promise<{
+export function checkAndIncrementRateLimit(auth: AuthContext): {
   allowed: boolean;
   used: number;
   limit: number;
   remaining: number;
-}> {
+} {
   const planLimits = config.plans[auth.plan];
   if (!planLimits) {
     return { allowed: false, used: 0, limit: 0, remaining: 0 };
@@ -33,72 +33,86 @@ export async function checkRateLimit(auth: AuthContext): Promise<{
 
   const windowStart = getCurrentWindowStart();
 
-  // Get or create rate limit record
-  let record = await db
-    .select()
-    .from(schema.rateLimits)
-    .where(eq(schema.rateLimits.apiKeyId, auth.apiKeyId))
-    .limit(1)
-    .then((rows) => rows[0]);
+  // Atomic transaction: read + conditional increment
+  return sqlite.transaction(() => {
+    // Check current state
+    const row = sqlite
+      .query<{ call_count: number; window_start: number }, [string]>(
+        "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+      )
+      .get(auth.userId);
 
-  if (!record || record.windowStart < windowStart) {
-    // New window — reset counter
-    if (record) {
-      db.update(schema.rateLimits)
-        .set({ windowStart, callCount: 0 })
-        .where(eq(schema.rateLimits.apiKeyId, auth.apiKeyId))
-        .run();
-    } else {
-      db.insert(schema.rateLimits)
-        .values({
-          apiKeyId: auth.apiKeyId,
-          userId: auth.userId,
-          windowStart,
-          callCount: 0,
-        })
-        .run();
+    if (!row || row.window_start < windowStart) {
+      // New window or first time — reset/create with count=1 (this call)
+      if (row) {
+        sqlite.run(
+          "UPDATE rate_limits SET window_start = ?, call_count = 1 WHERE user_id = ?",
+          [windowStart, auth.userId],
+        );
+      } else {
+        sqlite.run(
+          "INSERT INTO rate_limits (user_id, api_key_id, window_start, call_count) VALUES (?, ?, ?, 1)",
+          [auth.userId, auth.apiKeyId, windowStart],
+        );
+      }
+      return { allowed: true, used: 1, limit, remaining: limit - 1 };
     }
-    record = { apiKeyId: auth.apiKeyId, userId: auth.userId, windowStart, callCount: 0 };
-  }
 
-  const used = record.callCount;
-  const allowed = used < limit;
+    // Same window — check limit before incrementing
+    if (row.call_count >= limit) {
+      return {
+        allowed: false,
+        used: row.call_count,
+        limit,
+        remaining: 0,
+      };
+    }
 
-  return {
-    allowed,
-    used,
-    limit,
-    remaining: Math.max(0, limit - used),
-  };
+    // Under limit — increment
+    const newCount = row.call_count + 1;
+    sqlite.run(
+      "UPDATE rate_limits SET call_count = ? WHERE user_id = ?",
+      [newCount, auth.userId],
+    );
+
+    return {
+      allowed: true,
+      used: newCount,
+      limit,
+      remaining: Math.max(0, limit - newCount),
+    };
+  })();
 }
 
 /**
- * Increment the rate limit counter for a key.
+ * Get current rate limit status without incrementing (for usage endpoint).
  */
-export function incrementRateLimit(apiKeyId: string): void {
+export function getRateLimitStatus(userId: string, plan: string): {
+  used: number;
+  limit: number;
+  remaining: number;
+} {
+  const planLimits = config.plans[plan];
+  if (!planLimits) return { used: 0, limit: 0, remaining: 0 };
+
+  const limit = planLimits.callsPerMonth;
+  if (limit === Infinity) return { used: 0, limit: Infinity, remaining: Infinity };
+
   const windowStart = getCurrentWindowStart();
 
-  // Upsert: increment if same window, reset if new window
-  const existing = db
-    .select()
-    .from(schema.rateLimits)
-    .where(eq(schema.rateLimits.apiKeyId, apiKeyId))
-    .limit(1)
-    .all()[0];
+  const row = sqlite
+    .query<{ call_count: number; window_start: number }, [string]>(
+      "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+    )
+    .get(userId);
 
-  if (existing && existing.windowStart >= windowStart) {
-    db.update(schema.rateLimits)
-      .set({ callCount: existing.callCount + 1 })
-      .where(eq(schema.rateLimits.apiKeyId, apiKeyId))
-      .run();
-  } else if (existing) {
-    db.update(schema.rateLimits)
-      .set({ windowStart, callCount: 1 })
-      .where(eq(schema.rateLimits.apiKeyId, apiKeyId))
-      .run();
-  } else {
-    db.insert(schema.rateLimits)
-      .values({ apiKeyId, userId: "", windowStart, callCount: 1 })
-      .run();
+  if (!row || row.window_start < windowStart) {
+    return { used: 0, limit, remaining: limit };
   }
+
+  return {
+    used: row.call_count,
+    limit,
+    remaining: Math.max(0, limit - row.call_count),
+  };
 }

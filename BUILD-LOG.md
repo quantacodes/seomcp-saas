@@ -42,9 +42,16 @@
 - Auth failures return proper 401 responses
 - Missing session ID returns 400 with helpful message
 
-**Review:** ⏳ Barnacle spawned, awaiting verdict
+**Review:** ✅ Barnacle reviewed — REQUEST_CHANGES (7 MUST, 8 SHOULD, 4 nice-to-have)
+- All 7 MUST items fixed
+- 5 SHOULD items fixed (#8-12)
+- 3 remaining SHOULD items deferred (timing-safe compare, plan type safety, test coverage gaps)
+- Verified: session hijack protection works, atomic rate limits work, restart loop protection works
 
-**Commit:** 5763c4e — "Phase 1: Core API Gateway"
+**Commits:**
+- 5763c4e — "Phase 1: Core API Gateway"
+- 93af3a8 — "Add BUILD-LOG.md and drizzle.config.ts"
+- 2567867 — "Fix all 7 Barnacle MUST items + 5 SHOULD items"
 
 ### What Works
 - Full MCP Streamable HTTP flow: init → get session → call tools → track usage

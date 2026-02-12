@@ -1,26 +1,26 @@
-import { describe, it, expect, beforeAll } from "bun:test";
-import { unlinkSync, existsSync, mkdirSync } from "fs";
+import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { unlinkSync, existsSync, mkdirSync, readFileSync, existsSync as exists2 } from "fs";
 
-// Set test env BEFORE imports
+// Set test env BEFORE module loads
 const testDbPath = "./data/test-google-auth.db";
 process.env.DATABASE_PATH = testDbPath;
 process.env.TOKEN_ENCRYPTION_KEY = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 process.env.JWT_SECRET = "test-jwt-secret-for-google-auth";
 
-// Clean test DB
 mkdirSync("./data", { recursive: true });
 if (existsSync(testDbPath)) unlinkSync(testDbPath);
+if (existsSync(testDbPath + "-wal")) try { unlinkSync(testDbPath + "-wal"); } catch {}
+if (existsSync(testDbPath + "-shm")) try { unlinkSync(testDbPath + "-shm"); } catch {}
 
-// Import AFTER env setup
-import { encryptToken, decryptToken } from "../src/crypto/tokens";
-import { generateState, validateState } from "../src/auth/google";
-import {
+// Dynamic imports to ensure env is set BEFORE module evaluation
+const { encryptToken, decryptToken } = await import("../src/crypto/tokens");
+const { generateState, validateState } = await import("../src/auth/google");
+const {
   writeUserConfig,
   getUserConfigPath,
   hasUserConfig,
   deleteUserConfig,
-} from "../src/config/user-config";
-import { readFileSync, existsSync as exists2 } from "fs";
+} = await import("../src/config/user-config");
 
 describe("Token Encryption", () => {
   it("encrypts and decrypts correctly", () => {
@@ -155,16 +155,16 @@ describe("Per-User Config", () => {
   });
 });
 
+// Dynamic imports for API route tests
+const { Hono: HonoClass } = await import("hono");
+const { googleAuthRoutes } = await import("../src/routes/google-auth");
+const { runMigrations } = await import("../src/db/migrate");
+
+runMigrations();
+
 describe("Google Auth API Routes", () => {
-  // These test the Hono routes directly
-  const { Hono } = require("hono");
-  const { googleAuthRoutes } = require("../src/routes/google-auth");
-  const { runMigrations } = require("../src/db/migrate");
 
-  // Run migrations for this test DB
-  runMigrations();
-
-  const app = new Hono();
+  const app = new HonoClass();
   app.route("/", googleAuthRoutes);
 
   it("GET /api/auth/google returns 503 when Google OAuth not configured", async () => {
@@ -212,4 +212,12 @@ describe("Google Auth API Routes", () => {
     });
     expect(res.status).toBe(401);
   });
+});
+
+afterAll(() => {
+  try {
+    if (existsSync(testDbPath)) unlinkSync(testDbPath);
+    if (existsSync(testDbPath + "-wal")) unlinkSync(testDbPath + "-wal");
+    if (existsSync(testDbPath + "-shm")) unlinkSync(testDbPath + "-shm");
+  } catch {}
 });

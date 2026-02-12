@@ -641,7 +641,11 @@
     async function confirmRevoke() {
       if (!revokeKeyId) return;
       try {
-        const res = await fetch(`/dashboard/api/keys/${revokeKeyId}`, { method: 'DELETE' });
+        const res = await fetch(`/dashboard/api/keys/${revokeKeyId}/revoke`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({}),
+        });
         if (!res.ok) {
           const data = await res.json();
           alert(data.error || 'Failed to revoke key');

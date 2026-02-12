@@ -1,27 +1,27 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { unlinkSync, existsSync, mkdirSync } from "fs";
 
-// Set test env BEFORE imports
+// Set test env BEFORE any DB module loads
 const testDbPath = "./data/test-dashboard.db";
 process.env.DATABASE_PATH = testDbPath;
 process.env.JWT_SECRET = "test-jwt-dashboard";
 process.env.TOKEN_ENCRYPTION_KEY = "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef";
 
-// Clean test DB
 mkdirSync("./data", { recursive: true });
 if (existsSync(testDbPath)) unlinkSync(testDbPath);
 if (existsSync(testDbPath + "-wal")) try { unlinkSync(testDbPath + "-wal"); } catch {}
 if (existsSync(testDbPath + "-shm")) try { unlinkSync(testDbPath + "-shm"); } catch {}
 
-// Import AFTER env setup
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { runMigrations } from "../src/db/migrate";
-import { authRoutes } from "../src/routes/auth";
-import { dashboardRoutes } from "../src/routes/dashboard";
-import { createSession, validateSession, deleteSession, cleanExpiredSessions } from "../src/auth/session";
-import { db, schema } from "../src/db/index";
-import { ulid } from "../src/utils/ulid";
+// Dynamic imports to ensure env is set BEFORE module evaluation
+const { Hono } = await import("hono");
+const { cors } = await import("hono/cors");
+const { runMigrations } = await import("../src/db/migrate");
+const { authRoutes } = await import("../src/routes/auth");
+const { dashboardRoutes } = await import("../src/routes/dashboard");
+const { createSession, validateSession, deleteSession, cleanExpiredSessions } = await import("../src/auth/session");
+const { eq } = await import("drizzle-orm");
+const { db, schema } = await import("../src/db/index");
+const { ulid } = await import("../src/utils/ulid");
 
 runMigrations();
 
@@ -48,11 +48,21 @@ async function jsonReq(path: string, body: unknown, headers: Record<string, stri
 
 // Create a test user and get session cookie
 async function createTestUser(email: string, password: string) {
-  await jsonReq("/api/auth/signup", { email, password });
+  const signupRes = await jsonReq("/api/auth/signup", { email, password });
+  if (signupRes.status !== 201) {
+    throw new Error(`Signup failed for ${email}: ${signupRes.status} ${await signupRes.text()}`);
+  }
   const loginRes = await jsonReq("/dashboard/login", { email, password });
+  if (loginRes.status !== 200) {
+    throw new Error(`Login failed for ${email}: ${loginRes.status} ${await loginRes.text()}`);
+  }
   const setCookie = loginRes.headers.get("Set-Cookie");
   const sessionMatch = setCookie?.match(/session=([^;]+)/);
-  return sessionMatch?.[1] || "";
+  const sid = sessionMatch?.[1];
+  if (!sid) {
+    throw new Error(`No session cookie for ${email}. Set-Cookie: ${setCookie}`);
+  }
+  return sid;
 }
 
 function withCookie(sessionId: string, extra: Record<string, string> = {}): Record<string, string> {
@@ -64,16 +74,21 @@ describe("Session Management", () => {
   let testUserId: string;
 
   beforeAll(() => {
-    // Create a user directly in DB
+    // Create a user directly in DB — use INSERT OR IGNORE to handle re-runs
     testUserId = ulid();
-    db.insert(schema.users).values({
-      id: testUserId,
-      email: "session-test@example.com",
-      passwordHash: "fake-hash",
-      plan: "free",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    }).run();
+    const existing = db.select().from(schema.users).where(eq(schema.users.email, "session-test@example.com")).all();
+    if (existing.length > 0) {
+      testUserId = existing[0].id;
+    } else {
+      db.insert(schema.users).values({
+        id: testUserId,
+        email: "session-test@example.com",
+        passwordHash: "fake-hash",
+        plan: "free",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }).run();
+    }
   });
 
   it("creates a session and validates it", () => {
@@ -390,10 +405,5 @@ describe("Dashboard Logout", () => {
   });
 });
 
-afterAll(() => {
-  try {
-    if (existsSync(testDbPath)) unlinkSync(testDbPath);
-    if (existsSync(testDbPath + "-wal")) unlinkSync(testDbPath + "-wal");
-    if (existsSync(testDbPath + "-shm")) unlinkSync(testDbPath + "-shm");
-  } catch {}
-});
+// Don't delete test DB in afterAll — other test files may share the module cache
+// Cleanup happens at test startup via file deletion

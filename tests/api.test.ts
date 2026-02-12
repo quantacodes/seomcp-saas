@@ -1,25 +1,24 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { unlinkSync, existsSync, mkdirSync } from "fs";
 
-// Set test DB BEFORE any imports that touch the DB
+// Set test DB BEFORE any module loads
 const testDbPath = "./data/test-api.db";
 process.env.DATABASE_PATH = testDbPath;
 
-// Ensure data dir exists and clean previous test DB
 mkdirSync("./data", { recursive: true });
 if (existsSync(testDbPath)) unlinkSync(testDbPath);
 if (existsSync(testDbPath + "-wal")) try { unlinkSync(testDbPath + "-wal"); } catch {}
 if (existsSync(testDbPath + "-shm")) try { unlinkSync(testDbPath + "-shm"); } catch {}
 
-// Now import everything (DB will use test path)
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { runMigrations } from "../src/db/migrate";
-import { healthRoutes } from "../src/routes/health";
-import { authRoutes } from "../src/routes/auth";
-import { keysRoutes } from "../src/routes/keys";
-import { usageRoutes } from "../src/routes/usage";
-import { mcpRoutes } from "../src/routes/mcp";
+// Dynamic imports to ensure env is set BEFORE module evaluation
+const { Hono } = await import("hono");
+const { cors } = await import("hono/cors");
+const { runMigrations } = await import("../src/db/migrate");
+const { healthRoutes } = await import("../src/routes/health");
+const { authRoutes } = await import("../src/routes/auth");
+const { keysRoutes } = await import("../src/routes/keys");
+const { usageRoutes } = await import("../src/routes/usage");
+const { mcpRoutes } = await import("../src/routes/mcp");
 
 runMigrations();
 

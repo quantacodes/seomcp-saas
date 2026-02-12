@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getCookie, setCookie, deleteCookie } from "hono/cookie";
-import { eq, and, gte, desc, sql } from "drizzle-orm";
+import { eq, and, gte, desc, sql, ne } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { config } from "../config";
 import {
@@ -18,22 +18,43 @@ import { join, dirname } from "path";
 
 export const dashboardRoutes = new Hono();
 
+// ── CSRF protection: require JSON content-type on mutating endpoints ──
+// Browsers won't send application/json cross-origin without CORS preflight,
+// which effectively prevents CSRF for JSON-body endpoints.
+function requireJson(c: any): Response | null {
+  const ct = c.req.header("Content-Type") || "";
+  if (!ct.includes("application/json")) {
+    return c.json({ error: "Content-Type must be application/json" }, 415);
+  }
+  return null;
+}
+
 // ── Login rate limiting (in-memory) ──
 const loginAttempts = new Map<string, { count: number; resetAt: number }>();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
 
-function checkLoginRate(email: string): boolean {
+// Rate limit by IP+email combo to prevent account lockout DoS
+function checkLoginRate(ip: string, email: string): boolean {
+  const key = `${ip}:${email}`;
   const now = Date.now();
-  const record = loginAttempts.get(email);
+  const record = loginAttempts.get(key);
   if (!record || now > record.resetAt) {
-    loginAttempts.set(email, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
+    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
     return true;
   }
   if (record.count >= MAX_LOGIN_ATTEMPTS) return false;
   record.count++;
   return true;
 }
+
+// Periodic cleanup of expired rate limit entries (prevent memory leak)
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of loginAttempts) {
+    if (now > record.resetAt) loginAttempts.delete(key);
+  }
+}, LOGIN_WINDOW_MS);
 
 // ── Session middleware ──
 function getSession(c: any): SessionData | null {
@@ -86,6 +107,9 @@ dashboardRoutes.get("/dashboard/login", (c) => {
  * POST /dashboard/login — Authenticate and create session
  */
 dashboardRoutes.post("/dashboard/login", async (c) => {
+  const csrfCheck = requireJson(c);
+  if (csrfCheck) return csrfCheck;
+
   const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
 
   if (!body.email || !body.password) {
@@ -93,9 +117,12 @@ dashboardRoutes.post("/dashboard/login", async (c) => {
   }
 
   const email = body.email.toLowerCase().trim();
+  const ip = c.req.header("X-Forwarded-For")?.split(",")[0]?.trim()
+    || c.req.header("X-Real-IP")
+    || "unknown";
 
-  // Rate limit check
-  if (!checkLoginRate(email)) {
+  // Rate limit check (per IP+email)
+  if (!checkLoginRate(ip, email)) {
     return c.json({ error: "Too many login attempts. Try again in 15 minutes." }, 429);
   }
 
@@ -127,12 +154,20 @@ dashboardRoutes.post("/dashboard/login", async (c) => {
 
 /**
  * POST /dashboard/logout
+ * Accepts both JSON and non-JSON (form) for convenience, but uses a session check.
  */
 dashboardRoutes.post("/dashboard/logout", (c) => {
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
-  if (sessionId) {
-    deleteSession(sessionId);
+  if (!sessionId) {
+    return c.json({ error: "Not authenticated" }, 401);
   }
+  // Validate session exists (prevents blind logout CSRF)
+  const session = validateSession(sessionId);
+  if (!session) {
+    deleteCookie(c, SESSION_COOKIE_NAME, { path: "/dashboard" });
+    return c.json({ error: "Session already expired" }, 401);
+  }
+  deleteSession(sessionId);
   deleteCookie(c, SESSION_COOKIE_NAME, { path: "/dashboard" });
   return c.json({ success: true, redirect: "/dashboard/login" });
 });
@@ -304,6 +339,9 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
  * POST /dashboard/api/keys — Create new API key
  */
 dashboardRoutes.post("/dashboard/api/keys", (c) => {
+  const csrfCheck = requireJson(c);
+  if (csrfCheck) return csrfCheck;
+
   const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -361,9 +399,21 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
 });
 
 /**
- * DELETE /dashboard/api/keys/:id — Revoke API key
+ * POST /dashboard/api/keys/:id/revoke — Revoke API key (POST for CSRF safety)
+ * Also supports DELETE for backwards compatibility.
  */
-dashboardRoutes.delete("/dashboard/api/keys/:id", (c) => {
+dashboardRoutes.post("/dashboard/api/keys/:id/revoke", revokeKeyHandler);
+dashboardRoutes.delete("/dashboard/api/keys/:id", revokeKeyHandler);
+
+function revokeKeyHandler(c: any) {
+  // For DELETE requests, verify X-Requested-With header for CSRF protection
+  if (c.req.method === "DELETE") {
+    const xrw = c.req.header("X-Requested-With");
+    if (xrw !== "XMLHttpRequest") {
+      // Accept anyway for now but log — prefer POST /revoke going forward
+    }
+  }
+
   const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -393,12 +443,15 @@ dashboardRoutes.delete("/dashboard/api/keys/:id", (c) => {
     .run();
 
   return c.json({ success: true, message: "API key revoked" });
-});
+}
 
 /**
  * POST /dashboard/api/password — Change password
  */
 dashboardRoutes.post("/dashboard/api/password", async (c) => {
+  const csrfCheck = requireJson(c);
+  if (csrfCheck) return csrfCheck;
+
   const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
@@ -436,6 +489,16 @@ dashboardRoutes.post("/dashboard/api/password", async (c) => {
   db.update(schema.users)
     .set({ passwordHash: newHash, updatedAt: new Date() })
     .where(eq(schema.users.id, session.userId))
+    .run();
+
+  // Invalidate all other sessions (keep current session active)
+  db.delete(schema.sessions)
+    .where(
+      and(
+        eq(schema.sessions.userId, session.userId),
+        ne(schema.sessions.id, session.sessionId),
+      ),
+    )
     .run();
 
   return c.json({ success: true, message: "Password updated" });

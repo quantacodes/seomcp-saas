@@ -142,9 +142,94 @@
 - Per-user binary config generation with cached token timestamps
 - All security review items addressed
 
-### What's Next
-- [ ] Phase 3: Dashboard UI (API key management, usage stats, connected sites)
-- [ ] Phase 4: Billing (Lemon Squeezy integration)
-- [ ] Phase 5: Launch prep (deploy, docs, domain, ProductHunt)
-- [ ] Google Cloud project setup (OAuth client ID/secret for production)
-- [ ] Domain setup: seomcp.dev → hosting
+---
+
+## Session 3 — 2026-02-13 05:00 IST
+
+### Phase 3: Dashboard (Review Catch-up)
+
+Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logged.
+
+**Review:** ✅ Barnacle — APPROVE (0 MUST, 6 SHOULD, 2 nice-to-have)
+- S1-S6: CSRF protection — `requireJson()` not applied to POST mutations
+- **FIXED:** Applied requireJson() to POST /dashboard/login, /dashboard/api/keys, /dashboard/api/password
+- **FIXED:** Changed DELETE /dashboard/api/keys/:id → POST /dashboard/api/keys/:id/revoke for CSRF safety
+- Frontend updated to use POST /revoke endpoint
+
+**Commits:**
+- ae83f14 — "Fix Barnacle Phase 3 CSRF review"
+
+### Phase 4: Billing (Lemon Squeezy)
+
+**Specs:** ✅ Written (SPECS-PHASE4.md)
+- Lemon Squeezy checkout overlay integration
+- Webhook signature verification (HMAC-SHA256 + timingSafeEqual)
+- Subscription lifecycle: created → updated → cancelled → expired → resumed
+- Idempotency via UNIQUE(event_name, ls_id) + INSERT OR IGNORE
+- Dashboard billing section with upgrade/cancel/resume
+
+**Build:** ✅ Complete (6 new files, ~1,700 lines)
+- `src/billing/lemonsqueezy.ts` — LS API client (checkout, cancel, resume, variant mapping)
+- `src/billing/webhooks.ts` — Webhook verification + event processing (11 event types)
+- `src/routes/billing.ts` — 5 billing API endpoints
+- `src/db/schema.ts` — subscriptions + webhook_events tables
+- `src/db/migrate.ts` — New migrations with UNIQUE idempotency index
+- Dashboard billing UI (free upgrade cards, active plan display, cancel/resume flow)
+
+**Test:** ✅ 29 new tests, 57 assertions
+- Webhook signature: valid, invalid, null, empty, tampered, garbage (6 tests)
+- Plan mapping: pro, agency, numeric, unknown (4 tests)
+- Webhook processing: created, idempotent, updated, cancelled, expired, resumed, email fallback, unknown (8 tests)
+- Billing routes: auth, CSRF, checkout, webhook sig, portal, cancel, resume, overview (11 tests)
+
+**Review:** ✅ Barnacle — APPROVE (0 MUST, 4 SHOULD, 3 nice-to-have)
+- S1 (idempotency race): **FIXED** — UNIQUE index + INSERT OR IGNORE instead of SELECT-then-INSERT
+- S2 (subscription_resumed doesn't restore plan): **FIXED** — Added users.plan update
+- S3 (unknown variant in updated): **FIXED** — Added warning log
+- S4 (order_refunded): Deferred (MVP — stores event for manual review)
+
+**Commits:**
+- f25fad2 — "Phase 4: Billing"
+- dd1c843 — "Phase 5 + Barnacle Phase 4 fixes"
+
+### Phase 5: Launch Prep
+
+**Build:** ✅ Complete
+- Full documentation page at `/docs` (8 sections: quick start, auth, MCP, tools, OAuth, rates, errors, billing)
+- Dockerfile + docker-compose.yml + .env.example + .dockerignore
+- Security headers middleware (X-Content-Type-Options, X-Frame-Options, Referrer-Policy, HSTS)
+- Production readiness
+
+**Commits:**
+- dd1c843 — "Phase 5: Launch prep"
+
+### Session 3 Stats
+- **Total tests:** 102 (all passing)
+- **Total assertions:** 262
+- **Source files:** ~30
+- **Test files:** 6
+- **Commits this session:** 4
+- **Total commits:** 14
+
+### What Works (End of Session 3)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Documentation page (full API docs)
+- ✅ Dockerfile + docker-compose for production deploy
+- ✅ Security headers + CSRF protection on all mutations
+- ✅ 102 tests, 262 assertions, ALL PASSING
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
+- [ ] Deploy to Hetzner VPS or Fly.io
+- [ ] DNS + SSL setup
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Smoke test in production
+- [ ] X announcement thread
+- [ ] Product Hunt prep

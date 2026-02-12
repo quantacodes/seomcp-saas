@@ -2,19 +2,35 @@
 
 export const VERSION = "0.1.0";
 
+// Generate a dev-only default for secrets that throws in production
+function devSecret(name: string, length: number): string {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(`${name} must be set in production`);
+  }
+  if (!process.env[name]) {
+    console.warn(`⚠️  WARNING: Using default ${name} — set ${name} env var for production`);
+  }
+  return process.env[name] || "0".repeat(length);
+}
+
 export const config = {
   version: VERSION,
   port: parseInt(process.env.PORT || "3456"),
   host: process.env.HOST || "0.0.0.0",
   databasePath: process.env.DATABASE_PATH || "./data/seo-mcp-saas.db",
   seoMcpBinary: process.env.SEO_MCP_BINARY || "/Users/saura/clawd/projects/seo-mcp/target/release/seo-mcp-server",
-  jwtSecret: process.env.JWT_SECRET || (() => {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("JWT_SECRET must be set in production");
-    }
-    console.warn("⚠️  WARNING: Using default JWT_SECRET — set JWT_SECRET env var for production");
-    return "dev-secret-DO-NOT-USE-IN-PRODUCTION";
-  })(),
+  jwtSecret: devSecret("JWT_SECRET", 32),
+
+  // Google OAuth
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+  googleRedirectUri: process.env.GOOGLE_REDIRECT_URI || "http://localhost:3456/api/auth/google/callback",
+
+  // Token encryption (32 bytes = 64 hex chars)
+  tokenEncryptionKey: devSecret("TOKEN_ENCRYPTION_KEY", 64),
+
+  // Base URL for redirects
+  baseUrl: process.env.BASE_URL || "http://localhost:3456",
 
   // Plan limits (calls per month)
   plans: {

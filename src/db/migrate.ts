@@ -36,6 +36,19 @@ const migrations = [
     window_start INTEGER NOT NULL,
     call_count INTEGER NOT NULL DEFAULT 0
   )`,
+  // Google OAuth tokens (Phase 1.5)
+  `CREATE TABLE IF NOT EXISTS google_tokens (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL UNIQUE REFERENCES users(id),
+    access_token_enc TEXT NOT NULL,
+    refresh_token_enc TEXT NOT NULL,
+    token_type TEXT NOT NULL DEFAULT 'Bearer',
+    expires_at INTEGER NOT NULL,
+    scopes TEXT NOT NULL,
+    google_email TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,

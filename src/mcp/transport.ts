@@ -4,8 +4,14 @@ import { sessionManager } from "./session";
 import { checkAndIncrementRateLimit } from "../ratelimit/middleware";
 import { logUsage } from "../usage/tracker";
 import { config, VERSION } from "../config";
-import { mkdirSync, writeFileSync, existsSync } from "fs";
-import { join } from "path";
+import { existsSync } from "fs";
+import {
+  getUserConfigPath as getPerUserConfigPath,
+  writeUserConfig,
+  hasUserConfig,
+} from "../config/user-config";
+import { sqlite } from "../db/index";
+import { decryptToken } from "../crypto/tokens";
 
 // Methods that don't count against rate limits
 const EXEMPT_METHODS = new Set([
@@ -19,41 +25,42 @@ const EXEMPT_METHODS = new Set([
 const TOOL_CALL_METHOD = "tools/call";
 
 /**
- * Get or create the config directory for a user's binary instance.
- * For MVP: uses a shared config. In Phase 1.5, per-user Google OAuth.
+ * Get or create the config path for a user's binary instance.
+ * If user has Google tokens connected, generates config with those tokens.
+ * Otherwise generates a basic config (crawl/schema tools still work).
  */
 function getUserConfigPath(userId: string): string {
   // Validate userId format to prevent path traversal
   if (!/^[A-Z0-9]{26,32}$/.test(userId)) {
     throw new Error("Invalid user ID format");
   }
-  const userDir = join("/tmp", "seo-mcp-saas", userId);
-  const configPath = join(userDir, "config.toml");
 
-  if (!existsSync(configPath)) {
-    mkdirSync(userDir, { recursive: true });
+  // Check if user has Google tokens
+  const tokenRow = sqlite.prepare(
+    "SELECT access_token_enc, refresh_token_enc, expires_at FROM google_tokens WHERE user_id = ?"
+  ).get(userId) as { access_token_enc: string; refresh_token_enc: string; expires_at: number } | undefined;
 
-    // MVP: minimal config with dummy credentials path
-    // The binary needs [credentials] to start, but tools that don't need Google (crawl, schema, etc.) still work
-    // Real Google integration comes in Phase 1.5
-    const dummyCredsPath = join(userDir, "google-creds.json");
-    if (!existsSync(dummyCredsPath)) {
-      // Empty JSON — binary starts but Google API calls will fail gracefully
-      writeFileSync(dummyCredsPath, '{}');
+  if (tokenRow) {
+    // Decrypt tokens and generate config with Google OAuth
+    try {
+      const accessToken = decryptToken(tokenRow.access_token_enc);
+      const refreshToken = decryptToken(tokenRow.refresh_token_enc);
+      writeUserConfig(userId, {
+        accessToken,
+        refreshToken,
+        expiresAt: tokenRow.expires_at,
+      });
+    } catch (err) {
+      console.error(`Failed to decrypt tokens for user ${userId}:`, err);
+      // Fall through to basic config
+      writeUserConfig(userId);
     }
-
-    const configContent = `# Auto-generated config for user ${userId}
-[credentials]
-google_service_account = "${dummyCredsPath}"
-
-[indexnow]
-api_key = ""
-key_location = ""
-`;
-    writeFileSync(configPath, configContent);
+  } else if (!hasUserConfig(userId)) {
+    // No Google connection — write basic config
+    writeUserConfig(userId);
   }
 
-  return configPath;
+  return getPerUserConfigPath(userId);
 }
 
 /**

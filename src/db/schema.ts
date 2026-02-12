@@ -37,6 +37,22 @@ export const usageLogs = sqliteTable("usage_logs", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
+export const googleTokens = sqliteTable("google_tokens", {
+  id: text("id").primaryKey(), // ULID
+  userId: text("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id),
+  accessTokenEnc: text("access_token_enc").notNull(), // AES-256-GCM encrypted
+  refreshTokenEnc: text("refresh_token_enc").notNull(), // AES-256-GCM encrypted
+  tokenType: text("token_type").notNull().default("Bearer"),
+  expiresAt: integer("expires_at").notNull(), // Unix timestamp
+  scopes: text("scopes").notNull(), // Space-separated OAuth scopes
+  googleEmail: text("google_email"), // User's Google email (for display)
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
 export const rateLimits = sqliteTable("rate_limits", {
   userId: text("user_id")
     .primaryKey()

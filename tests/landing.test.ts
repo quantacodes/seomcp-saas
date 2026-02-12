@@ -78,10 +78,9 @@ describe("Landing page", () => {
     expect(html).toContain("mcpServers");
   });
 
-  it("serves docs placeholder at /docs", async () => {
+  it("does not serve /docs (handled by docsRoutes)", async () => {
     const res = await req("/docs");
-    expect(res.status).toBe(200);
-    const html = await res.text();
-    expect(html).toContain("Docs coming soon");
+    // landingRoutes no longer handles /docs — it returns 404 in isolation
+    expect(res.status).toBe(404);
   });
 });

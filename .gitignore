@@ -5,3 +5,5 @@ data/
 *.db-journal
 dist/
 tmp/
+seo-mcp-server
+*.log

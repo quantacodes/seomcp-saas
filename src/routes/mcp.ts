@@ -3,6 +3,7 @@ import { streamSSE } from "hono/streaming";
 import { authMiddleware } from "../auth/middleware";
 import { handleInitialize, handleRequest, handleBatch } from "../mcp/transport";
 import { sessionManager } from "../mcp/session";
+import { getRateLimitStatus } from "../ratelimit/middleware";
 import type { JsonRpcRequest, JsonRpcResponse } from "../types";
 
 export const mcpRoutes = new Hono();
@@ -141,11 +142,23 @@ mcpRoutes.post("/mcp", async (c) => {
   // JSON response for single request
   if (requests.length === 1) {
     const response = await handleRequest(auth, sessionId, requests[0]);
+    // Add rate limit headers for tool calls
+    if (requests[0].method === "tools/call") {
+      const rl = getRateLimitStatus(auth.userId, auth.plan);
+      c.header("X-RateLimit-Limit", String(rl.limit === Infinity ? -1 : rl.limit));
+      c.header("X-RateLimit-Remaining", String(rl.remaining === Infinity ? -1 : rl.remaining));
+      c.header("X-RateLimit-Used", String(rl.used));
+    }
     return c.json(response);
   }
 
   // Batch JSON response
   const responses = await handleBatch(auth, sessionId, requests);
+  // Add rate limit headers for batch
+  const rl = getRateLimitStatus(auth.userId, auth.plan);
+  c.header("X-RateLimit-Limit", String(rl.limit === Infinity ? -1 : rl.limit));
+  c.header("X-RateLimit-Remaining", String(rl.remaining === Infinity ? -1 : rl.remaining));
+  c.header("X-RateLimit-Used", String(rl.used));
   return c.json(responses);
 });
 

@@ -28,8 +28,15 @@ app.use("*", cors({
   origin: ["https://seomcp.dev", "https://www.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
   allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
-  exposeHeaders: ["Mcp-Session-Id"],
+  exposeHeaders: ["Mcp-Session-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Used", "X-Request-Id"],
 }));
+
+// Request ID for log correlation
+app.use("*", async (c, next) => {
+  const reqId = c.req.header("X-Request-Id") || crypto.randomUUID().slice(0, 8);
+  c.header("X-Request-Id", reqId);
+  await next();
+});
 
 app.use("*", logger());
 

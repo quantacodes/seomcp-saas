@@ -33,44 +33,6 @@ landingRoutes.get("/", (c) => {
   return c.html(html);
 });
 
-// Docs placeholder
-landingRoutes.get("/docs", (c) => {
-  return c.html(`<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Documentation — seomcp.dev</title>
-  <style>
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .container {
-      text-align: center;
-      max-width: 480px;
-      padding: 2rem;
-    }
-    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    p { color: #94a3b8; line-height: 1.6; }
-    a { color: #0ea5e9; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>📚 Docs coming soon</h1>
-    <p>We're writing comprehensive documentation for seomcp.dev. In the meantime, check out the <a href="/">homepage</a> for setup instructions, or <a href="mailto:hello@seomcp.dev">contact us</a> if you need help.</p>
-    <p style="margin-top: 2rem;"><a href="/">← Back to home</a></p>
-  </div>
-</body>
-</html>`);
-});
+// /docs is handled by docsRoutes (registered before landingRoutes in index.ts)
 
 export { landingRoutes };

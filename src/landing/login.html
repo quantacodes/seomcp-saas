@@ -13,8 +13,7 @@
       --bg-deep: #0C0C0F; --bg-surface: #16161D;
       --border-subtle: #2A2A36; --text-primary: #EDEDF0;
       --text-secondary: #8E8EA0; --text-tertiary: #5C5C6E;
-      --amber: #E5A430; --amber-hover: #F0B840;
-      --font-sans: 'Inter', system-ui, sans-serif;
+      --amber: #E5A430; --font-sans: 'Inter', system-ui, sans-serif;
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -27,9 +26,7 @@
     .logo { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
     .logo .dot { color: var(--amber); }
     .sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; }
-    #clerk-auth {
-      min-height: 400px; display: flex; align-items: center; justify-content: center;
-    }
+    #clerk-auth { min-height: 400px; display: flex; align-items: center; justify-content: center; }
     .loading-spinner {
       width: 32px; height: 32px;
       border: 3px solid var(--border-subtle); border-top-color: var(--amber);
@@ -39,38 +36,51 @@
     .back-link { margin-top: 24px; }
     .back-link a { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
     .back-link a:hover { color: var(--text-secondary); }
-
-    /* Override Clerk's default styles to match our theme */
-    .cl-rootBox { --clerk-font-family: 'Inter', system-ui, sans-serif; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="logo"><a href="/">seomcp<span class="dot">.dev</span></a></div>
     <p class="sub">Sign in to your dashboard</p>
-
-    <div id="clerk-auth">
-      <div class="loading-spinner"></div>
-    </div>
-
-    <div class="back-link">
-      <a href="/">← Back to home</a>
-    </div>
+    <div id="clerk-auth"><div class="loading-spinner"></div></div>
+    <div class="back-link"><a href="/">← Back to home</a></div>
   </div>
 
-  <script
-    async
-    crossorigin="anonymous"
-    data-clerk-publishable-key="pk_live_Y2xlcmsuc2VvbWNwLmRldiQ"
-    src="https://clerk.seomcp.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-    type="text/javascript"
-  ></script>
   <script>
-    window.addEventListener('load', async () => {
-      await window.Clerk.load();
+    // Load Clerk JS dynamically and wait for it
+    const CLERK_PK = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
+    const CLERK_FRONTEND = 'https://clerk.seomcp.dev';
 
-      if (window.Clerk.user) {
-        // Already signed in — go to dashboard
+    async function initClerk() {
+      // Load the Clerk JS bundle
+      const script = document.createElement('script');
+      script.src = CLERK_FRONTEND + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+      script.crossOrigin = 'anonymous';
+      document.head.appendChild(script);
+
+      // Wait for it to load
+      await new Promise((resolve, reject) => {
+        script.onload = resolve;
+        script.onerror = reject;
+      });
+
+      // Initialize Clerk
+      const Clerk = window.Clerk;
+      if (!Clerk) { showError('Clerk SDK not found'); return; }
+
+      // If Clerk is a class/constructor, instantiate it; if already an object, use directly
+      let clerk;
+      if (typeof Clerk === 'function' && Clerk.prototype) {
+        clerk = new Clerk(CLERK_PK);
+        await clerk.load();
+      } else if (Clerk.load) {
+        clerk = Clerk;
+        await clerk.load();
+      } else {
+        showError('Unexpected Clerk format'); return;
+      }
+
+      if (clerk.user) {
         window.location.href = '/dashboard';
         return;
       }
@@ -78,10 +88,9 @@
       const authDiv = document.getElementById('clerk-auth');
       authDiv.innerHTML = '';
 
-      window.Clerk.mountSignIn(authDiv, {
+      clerk.mountSignIn(authDiv, {
         afterSignInUrl: '/dashboard',
         afterSignUpUrl: '/dashboard',
-        signUpUrl: '/login',
         appearance: {
           variables: {
             colorPrimary: '#E5A430',
@@ -91,17 +100,21 @@
             colorInputBackground: '#0C0C0F',
             colorInputText: '#EDEDF0',
             borderRadius: '8px',
-            fontFamily: "'Inter', system-ui, sans-serif",
           },
           elements: {
             card: { backgroundColor: '#16161D', border: '1px solid #2A2A36', borderRadius: '16px' },
             formButtonPrimary: { backgroundColor: '#E5A430', color: '#0C0C0F', fontWeight: '600' },
-            formButtonPrimary__hover: { backgroundColor: '#F0B840' },
-            footerActionLink: { color: '#E5A430' },
           }
         }
       });
-    });
+    }
+
+    function showError(msg) {
+      document.getElementById('clerk-auth').innerHTML =
+        '<p style="color:#F87171;">Failed to load: ' + msg + '. <a href="javascript:location.reload()" style="color:#E5A430;">Retry</a></p>';
+    }
+
+    initClerk().catch(e => showError(e.message));
   </script>
 </body>
 </html>

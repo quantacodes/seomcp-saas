@@ -704,27 +704,21 @@
   <!-- Lemon Squeezy checkout overlay -->
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
-  <!-- Clerk JS SDK -->
-  <script
-    async
-    crossorigin="anonymous"
-    data-clerk-publishable-key="pk_live_Y2xlcmsuc2VvbWNwLmRldiQ"
-    src="https://clerk.seomcp.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
-    type="text/javascript"
-  ></script>
   <script>
-    // ── API Base URL ──
+    // ── Clerk + API Config ──
     const API_BASE = 'https://api.seomcp.dev';
+    const CLERK_PK = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
+    const CLERK_FRONTEND = 'https://clerk.seomcp.dev';
+    let clerkInstance = null;
 
     // ── Cross-origin fetch wrapper (send Clerk session token) ──
     const _origFetch = window.fetch;
     window.fetch = async function(url, opts = {}) {
       if (typeof url === 'string' && url.startsWith(API_BASE)) {
         opts.credentials = 'include';
-        // Add Clerk session token as Bearer auth
-        if (window.Clerk && window.Clerk.session) {
+        if (clerkInstance && clerkInstance.session) {
           try {
-            const token = await window.Clerk.session.getToken();
+            const token = await clerkInstance.session.getToken();
             if (token) {
               opts.headers = opts.headers || {};
               if (opts.headers instanceof Headers) {
@@ -743,25 +737,38 @@
     let dashData = null;
     let revokeKeyId = null;
 
-    // ── Wait for Clerk, then load dashboard ──
-    window.addEventListener('load', async () => {
-      if (window.Clerk) {
-        await window.Clerk.load();
-        if (!window.Clerk.user) {
+    // ── Load Clerk then dashboard ──
+    async function initDashboard() {
+      try {
+        const script = document.createElement('script');
+        script.src = CLERK_FRONTEND + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+        script.crossOrigin = 'anonymous';
+        document.head.appendChild(script);
+        await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
+
+        const Clerk = window.Clerk;
+        if (typeof Clerk === 'function' && Clerk.prototype) {
+          clerkInstance = new Clerk(CLERK_PK);
+          await clerkInstance.load();
+        } else if (Clerk && Clerk.load) {
+          clerkInstance = Clerk;
+          await clerkInstance.load();
+        }
+
+        if (clerkInstance && !clerkInstance.user) {
           window.location.href = '/login';
           return;
         }
-        // Update UI with Clerk user info
-        const emailEl = document.getElementById('user-email');
-        if (emailEl) emailEl.textContent = window.Clerk.user.primaryEmailAddress?.emailAddress || '';
-        // Replace logout with Clerk sign-out
-        const logoutBtn = document.querySelector('.logout-btn');
-        if (logoutBtn) {
-          logoutBtn.onclick = () => window.Clerk.signOut({ redirectUrl: '/' });
+        if (clerkInstance && clerkInstance.user) {
+          const emailEl = document.getElementById('user-email');
+          if (emailEl) emailEl.textContent = clerkInstance.user.primaryEmailAddress?.emailAddress || '';
         }
+      } catch (e) {
+        console.warn('Clerk init failed, falling back to cookie auth:', e);
       }
       loadDashboard();
-    });
+    }
+    initDashboard();
 
     // ── Load Dashboard ──
     async function loadDashboard() {
@@ -1342,7 +1349,10 @@
     }
 
     // ── Logout ──
-    async function handleLogout() { await fetch(API_BASE + '/dashboard/logout', { method: 'POST' }); window.location.href = '/login'; }
+    async function handleLogout() {
+      if (clerkInstance) { await clerkInstance.signOut({ redirectUrl: '/' }); return; }
+      await fetch(API_BASE + '/dashboard/logout', { method: 'POST' }); window.location.href = '/login';
+    }
 
     // ── Onboarding ──
     function renderOnboarding(d) {

@@ -7,306 +7,448 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
-            surface: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' },
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    body { background: #0f172a; color: #f8fafc; }
-    .gradient-text {
-      background: linear-gradient(135deg, #0ea5e9, #38bdf8, #7dd3fc);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    :root {
+      --bg-deep: #0C0C0F;
+      --bg-surface: #16161D;
+      --bg-raised: #1E1E28;
+      --border-subtle: #2A2A36;
+      --border-active: #3D3D4E;
+      --text-primary: #EDEDF0;
+      --text-secondary: #8E8EA0;
+      --text-tertiary: #5C5C6E;
+      --amber: #E5A430;
+      --amber-hover: #F0B840;
+      --amber-muted: rgba(229,164,48,0.12);
+      --sage: #4ADE80;
+      --sage-muted: rgba(74,222,128,0.12);
+      --coral: #F87171;
+      --blue: #60A5FA;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
     }
-    .code-block { background: #0d1117; border: 1px solid #30363d; }
-    .bar { min-width: 2px; transition: height 0.3s ease; }
-    .status-success { background: #22c55e; }
-    .status-error { background: #ef4444; }
-    .status-rate_limited { background: #eab308; }
-    .badge-success { color: #22c55e; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); }
-    .badge-error { color: #ef4444; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.2); }
-    .badge-rate_limited { color: #eab308; background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.2); }
-    .badge-active { color: #22c55e; background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.2); }
-    .badge-revoked { color: #94a3b8; background: rgba(148,163,184,0.1); border: 1px solid rgba(148,163,184,0.2); }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--font-sans); background: var(--bg-deep);
+      color: var(--text-primary); line-height: 1.6; font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    code { font-family: var(--font-mono); font-size: 13px; }
+
+    /* Nav */
+    .dash-nav {
+      position: sticky; top: 0; z-index: 40;
+      height: 56px; display: flex; align-items: center;
+      background: rgba(12,12,15,0.9); backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .dash-nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      max-width: 1120px; width: 100%; margin: 0 auto; padding: 0 24px;
+    }
+    .dash-logo { font-size: 16px; font-weight: 600; }
+    .dash-logo .dot { color: var(--amber); }
+    .dash-right { display: flex; align-items: center; gap: 16px; }
+    .dash-right a, .dash-right span { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
+    .dash-right a:hover { color: var(--text-primary); }
+    .plan-badge {
+      display: none; padding: 3px 10px; border-radius: 20px;
+      font-size: 11px; font-weight: 600; text-transform: uppercase;
+      background: var(--amber-muted); color: var(--amber);
+      border: 1px solid rgba(229,164,48,0.2);
+    }
+    .logout-btn { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
+    .logout-btn:hover { color: var(--text-primary); }
+
+    /* Content */
+    .dash-content { max-width: 1120px; margin: 0 auto; padding: 32px 24px; }
+    .dash-content > section { margin-bottom: 24px; }
+    .hidden { display: none !important; }
+
+    /* Cards */
+    .card {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: 14px; padding: 28px;
+    }
+    .card-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
+
+    /* Loading skeleton */
+    .skeleton {
+      border-radius: 14px;
+      background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-raised) 50%, var(--bg-surface) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Badges */
+    .badge { display: inline-flex; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-active { color: var(--sage); background: var(--sage-muted); border: 1px solid rgba(74,222,128,0.2); }
+    .badge-revoked { color: var(--text-tertiary); background: rgba(92,92,110,0.1); border: 1px solid rgba(92,92,110,0.2); }
+    .badge-success { color: var(--sage); background: var(--sage-muted); }
+    .badge-error { color: var(--coral); background: rgba(248,113,113,0.1); }
+    .badge-rate_limited { color: #FBBF24; background: rgba(251,191,36,0.1); }
+
+    /* Status dots */
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+    .status-success { background: var(--sage); }
+    .status-error { background: var(--coral); }
+    .status-rate_limited { background: #FBBF24; }
+
+    /* Buttons */
+    .btn-amber {
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--amber); color: var(--bg-deep);
+      font-weight: 600; font-size: 13px;
+      transition: background 0.2s;
+    }
+    .btn-amber:hover { background: var(--amber-hover); }
+    .btn-ghost {
+      padding: 8px 16px; border-radius: 8px;
+      background: var(--bg-raised); color: var(--text-secondary);
+      font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border-subtle);
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-ghost:hover { background: var(--border-subtle); color: var(--text-primary); }
+    .btn-danger {
+      padding: 8px 16px; border-radius: 8px;
+      background: rgba(248,113,113,0.1); color: var(--coral);
+      font-size: 13px; font-weight: 500;
+      border: 1px solid rgba(248,113,113,0.15);
+      transition: background 0.2s;
+    }
+    .btn-danger:hover { background: rgba(248,113,113,0.2); }
+
+    /* Input */
+    .input {
+      width: 100%; padding: 10px 14px;
+      background: var(--bg-deep); border: 1px solid var(--border-subtle);
+      border-radius: 8px; color: var(--text-primary);
+      font-size: 14px; font-family: var(--font-sans);
+      outline: none; transition: border-color 0.2s;
+    }
+    .input::placeholder { color: var(--text-tertiary); }
+    .input:focus { border-color: var(--amber); }
+    .input-mono { font-family: var(--font-mono); font-size: 13px; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 8px 0; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-subtle); }
+    td { padding: 10px 0; font-size: 13px; border-bottom: 1px solid rgba(42,42,54,0.4); }
+
+    /* Progress bar */
+    .progress-track { height: 8px; background: var(--bg-raised); border-radius: 4px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; background: var(--amber); }
+    .progress-fill.warn { background: #FBBF24; }
+    .progress-fill.danger { background: var(--coral); }
+
+    /* Bar chart */
+    .bar-chart { display: flex; align-items: flex-end; gap: 2px; height: 80px; }
+    .bar { flex: 1; min-width: 2px; border-radius: 2px 2px 0 0; transition: height 0.3s ease; cursor: pointer; }
+
+    /* Code block */
+    .code-block {
+      background: var(--bg-deep); border: 1px solid var(--border-subtle);
+      border-radius: 10px; overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px; border-bottom: 1px solid var(--border-subtle);
+    }
+    .code-filename { font-size: 12px; color: var(--text-tertiary); font-family: var(--font-mono); }
+    .code-copy-btn { font-size: 11px; color: var(--amber); cursor: pointer; transition: opacity 0.2s; }
+    .code-copy-btn:hover { opacity: 0.8; }
+    .code-body { padding: 14px; overflow-x: auto; }
+    .code-body pre { font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: var(--text-secondary); }
+
+    /* Modals */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 50;
       background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       align-items: center; justify-content: center;
     }
     .modal-overlay.active { display: flex; }
+    .modal-card {
+      width: 100%; max-width: 440px; margin: 16px;
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: 16px; padding: 32px;
+    }
+
+    /* Alert banners */
+    .banner-warn {
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      padding: 16px 20px; border-radius: 12px;
+      background: rgba(229,164,48,0.08); border: 1px solid rgba(229,164,48,0.2);
+      margin-bottom: 24px;
+    }
+    .banner-warn-text { font-size: 13px; color: var(--amber); }
+    .banner-warn-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
+
+    /* Copy toast */
     .copy-toast {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
-      background: #22c55e; color: white; padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem; font-weight: 600;
-      transform: translateY(100px); opacity: 0; transition: all 0.3s ease;
+      position: fixed; bottom: 24px; right: 24px; z-index: 100;
+      padding: 10px 20px; border-radius: 10px;
+      background: var(--sage); color: var(--bg-deep);
+      font-weight: 600; font-size: 13px;
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
     }
     .copy-toast.show { transform: translateY(0); opacity: 1; }
-    .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* Grids */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+    /* Onboarding */
+    .onb-card {
+      background: linear-gradient(135deg, rgba(229,164,48,0.06) 0%, rgba(74,222,128,0.03) 100%);
+      border: 1px solid rgba(229,164,48,0.15); border-radius: 14px;
+      padding: 28px; position: relative;
+    }
+    .onb-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px; border-radius: 10px;
+      background: rgba(12,12,15,0.4); border: 1px solid rgba(42,42,54,0.4);
+    }
+    .onb-step.done { opacity: 0.5; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .grid-2, .grid-4 { grid-template-columns: 1fr; }
+      .dash-right .hide-mobile { display: none; }
+      td.hide-mobile, th.hide-mobile { display: none; }
+    }
   </style>
 </head>
-<body class="font-sans antialiased">
+<body>
 
   <!-- Top Nav -->
-  <nav class="sticky top-0 z-40 bg-surface-900/95 backdrop-blur-xl border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 text-base font-bold">
-        <span class="text-xl">🔍</span>
-        <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
-      </a>
-      <div class="flex items-center gap-4">
-        <a href="/docs" class="text-sm text-slate-400 hover:text-white transition hidden sm:inline">Docs</a>
-        <a href="/tools" class="text-sm text-slate-400 hover:text-white transition hidden sm:inline">Tools</a>
-        <span id="plan-badge" class="hidden px-2.5 py-0.5 rounded-full text-xs font-medium bg-brand-500/10 text-brand-300 border border-brand-500/30 uppercase"></span>
-        <span id="user-email" class="text-sm text-slate-400 hidden sm:inline"></span>
-        <button onclick="handleLogout()" class="text-sm text-slate-500 hover:text-white transition">Logout</button>
+  <nav class="dash-nav">
+    <div class="dash-nav-inner">
+      <a href="/" class="dash-logo">seomcp<span class="dot">.dev</span></a>
+      <div class="dash-right">
+        <a href="/docs" class="hide-mobile">Docs</a>
+        <a href="/tools" class="hide-mobile">Tools</a>
+        <span id="plan-badge" class="plan-badge"></span>
+        <span id="user-email" class="hide-mobile" style="color:var(--text-tertiary);"></span>
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
       </div>
     </div>
   </nav>
 
-  <!-- Content -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+  <main class="dash-content">
 
     <!-- Loading State -->
-    <div id="loading" class="space-y-8">
-      <div class="skeleton h-32 rounded-2xl"></div>
-      <div class="skeleton h-48 rounded-2xl"></div>
-      <div class="skeleton h-64 rounded-2xl"></div>
+    <div id="loading" style="display:flex; flex-direction:column; gap:20px;">
+      <div class="skeleton" style="height:120px;"></div>
+      <div class="skeleton" style="height:200px;"></div>
+      <div class="skeleton" style="height:250px;"></div>
     </div>
 
-    <!-- Email Verification Banner (hidden until needed) -->
-    <div id="verify-banner" class="hidden bg-gradient-to-r from-amber-700/20 to-amber-500/10 border border-amber-500/30 rounded-2xl p-5 sm:p-6 flex items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-3">
-        <span class="text-2xl">📧</span>
-        <div>
-          <h3 class="text-sm font-bold text-amber-200">Verify your email to unlock full limits</h3>
-          <p class="text-xs text-slate-400 mt-0.5">Unverified accounts are limited to 10 tool calls/month. Verify to get 50.</p>
-        </div>
+    <!-- Email Verification Banner -->
+    <div id="verify-banner" class="hidden banner-warn">
+      <div>
+        <div class="banner-warn-text">📧 Verify your email to unlock full limits</div>
+        <div class="banner-warn-sub">Unverified accounts are limited to 10 tool calls/month. Verify to get 50.</div>
       </div>
-      <button onclick="resendVerification()" id="resend-btn" class="shrink-0 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-sm font-medium rounded-lg border border-amber-500/30 transition">
-        Resend Email
-      </button>
+      <button onclick="resendVerification()" id="resend-btn" class="btn-ghost" style="flex-shrink:0;">Resend Email</button>
     </div>
 
-    <!-- Onboarding Checklist (hidden until loaded) -->
-    <div id="onboarding" class="hidden bg-gradient-to-r from-brand-700/20 to-brand-500/10 border border-brand-500/20 rounded-2xl p-6 sm:p-8 relative">
-      <button onclick="dismissOnboarding()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-lg" title="Dismiss">×</button>
-      <div class="flex items-center gap-3 mb-1">
-        <h2 class="text-lg font-bold">🚀 Getting Started</h2>
-        <span id="onb-progress" class="text-xs font-medium text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded-full"></span>
-      </div>
-      <p class="text-sm text-slate-400 mb-5">Complete these steps to get SEO tools in your AI agent.</p>
-
-      <div class="space-y-3" id="onb-steps">
-        <!-- Step 1: Account -->
-        <div id="onb-step-account" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
-          <span class="onb-icon text-lg mt-0.5">✅</span>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-slate-200">Create account</div>
-            <div class="text-xs text-slate-500">You're in! Account created.</div>
-          </div>
+    <!-- Onboarding Checklist -->
+    <section id="onboarding" class="hidden">
+      <div class="onb-card">
+        <button onclick="dismissOnboarding()" style="position:absolute; top:16px; right:16px; color:var(--text-tertiary); font-size:18px;" title="Dismiss">×</button>
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+          <span style="font-size:17px; font-weight:600;">🚀 Getting Started</span>
+          <span id="onb-progress" class="badge" style="background:var(--amber-muted); color:var(--amber); border:1px solid rgba(229,164,48,0.2);"></span>
         </div>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Complete these steps to get SEO tools in your AI agent.</p>
 
-        <!-- Step 2: Verify Email -->
-        <div id="onb-step-verify" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
-          <span class="onb-icon text-lg mt-0.5">⏳</span>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-slate-200">Verify your email</div>
-            <div class="text-xs text-slate-500">Check inbox for the verification link. <button onclick="resendVerification()" class="text-brand-400 hover:underline">Resend</button></div>
-          </div>
-        </div>
-
-        <!-- Step 3: Copy API Key -->
-        <div id="onb-step-key" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
-          <span class="onb-icon text-lg mt-0.5">⏳</span>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-slate-200">Add MCP config to your AI tool</div>
-            <div class="text-xs text-slate-500 mb-2">Copy this into your AI tool's settings:</div>
-            <div class="code-block rounded-lg overflow-hidden">
-              <div class="flex items-center justify-between px-3 py-1.5 border-b border-white/5">
-                <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
-                <button onclick="copyText(document.getElementById('onb-config').textContent)" class="text-xs text-brand-400 hover:text-brand-300 transition">Copy</button>
-              </div>
-              <pre class="p-3 text-xs font-mono overflow-x-auto"><code id="onb-config" class="text-slate-300"></code></pre>
+        <div style="display:flex; flex-direction:column; gap:8px;" id="onb-steps">
+          <div id="onb-step-account" class="onb-step">
+            <span class="onb-icon" style="font-size:16px;">✅</span>
+            <div>
+              <div style="font-size:13px; font-weight:500;">Create account</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">You're in! Account created.</div>
             </div>
-            <div class="text-xs text-slate-600 mt-1.5">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="/docs" class="text-brand-400 hover:underline">Full setup guide →</a></div>
           </div>
-        </div>
-
-        <!-- Step 4: Connect Google -->
-        <div id="onb-step-google" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
-          <span class="onb-icon text-lg mt-0.5">⏳</span>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-slate-200">Connect Google Search Console & Analytics</div>
-            <div class="text-xs text-slate-500">Optional but unlocks GSC + GA4 tools (17 of 35 tools).</div>
-            <button id="onb-google-btn" onclick="scrollTo('#google-section')" class="mt-2 px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 transition">Connect Google ↓</button>
+          <div id="onb-step-verify" class="onb-step">
+            <span class="onb-icon" style="font-size:16px;">⏳</span>
+            <div>
+              <div style="font-size:13px; font-weight:500;">Verify your email</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Check inbox for the verification link. <button onclick="resendVerification()" style="color:var(--amber); font-size:12px;">Resend</button></div>
+            </div>
           </div>
-        </div>
-
-        <!-- Step 5: First Tool Call -->
-        <div id="onb-step-usage" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
-          <span class="onb-icon text-lg mt-0.5">⏳</span>
-          <div class="flex-1">
-            <div class="text-sm font-medium text-slate-200">Make your first tool call</div>
-            <div class="text-xs text-slate-500">Ask your AI: "Run an SEO audit on example.com" or <a href="/playground" class="text-brand-400 hover:underline">try the playground</a>.</div>
+          <div id="onb-step-key" class="onb-step">
+            <span class="onb-icon" style="font-size:16px;">⏳</span>
+            <div style="flex:1; min-width:0;">
+              <div style="font-size:13px; font-weight:500;">Add MCP config to your AI tool</div>
+              <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">Copy this into your AI tool's settings:</div>
+              <div class="code-block">
+                <div class="code-header">
+                  <span class="code-filename">mcp.json</span>
+                  <span class="code-copy-btn" onclick="copyText(document.getElementById('onb-config').textContent)">Copy</span>
+                </div>
+                <div class="code-body">
+                  <pre id="onb-config"></pre>
+                </div>
+              </div>
+              <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="/docs" style="color:var(--amber);">Full setup guide →</a></div>
+            </div>
+          </div>
+          <div id="onb-step-google" class="onb-step">
+            <span class="onb-icon" style="font-size:16px;">⏳</span>
+            <div>
+              <div style="font-size:13px; font-weight:500;">Connect Google Search Console & Analytics</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Optional but unlocks GSC + GA4 tools (17 of 35 tools).</div>
+              <button id="onb-google-btn" onclick="scrollTo('#google-section')" class="btn-ghost" style="margin-top:8px; padding:6px 12px; font-size:12px;">Connect Google ↓</button>
+            </div>
+          </div>
+          <div id="onb-step-usage" class="onb-step">
+            <span class="onb-icon" style="font-size:16px;">⏳</span>
+            <div>
+              <div style="font-size:13px; font-weight:500;">Make your first tool call</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Ask your AI: "Run an SEO audit on example.com" or <a href="/playground" style="color:var(--amber);">try the playground</a>.</div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Usage Overview -->
     <section id="usage-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-bold">Usage This Month</h2>
-          <span id="usage-period" class="text-sm text-slate-500"></span>
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span class="card-title" style="margin-bottom:0;">Usage This Month</span>
+          <span id="usage-period" style="font-size:13px; color:var(--text-tertiary);"></span>
         </div>
 
-        <div class="grid sm:grid-cols-4 gap-6 mb-8">
-          <!-- Main counter -->
-          <div class="sm:col-span-2">
-            <div class="flex items-baseline gap-2 mb-2">
-              <span id="usage-used" class="text-4xl font-extrabold"></span>
-              <span class="text-slate-500">/</span>
-              <span id="usage-limit" class="text-2xl text-slate-400"></span>
-              <span class="text-sm text-slate-500">calls</span>
+        <div class="grid-4" style="margin-bottom:24px;">
+          <div style="grid-column:span 2;">
+            <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:8px;">
+              <span id="usage-used" style="font-size:36px; font-weight:700;"></span>
+              <span style="color:var(--text-tertiary);">/</span>
+              <span id="usage-limit" style="font-size:22px; color:var(--text-secondary);"></span>
+              <span style="font-size:13px; color:var(--text-tertiary);">calls</span>
             </div>
-            <div class="w-full h-3 bg-surface-700 rounded-full overflow-hidden">
-              <div id="usage-bar" class="h-full bg-brand-500 rounded-full transition-all duration-500" style="width: 0%"></div>
+            <div class="progress-track">
+              <div id="usage-bar" class="progress-fill" style="width:0%;"></div>
             </div>
-            <div id="usage-remaining" class="text-sm text-slate-500 mt-2"></div>
+            <div id="usage-remaining" style="font-size:13px; color:var(--text-tertiary); margin-top:6px;"></div>
           </div>
-          <!-- Breakdown -->
           <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Breakdown</div>
-            <div class="space-y-1.5">
-              <div class="flex items-center justify-between text-sm">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-green-500"></span> Success</span>
-                <span id="breakdown-success" class="font-medium text-slate-300">0</span>
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Breakdown</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-success"></span> Success</span>
+                <span id="breakdown-success" style="font-weight:500;">0</span>
               </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-red-500"></span> Errors</span>
-                <span id="breakdown-error" class="font-medium text-slate-300">0</span>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-error"></span> Errors</span>
+                <span id="breakdown-error" style="font-weight:500;">0</span>
               </div>
-              <div class="flex items-center justify-between text-sm">
-                <span class="flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-yellow-500"></span> Rate limited</span>
-                <span id="breakdown-ratelimited" class="font-medium text-slate-300">0</span>
+              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
+                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-rate_limited"></span> Rate limited</span>
+                <span id="breakdown-ratelimited" style="font-weight:500;">0</span>
               </div>
             </div>
           </div>
-          <!-- Avg duration -->
           <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wider mb-2">Avg Response</div>
-            <div class="flex items-baseline gap-1">
-              <span id="avg-duration" class="text-2xl font-bold">0</span>
-              <span class="text-sm text-slate-500">ms</span>
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Avg Response</div>
+            <div style="display:flex; align-items:baseline; gap:4px;">
+              <span id="avg-duration" style="font-size:24px; font-weight:700;">0</span>
+              <span style="font-size:13px; color:var(--text-tertiary);">ms</span>
             </div>
-            <div id="upgrade-cta" class="hidden mt-4">
-              <a href="/#pricing" class="text-xs font-medium text-brand-400 hover:underline">Upgrade plan →</a>
+            <div id="upgrade-cta" class="hidden" style="margin-top:12px;">
+              <a href="/#pricing" style="font-size:12px; color:var(--amber); font-weight:500;">Upgrade plan →</a>
             </div>
           </div>
         </div>
 
-        <!-- Daily usage bar chart -->
         <div>
-          <div class="text-xs text-slate-500 uppercase tracking-wider mb-3">Daily Calls (Last 30 Days)</div>
-          <div id="daily-chart" class="flex items-end gap-1 h-24">
-            <!-- Bars injected by JS -->
-          </div>
+          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Daily Calls (Last 30 Days)</div>
+          <div id="daily-chart" class="bar-chart"></div>
         </div>
       </div>
     </section>
 
     <!-- Top Tools -->
     <section id="tools-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-4">Top Tools Used</h2>
-        <div id="top-tools-list" class="space-y-3">
-          <p class="text-sm text-slate-500">No tool calls yet</p>
+      <div class="card">
+        <div class="card-title">Top Tools Used</div>
+        <div id="top-tools-list">
+          <p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet</p>
         </div>
       </div>
     </section>
 
     <!-- Audit History -->
     <section id="audit-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-bold">Audit History</h2>
-          <div class="flex items-center gap-3">
-            <select id="audit-site-filter" onchange="loadAudits()" class="px-3 py-1.5 text-xs bg-surface-700 border border-white/10 rounded-lg text-slate-300 focus:outline-none focus:border-brand-500">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span class="card-title" style="margin-bottom:0;">Audit History</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <select id="audit-site-filter" onchange="loadAudits()" class="input" style="width:auto; padding:6px 12px; font-size:12px;">
               <option value="">All Sites</option>
             </select>
-            <span id="audit-retention" class="text-xs text-slate-500"></span>
+            <span id="audit-retention" style="font-size:11px; color:var(--text-tertiary);"></span>
           </div>
         </div>
 
-        <!-- Health Score Trend Chart -->
-        <div id="health-trend" class="hidden mb-6">
-          <div class="text-xs text-slate-500 uppercase tracking-wider mb-3">Health Score Trend</div>
-          <div id="trend-chart" class="flex items-end gap-1 h-20"></div>
+        <div id="health-trend" class="hidden" style="margin-bottom:20px;">
+          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Health Score Trend</div>
+          <div id="trend-chart" class="bar-chart" style="height:64px;"></div>
         </div>
 
-        <!-- Audit List -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+        <div style="overflow-x:auto;">
+          <table>
             <thead>
-              <tr class="border-b border-white/5 text-slate-500 text-xs uppercase tracking-wider">
-                <th class="pb-3 text-left font-medium">Date</th>
-                <th class="pb-3 text-left font-medium">Site</th>
-                <th class="pb-3 text-left font-medium">Tool</th>
-                <th class="pb-3 text-center font-medium">Score</th>
-                <th class="pb-3 text-right font-medium">Duration</th>
+              <tr>
+                <th>Date</th>
+                <th>Site</th>
+                <th>Tool</th>
+                <th style="text-align:center;">Score</th>
+                <th style="text-align:right;">Duration</th>
               </tr>
             </thead>
-            <tbody id="audit-table">
-            </tbody>
+            <tbody id="audit-table"></tbody>
           </table>
         </div>
-        <div id="no-audits" class="hidden text-center py-8">
-          <p class="text-slate-500 text-sm">No audits yet. Run <code class="text-brand-400">generate_report</code> to get started!</p>
+        <div id="no-audits" class="hidden" style="text-align:center; padding:32px;">
+          <p style="font-size:13px; color:var(--text-tertiary);">No audits yet. Run <code style="color:var(--amber);">generate_report</code> to get started!</p>
         </div>
       </div>
     </section>
 
     <!-- API Keys -->
     <section id="keys-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-bold">API Keys</h2>
-          <div class="flex items-center gap-3">
-            <span id="keys-count" class="text-sm text-slate-500"></span>
-            <button onclick="openCreateKey()" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">
-              + New Key
-            </button>
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span class="card-title" style="margin-bottom:0;">API Keys</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="keys-count" style="font-size:13px; color:var(--text-tertiary);"></span>
+            <button onclick="openCreateKey()" class="btn-amber">+ New Key</button>
           </div>
         </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+        <div style="overflow-x:auto;">
+          <table>
             <thead>
-              <tr class="border-b border-white/5 text-slate-500 text-xs uppercase tracking-wider">
-                <th class="pb-3 text-left font-medium">Key</th>
-                <th class="pb-3 text-left font-medium">Name</th>
-                <th class="pb-3 text-left font-medium hidden sm:table-cell">Status</th>
-                <th class="pb-3 text-left font-medium hidden md:table-cell">Last Used</th>
-                <th class="pb-3 text-left font-medium hidden md:table-cell">Created</th>
-                <th class="pb-3 text-right font-medium">Actions</th>
+              <tr>
+                <th>Key</th>
+                <th>Name</th>
+                <th class="hide-mobile">Status</th>
+                <th class="hide-mobile">Last Used</th>
+                <th class="hide-mobile">Created</th>
+                <th style="text-align:right;">Actions</th>
               </tr>
             </thead>
-            <tbody id="keys-table">
-            </tbody>
+            <tbody id="keys-table"></tbody>
           </table>
         </div>
       </div>
@@ -314,86 +456,84 @@
 
     <!-- Google Connection -->
     <section id="google-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-2">Google Account</h2>
-        <p class="text-sm text-slate-400 mb-6">Connect your Google account to use Search Console and Analytics tools.</p>
+      <div class="card">
+        <div class="card-title">Google Account</div>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">Connect your Google account to use Search Console and Analytics tools.</p>
         <div id="google-status"></div>
       </div>
     </section>
 
     <!-- Billing -->
     <section id="billing-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-2">Billing</h2>
+      <div class="card">
+        <div class="card-title">Billing</div>
         <div id="billing-status"></div>
       </div>
     </section>
 
     <!-- Recent Activity -->
     <section id="activity-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-6">Recent Activity</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+      <div class="card">
+        <div class="card-title">Recent Activity</div>
+        <div style="overflow-x:auto;">
+          <table>
             <thead>
-              <tr class="border-b border-white/5 text-slate-500 text-xs uppercase tracking-wider">
-                <th class="pb-3 text-left font-medium">Time</th>
-                <th class="pb-3 text-left font-medium">Tool</th>
-                <th class="pb-3 text-left font-medium">Status</th>
-                <th class="pb-3 text-right font-medium">Duration</th>
+              <tr>
+                <th>Time</th>
+                <th>Tool</th>
+                <th>Status</th>
+                <th style="text-align:right;">Duration</th>
               </tr>
             </thead>
-            <tbody id="activity-table">
-            </tbody>
+            <tbody id="activity-table"></tbody>
           </table>
         </div>
-        <div id="no-activity" class="hidden text-center py-8">
-          <p class="text-slate-500 text-sm">No tool calls yet. Connect your MCP client to get started!</p>
+        <div id="no-activity" class="hidden" style="text-align:center; padding:32px;">
+          <p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet. Connect your MCP client to get started!</p>
         </div>
       </div>
     </section>
 
     <!-- Scheduled Audits -->
     <section id="schedules-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-lg font-bold">Scheduled Audits</h2>
-          <div class="flex items-center gap-3">
-            <span id="schedule-limit" class="text-xs text-slate-500"></span>
-            <button onclick="showScheduleModal()" id="add-schedule-btn" class="px-3 py-1.5 text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">+ New Schedule</button>
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span class="card-title" style="margin-bottom:0;">Scheduled Audits</span>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="schedule-limit" style="font-size:11px; color:var(--text-tertiary);"></span>
+            <button onclick="showScheduleModal()" id="add-schedule-btn" class="btn-amber" style="font-size:12px; padding:6px 14px;">+ New Schedule</button>
           </div>
         </div>
-        <div id="no-schedules" class="hidden text-center py-12">
-          <div class="text-4xl mb-3">📅</div>
-          <p class="text-slate-400 text-sm">No scheduled audits yet.</p>
-          <p class="text-slate-500 text-xs mt-1">Set up automatic SEO monitoring for your sites.</p>
+        <div id="no-schedules" class="hidden" style="text-align:center; padding:40px;">
+          <div style="font-size:32px; margin-bottom:8px;">📅</div>
+          <p style="font-size:13px; color:var(--text-secondary);">No scheduled audits yet.</p>
+          <p style="font-size:12px; color:var(--text-tertiary); margin-top:4px;">Set up automatic SEO monitoring for your sites.</p>
         </div>
-        <div id="schedules-list" class="space-y-3"></div>
+        <div id="schedules-list" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
     </section>
 
     <!-- Webhooks -->
     <section id="webhooks-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-2">Webhooks</h2>
-        <p class="text-sm text-slate-400 mb-6">Get notified when audits complete or usage limits are reached.</p>
-        <form onsubmit="saveWebhook(event)" class="flex gap-3 mb-6">
-          <input type="url" id="webhook-url" required placeholder="https://your-server.com/webhook" 
-            class="flex-1 px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm font-mono">
-          <button type="submit" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Save</button>
-          <button type="button" onclick="removeWebhook()" class="px-4 py-2 text-sm font-medium bg-surface-700 hover:bg-surface-600 text-white rounded-lg border border-white/10 transition">Remove</button>
-          <button type="button" onclick="testWebhook()" class="px-4 py-2 text-sm font-medium bg-surface-700 hover:bg-surface-600 text-white rounded-lg border border-white/10 transition">Test</button>
+      <div class="card">
+        <div class="card-title">Webhooks</div>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Get notified when audits complete or usage limits are reached.</p>
+        <form onsubmit="saveWebhook(event)" style="display:flex; gap:8px; margin-bottom:16px;">
+          <input type="url" id="webhook-url" required placeholder="https://your-server.com/webhook" class="input input-mono" style="flex:1;">
+          <button type="submit" class="btn-amber">Save</button>
+          <button type="button" onclick="removeWebhook()" class="btn-ghost">Remove</button>
+          <button type="button" onclick="testWebhook()" class="btn-ghost">Test</button>
         </form>
-        <div id="webhook-error" class="hidden text-xs text-red-400 mb-4"></div>
-        <div id="webhook-success" class="hidden text-xs text-green-400 mb-4"></div>
-        <h3 class="text-sm font-medium text-slate-300 mb-3">Recent Deliveries</h3>
-        <div id="no-deliveries" class="hidden text-center py-6 text-sm text-slate-500">No deliveries yet.</div>
-        <table class="w-full text-sm" id="deliveries-table">
-          <thead><tr class="text-xs text-slate-500 uppercase tracking-wider">
-            <th class="pb-3 text-left font-medium">Event</th>
-            <th class="pb-3 text-left font-medium">Status</th>
-            <th class="pb-3 text-left font-medium hidden sm:table-cell">Duration</th>
-            <th class="pb-3 text-left font-medium">Time</th>
+        <div id="webhook-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
+        <div id="webhook-success" class="hidden" style="font-size:12px; color:var(--sage); margin-bottom:12px;"></div>
+        <div style="font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:10px;">Recent Deliveries</div>
+        <div id="no-deliveries" class="hidden" style="text-align:center; padding:20px; font-size:13px; color:var(--text-tertiary);">No deliveries yet.</div>
+        <table id="deliveries-table">
+          <thead><tr>
+            <th>Event</th>
+            <th>Status</th>
+            <th class="hide-mobile">Duration</th>
+            <th>Time</th>
           </tr></thead>
           <tbody id="deliveries-body"></tbody>
         </table>
@@ -402,36 +542,30 @@
 
     <!-- Account Settings -->
     <section id="account-section" class="hidden">
-      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
-        <h2 class="text-lg font-bold mb-6">Account Settings</h2>
-        <div class="grid sm:grid-cols-2 gap-8">
-          <!-- Info -->
+      <div class="card">
+        <div class="card-title">Account Settings</div>
+        <div class="grid-2">
           <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wider mb-3">Account Info</div>
-            <div class="space-y-3">
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Account Info</div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
               <div>
-                <label class="text-xs text-slate-500">Email</label>
-                <div id="account-email" class="text-sm text-white font-mono"></div>
+                <div style="font-size:11px; color:var(--text-tertiary);">Email</div>
+                <div id="account-email" style="font-size:13px; font-family:var(--font-mono);"></div>
               </div>
               <div>
-                <label class="text-xs text-slate-500">Plan</label>
-                <div id="account-plan" class="text-sm text-white uppercase font-medium"></div>
+                <div style="font-size:11px; color:var(--text-tertiary);">Plan</div>
+                <div id="account-plan" style="font-size:13px; font-weight:600; text-transform:uppercase;"></div>
               </div>
             </div>
           </div>
-          <!-- Change Password -->
           <div>
-            <div class="text-xs text-slate-500 uppercase tracking-wider mb-3">Change Password</div>
-            <form id="password-form" onsubmit="handlePasswordChange(event)" class="space-y-3">
-              <input type="password" id="current-password" required placeholder="Current password" autocomplete="current-password"
-                class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm">
-              <input type="password" id="new-password" required minlength="8" placeholder="New password (min 8)" autocomplete="new-password"
-                class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm">
-              <div id="password-error" class="hidden text-xs text-red-400"></div>
-              <div id="password-success" class="hidden text-xs text-green-400"></div>
-              <button type="submit" class="px-4 py-2 text-sm font-medium bg-surface-700 hover:bg-surface-600 text-white rounded-lg border border-white/10 transition">
-                Update Password
-              </button>
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Change Password</div>
+            <form id="password-form" onsubmit="handlePasswordChange(event)" style="display:flex; flex-direction:column; gap:10px;">
+              <input type="password" id="current-password" required placeholder="Current password" autocomplete="current-password" class="input" style="font-size:13px;">
+              <input type="password" id="new-password" required minlength="8" placeholder="New password (min 8)" autocomplete="new-password" class="input" style="font-size:13px;">
+              <div id="password-error" class="hidden" style="font-size:12px; color:var(--coral);"></div>
+              <div id="password-success" class="hidden" style="font-size:12px; color:var(--sage);"></div>
+              <button type="submit" class="btn-ghost" style="width:fit-content;">Update Password</button>
             </form>
           </div>
         </div>
@@ -442,132 +576,123 @@
 
   <!-- Create Key Modal -->
   <div id="create-key-modal" class="modal-overlay">
-    <div class="w-full max-w-md mx-4 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
-      <!-- Step 1: Name + Scopes -->
-      <div id="key-step-1" class="p-8">
-        <h3 class="text-lg font-bold mb-1">Create API Key</h3>
-        <p class="text-sm text-slate-400 mb-4">Give your key a name and optionally restrict which tools it can access.</p>
+    <div class="modal-card">
+      <div id="key-step-1">
+        <div style="font-size:17px; font-weight:600; margin-bottom:4px;">Create API Key</div>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Give your key a name and optionally restrict which tools it can access.</p>
         <form onsubmit="handleCreateKey(event)">
-          <input type="text" id="key-name" placeholder="e.g. Claude Desktop, Production" maxlength="50"
-            class="w-full px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm mb-4">
-
-          <!-- Scope selection -->
-          <div class="mb-4">
-            <div class="flex items-center justify-between mb-2">
-              <label class="text-xs text-slate-400 uppercase tracking-wider">Tool Access</label>
-              <button type="button" onclick="toggleScopes()" class="text-xs text-brand-400 hover:text-brand-300">
-                <span id="scope-toggle-text">Restrict access</span>
-              </button>
+          <input type="text" id="key-name" placeholder="e.g. Claude Desktop, Production" maxlength="50" class="input" style="margin-bottom:12px;">
+          <div style="margin-bottom:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+              <span style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em;">Tool Access</span>
+              <button type="button" onclick="toggleScopes()" style="font-size:12px; color:var(--amber);"><span id="scope-toggle-text">Restrict access</span></button>
             </div>
-            <div id="scope-options" class="hidden grid grid-cols-3 gap-2">
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="crawl" class="rounded"> <span class="text-xs text-slate-300">Crawl</span>
+            <div id="scope-options" class="hidden" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="crawl"> Crawl
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="gsc" class="rounded"> <span class="text-xs text-slate-300">GSC</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="gsc"> GSC
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="ga4" class="rounded"> <span class="text-xs text-slate-300">GA4</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="ga4"> GA4
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="schema" class="rounded"> <span class="text-xs text-slate-300">Schema</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="schema"> Schema
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="indexnow" class="rounded"> <span class="text-xs text-slate-300">IndexNow</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="indexnow"> IndexNow
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="report" class="rounded"> <span class="text-xs text-slate-300">Report</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="report"> Report
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="cwv" class="rounded"> <span class="text-xs text-slate-300">CWV</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="cwv"> CWV
               </label>
-              <label class="flex items-center gap-2 p-2 bg-surface-700/50 rounded-lg cursor-pointer hover:bg-surface-700">
-                <input type="checkbox" name="scope" value="meta" class="rounded"> <span class="text-xs text-slate-300">Meta</span>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
+                <input type="checkbox" name="scope" value="meta"> Meta
               </label>
             </div>
-            <p id="scope-info" class="text-xs text-slate-500 mt-1">All tools accessible (unrestricted)</p>
+            <p id="scope-info" style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">All tools accessible (unrestricted)</p>
           </div>
-
-          <div id="key-create-error" class="hidden text-sm text-red-400 mb-4"></div>
-          <div class="flex gap-3">
-            <button type="button" onclick="closeCreateKey()" class="flex-1 py-2.5 text-sm font-medium text-slate-400 bg-surface-700 hover:bg-surface-600 rounded-lg transition">Cancel</button>
-            <button type="submit" id="key-create-btn" class="flex-1 py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Create Key</button>
+          <div id="key-create-error" class="hidden" style="font-size:13px; color:var(--coral); margin-bottom:12px;"></div>
+          <div style="display:flex; gap:10px;">
+            <button type="button" onclick="closeCreateKey()" class="btn-ghost" style="flex:1;">Cancel</button>
+            <button type="submit" id="key-create-btn" class="btn-amber" style="flex:1;">Create Key</button>
           </div>
         </form>
       </div>
-      <!-- Step 2: Show Key -->
-      <div id="key-step-2" class="hidden p-8">
-        <div class="text-center mb-4">
-          <span class="text-3xl text-green-400">✓</span>
-          <h3 class="text-lg font-bold mt-2">Key Created!</h3>
-          <p class="text-sm text-amber-400 mt-1">Copy it now — it won't be shown again.</p>
+      <div id="key-step-2" class="hidden">
+        <div style="text-align:center; margin-bottom:16px;">
+          <div style="font-size:28px; color:var(--sage);">✓</div>
+          <div style="font-size:17px; font-weight:600; margin-top:8px;">Key Created!</div>
+          <p style="font-size:13px; color:var(--amber); margin-top:4px;">Copy it now — it won't be shown again.</p>
         </div>
-        <div class="flex items-center gap-2 mb-6">
-          <input type="text" id="new-key-display" readonly
-            class="flex-1 px-3 py-2 bg-surface-900 border border-white/10 rounded-lg font-mono text-xs text-green-400 select-all">
-          <button onclick="copyText(document.getElementById('new-key-display').value)" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 rounded-lg text-sm font-medium text-white shrink-0 transition">Copy</button>
+        <div style="display:flex; gap:8px; margin-bottom:16px;">
+          <input type="text" id="new-key-display" readonly class="input input-mono" style="color:var(--sage);">
+          <button onclick="copyText(document.getElementById('new-key-display').value)" class="btn-amber" style="flex-shrink:0;">Copy</button>
         </div>
-        <button onclick="closeCreateKey(); loadDashboard();" class="w-full py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Done</button>
+        <button onclick="closeCreateKey(); loadDashboard();" class="btn-amber" style="width:100%;">Done</button>
       </div>
     </div>
   </div>
 
   <!-- Revoke Confirm Modal -->
   <div id="revoke-modal" class="modal-overlay">
-    <div class="w-full max-w-sm mx-4 p-8 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
-      <h3 class="text-lg font-bold mb-2">Revoke API Key?</h3>
-      <p class="text-sm text-slate-400 mb-2">This will immediately stop any tool using this key:</p>
-      <p id="revoke-key-prefix" class="text-sm font-mono text-red-400 mb-6"></p>
-      <div class="flex gap-3">
-        <button onclick="closeRevokeModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-400 bg-surface-700 hover:bg-surface-600 rounded-lg transition">Cancel</button>
-        <button onclick="confirmRevoke()" class="flex-1 py-2.5 text-sm font-semibold bg-red-500 hover:bg-red-600 text-white rounded-lg transition">Revoke</button>
+    <div class="modal-card" style="max-width:380px;">
+      <div style="font-size:17px; font-weight:600; margin-bottom:8px;">Revoke API Key?</div>
+      <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:8px;">This will immediately stop any tool using this key:</p>
+      <p id="revoke-key-prefix" style="font-size:14px; font-family:var(--font-mono); color:var(--coral); margin-bottom:20px;"></p>
+      <div style="display:flex; gap:10px;">
+        <button onclick="closeRevokeModal()" class="btn-ghost" style="flex:1;">Cancel</button>
+        <button onclick="confirmRevoke()" class="btn-danger" style="flex:1;">Revoke</button>
       </div>
     </div>
   </div>
 
   <!-- Create Schedule Modal -->
   <div id="schedule-modal" class="modal-overlay">
-    <div class="w-full max-w-md mx-4 p-8 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
-      <h3 class="text-lg font-bold mb-6">New Scheduled Audit</h3>
-      <form id="schedule-form" onsubmit="createSchedule(event)" class="space-y-4">
+    <div class="modal-card">
+      <div style="font-size:17px; font-weight:600; margin-bottom:20px;">New Scheduled Audit</div>
+      <form id="schedule-form" onsubmit="createSchedule(event)" style="display:flex; flex-direction:column; gap:12px;">
         <div>
-          <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Site URL</label>
-          <input type="text" id="sched-site" required placeholder="example.com" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm">
+          <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Site URL</label>
+          <input type="text" id="sched-site" required placeholder="example.com" class="input">
         </div>
         <div>
-          <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Tool</label>
-          <select id="sched-tool" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+          <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Tool</label>
+          <select id="sched-tool" class="input">
             <option value="generate_report">Full SEO Report (generate_report)</option>
             <option value="site_audit">Site Audit (site_audit)</option>
             <option value="crawl_page">Crawl Page (crawl_page)</option>
           </select>
         </div>
-        <div class="grid grid-cols-3 gap-3">
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
           <div>
-            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Frequency</label>
-            <select id="sched-freq" onchange="updateDayField()" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Frequency</label>
+            <select id="sched-freq" onchange="updateDayField()" class="input">
               <option value="daily">Daily</option>
               <option value="weekly" selected>Weekly</option>
               <option value="monthly">Monthly</option>
             </select>
           </div>
           <div>
-            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Hour (UTC)</label>
-            <select id="sched-hour" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Hour (UTC)</label>
+            <select id="sched-hour" class="input">
               <option value="0">00:00</option><option value="1">01:00</option><option value="2">02:00</option><option value="3">03:00</option><option value="4">04:00</option><option value="5">05:00</option><option value="6" selected>06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option>
             </select>
           </div>
           <div id="sched-day-wrap">
-            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5" id="sched-day-label">Day</label>
-            <select id="sched-day" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;" id="sched-day-label">Day</label>
+            <select id="sched-day" class="input">
               <option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option>
             </select>
           </div>
         </div>
-        <div id="schedule-error" class="hidden text-xs text-red-400"></div>
-        <div class="flex gap-3 pt-2">
-          <button type="button" onclick="closeScheduleModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-400 bg-surface-700 hover:bg-surface-600 rounded-lg transition">Cancel</button>
-          <button type="submit" class="flex-1 py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Create Schedule</button>
+        <div id="schedule-error" class="hidden" style="font-size:12px; color:var(--coral);"></div>
+        <div style="display:flex; gap:10px; margin-top:4px;">
+          <button type="button" onclick="closeScheduleModal()" class="btn-ghost" style="flex:1;">Cancel</button>
+          <button type="submit" class="btn-amber" style="flex:1;">Create Schedule</button>
         </div>
       </form>
     </div>
@@ -588,65 +713,34 @@
     async function loadDashboard() {
       try {
         const res = await fetch('/dashboard/api/overview');
-        if (res.status === 401) {
-          window.location.href = '/dashboard/login';
-          return;
-        }
+        if (res.status === 401) { window.location.href = '/dashboard/login'; return; }
         dashData = await res.json();
         render();
-      } catch (err) {
-        console.error('Failed to load dashboard:', err);
-      }
+      } catch (err) { console.error('Failed to load dashboard:', err); }
     }
 
     // ── Render ──
     function render() {
       const d = dashData;
-      document.getElementById('loading').classList.add('hidden');
+      document.getElementById('loading').style.display = 'none';
 
-      // Nav
       document.getElementById('user-email').textContent = d.user.email;
-      document.getElementById('user-email').classList.remove('hidden');
       const badge = document.getElementById('plan-badge');
-      badge.textContent = d.user.plan;
-      badge.classList.remove('hidden');
+      badge.textContent = d.user.plan; badge.style.display = '';
 
-      // Email verification banner
-      if (!d.user.emailVerified) {
-        document.getElementById('verify-banner').classList.remove('hidden');
-      }
+      if (!d.user.emailVerified) document.getElementById('verify-banner').classList.remove('hidden');
 
-      // Onboarding Checklist
       renderOnboarding(d);
-
-      // Usage
       renderUsage(d.usage);
-
-      // Top Tools
       renderTopTools(d.usage.topTools);
-
-      // Audits
       loadAudits();
-
-      // Keys
       renderKeys(d.keys);
-
-      // Google
       renderGoogle(d.google);
-
-      // Billing
       renderBilling(d.billing, d.user.plan);
-
-      // Activity
       renderActivity(d.recentCalls);
-
-      // Schedules
       loadSchedules();
-
-      // Webhooks
       loadWebhooks();
 
-      // Account
       document.getElementById('account-email').textContent = d.user.email;
       document.getElementById('account-plan').textContent = d.user.plan;
       document.getElementById('account-section').classList.remove('hidden');
@@ -654,9 +748,7 @@
 
     // ── Usage ──
     function renderUsage(usage) {
-      const section = document.getElementById('usage-section');
-      section.classList.remove('hidden');
-
+      document.getElementById('usage-section').classList.remove('hidden');
       document.getElementById('usage-used').textContent = usage.used;
       document.getElementById('usage-limit').textContent = usage.limit === 'unlimited' ? '∞' : usage.limit;
       document.getElementById('usage-period').textContent = usage.period;
@@ -664,383 +756,274 @@
       const pct = usage.limit === 'unlimited' ? 0 : Math.min(100, (usage.used / usage.limit) * 100);
       const bar = document.getElementById('usage-bar');
       bar.style.width = pct + '%';
-      if (pct > 80) bar.classList.replace('bg-brand-500', 'bg-amber-500');
-      if (pct > 95) bar.classList.replace('bg-amber-500', 'bg-red-500');
+      bar.className = 'progress-fill' + (pct > 95 ? ' danger' : pct > 80 ? ' warn' : '');
 
-      const remaining = usage.remaining === 'unlimited' ? 'Unlimited' : `${usage.remaining} remaining`;
-      document.getElementById('usage-remaining').textContent = remaining;
-
+      document.getElementById('usage-remaining').textContent = usage.remaining === 'unlimited' ? 'Unlimited' : usage.remaining + ' remaining';
       document.getElementById('breakdown-success').textContent = usage.breakdown.success;
       document.getElementById('breakdown-error').textContent = usage.breakdown.error;
       document.getElementById('breakdown-ratelimited').textContent = usage.breakdown.rateLimited;
       document.getElementById('avg-duration').textContent = usage.avgDurationMs;
 
-      // Show upgrade CTA for free plan
-      if (dashData.user.plan === 'free') {
-        document.getElementById('upgrade-cta').classList.remove('hidden');
-      }
-
-      // Daily chart
+      if (dashData.user.plan === 'free') document.getElementById('upgrade-cta').classList.remove('hidden');
       renderDailyChart(usage.dailyUsage);
     }
 
     function renderDailyChart(daily) {
-      const container = document.getElementById('daily-chart');
-      container.innerHTML = '';
-
-      if (!daily || daily.length === 0) {
-        container.innerHTML = '<span class="text-sm text-slate-600">No data yet</span>';
-        return;
-      }
-
+      const c = document.getElementById('daily-chart');
+      c.innerHTML = '';
+      if (!daily || daily.length === 0) { c.innerHTML = '<span style="font-size:13px; color:var(--text-tertiary);">No data yet</span>'; return; }
       const maxCalls = Math.max(...daily.map(d => d.calls), 1);
-
-      // Fill in missing days for last 30 days
-      const today = new Date();
-      const days = [];
+      const today = new Date(); const days = [];
       for (let i = 29; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        const dateStr = date.toISOString().split('T')[0];
-        const found = daily.find(d => d.date === dateStr);
-        days.push({ date: dateStr, calls: found ? found.calls : 0 });
+        const date = new Date(today); date.setDate(date.getDate() - i);
+        const ds = date.toISOString().split('T')[0];
+        const found = daily.find(d => d.date === ds);
+        days.push({ date: ds, calls: found ? found.calls : 0 });
       }
-
       days.forEach(day => {
-        const heightPct = Math.max(2, (day.calls / maxCalls) * 100);
+        const h = Math.max(2, (day.calls / maxCalls) * 100);
         const bar = document.createElement('div');
-        bar.className = 'bar flex-1 rounded-t-sm transition-all duration-300 cursor-pointer';
-        bar.style.height = heightPct + '%';
-        bar.style.background = day.calls > 0 ? '#0ea5e9' : '#1e293b';
-        bar.title = `${day.date}: ${day.calls} calls`;
-        container.appendChild(bar);
+        bar.className = 'bar';
+        bar.style.height = h + '%';
+        bar.style.background = day.calls > 0 ? 'var(--amber)' : 'var(--bg-raised)';
+        bar.title = day.date + ': ' + day.calls + ' calls';
+        c.appendChild(bar);
       });
     }
 
     // ── Top Tools ──
     function renderTopTools(tools) {
-      const section = document.getElementById('tools-section');
-      section.classList.remove('hidden');
+      document.getElementById('tools-section').classList.remove('hidden');
       const list = document.getElementById('top-tools-list');
-
-      if (!tools || tools.length === 0) {
-        list.innerHTML = '<p class="text-sm text-slate-500">No tool calls yet</p>';
-        return;
-      }
-
+      if (!tools || tools.length === 0) { list.innerHTML = '<p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet</p>'; return; }
       const maxCount = Math.max(...tools.map(t => t.count));
       list.innerHTML = tools.map(t => {
         const pct = Math.max(3, (t.count / maxCount) * 100);
-        return `<div class="flex items-center gap-4">
-          <span class="text-xs font-mono text-slate-300 w-40 shrink-0 truncate">${escHtml(t.tool)}</span>
-          <div class="flex-1 h-5 bg-surface-700 rounded-full overflow-hidden">
-            <div class="h-full bg-brand-500/60 rounded-full" style="width: ${pct}%"></div>
+        return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
+          <span style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary); width:140px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(t.tool)}</span>
+          <div style="flex:1; height:18px; background:var(--bg-raised); border-radius:9px; overflow:hidden;">
+            <div style="height:100%; width:${pct}%; background:rgba(229,164,48,0.4); border-radius:9px;"></div>
           </div>
-          <span class="text-xs text-slate-400 w-10 text-right">${t.count}</span>
+          <span style="font-size:12px; color:var(--text-tertiary); width:32px; text-align:right;">${t.count}</span>
         </div>`;
       }).join('');
     }
 
     // ── Audit History ──
     async function loadAudits() {
-      const section = document.getElementById('audit-section');
-      section.classList.remove('hidden');
-
+      document.getElementById('audit-section').classList.remove('hidden');
       try {
-        // Load sites for filter dropdown
         const sitesRes = await fetch('/dashboard/api/audits/sites');
         if (sitesRes.ok) {
           const sitesData = await sitesRes.json();
-          const select = document.getElementById('audit-site-filter');
-          const currentVal = select.value;
-          // Keep existing options but update
-          select.innerHTML = '<option value="">All Sites</option>';
+          const sel = document.getElementById('audit-site-filter');
+          const cur = sel.value;
+          sel.innerHTML = '<option value="">All Sites</option>';
           sitesData.sites.forEach(s => {
             const opt = document.createElement('option');
-            opt.value = s.siteUrl;
-            opt.textContent = `${s.siteUrl} (${s.auditCount})`;
-            if (s.siteUrl === currentVal) opt.selected = true;
-            select.appendChild(opt);
+            opt.value = s.siteUrl; opt.textContent = s.siteUrl + ' (' + s.auditCount + ')';
+            if (s.siteUrl === cur) opt.selected = true;
+            sel.appendChild(opt);
           });
         }
-
-        // Load audits
         const siteFilter = document.getElementById('audit-site-filter').value;
-        const url = siteFilter ? `/dashboard/api/audits?site_url=${encodeURIComponent(siteFilter)}&limit=20` : '/dashboard/api/audits?limit=20';
+        const url = siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20';
         const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
-
-        // Retention info
-        document.getElementById('audit-retention').textContent = `${data.retention.retentionDays}d retention (${data.retention.plan})`;
-
+        document.getElementById('audit-retention').textContent = data.retention.retentionDays + 'd retention (' + data.retention.plan + ')';
         const tbody = document.getElementById('audit-table');
         const noAudits = document.getElementById('no-audits');
-
         if (!data.audits || data.audits.length === 0) {
-          tbody.closest('table').classList.add('hidden');
-          noAudits.classList.remove('hidden');
-          document.getElementById('health-trend').classList.add('hidden');
-          return;
+          tbody.closest('table').classList.add('hidden'); noAudits.classList.remove('hidden');
+          document.getElementById('health-trend').classList.add('hidden'); return;
         }
-
-        noAudits.classList.add('hidden');
-        tbody.closest('table').classList.remove('hidden');
-
+        noAudits.classList.add('hidden'); tbody.closest('table').classList.remove('hidden');
         tbody.innerHTML = data.audits.map(a => {
-          const date = new Date(a.createdAt);
-          const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-          const scoreHtml = a.healthScore != null
-            ? `<span class="px-2 py-0.5 rounded text-xs font-bold ${a.healthScore >= 80 ? 'text-green-400 bg-green-500/10' : a.healthScore >= 60 ? 'text-amber-400 bg-amber-500/10' : 'text-red-400 bg-red-500/10'}">${a.healthScore}/100</span>`
-            : '<span class="text-xs text-slate-600">—</span>';
-          const duration = a.durationMs ? `${(a.durationMs / 1000).toFixed(1)}s` : '—';
-
-          return `<tr class="border-b border-white/5 cursor-pointer hover:bg-surface-700/30" onclick="viewAudit(${a.id})">
-            <td class="py-2.5 pr-4 text-xs text-slate-400">${dateStr}</td>
-            <td class="py-2.5 pr-4 text-xs text-slate-300 font-mono">${escHtml(a.siteUrl)}</td>
-            <td class="py-2.5 pr-4 text-xs text-slate-400">${escHtml(a.toolName)}</td>
-            <td class="py-2.5 text-center">${scoreHtml}</td>
-            <td class="py-2.5 text-right text-xs text-slate-500">${duration}</td>
+          const d = new Date(a.createdAt);
+          const ds = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+          const sc = a.healthScore != null
+            ? `<span style="padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; ${a.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : a.healthScore >= 60 ? 'color:#FBBF24; background:rgba(251,191,36,0.1);' : 'color:var(--coral); background:rgba(248,113,113,0.1);'}">${a.healthScore}/100</span>`
+            : '<span style="color:var(--text-tertiary);">—</span>';
+          const dur = a.durationMs ? (a.durationMs / 1000).toFixed(1) + 's' : '—';
+          return `<tr style="cursor:pointer;" onclick="viewAudit(${a.id})">
+            <td style="font-size:12px; color:var(--text-tertiary);">${ds}</td>
+            <td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">${escHtml(a.siteUrl)}</td>
+            <td style="font-size:12px; color:var(--text-tertiary);">${escHtml(a.toolName)}</td>
+            <td style="text-align:center;">${sc}</td>
+            <td style="text-align:right; font-size:12px; color:var(--text-tertiary);">${dur}</td>
           </tr>`;
         }).join('');
-
-        // Load health trend if site is selected
-        if (siteFilter) {
-          loadHealthTrend(siteFilter);
-        } else {
-          document.getElementById('health-trend').classList.add('hidden');
-        }
-      } catch (err) {
-        console.error('Failed to load audits:', err);
-      }
+        if (siteFilter) loadHealthTrend(siteFilter);
+        else document.getElementById('health-trend').classList.add('hidden');
+      } catch (err) { console.error('Failed to load audits:', err); }
     }
 
     async function loadHealthTrend(siteUrl) {
       try {
-        const res = await fetch(`/dashboard/api/audits/trend?site_url=${encodeURIComponent(siteUrl)}&days=30`);
+        const res = await fetch('/dashboard/api/audits/trend?site_url=' + encodeURIComponent(siteUrl) + '&days=30');
         if (!res.ok) return;
         const data = await res.json();
-
-        const container = document.getElementById('trend-chart');
-        const section = document.getElementById('health-trend');
-
-        if (!data.dataPoints || data.dataPoints.length === 0) {
-          section.classList.add('hidden');
-          return;
-        }
-
-        section.classList.remove('hidden');
-        container.innerHTML = '';
-
+        const c = document.getElementById('trend-chart');
+        const s = document.getElementById('health-trend');
+        if (!data.dataPoints || data.dataPoints.length === 0) { s.classList.add('hidden'); return; }
+        s.classList.remove('hidden'); c.innerHTML = '';
         data.dataPoints.forEach(pt => {
-          const heightPct = pt.healthScore;
           const bar = document.createElement('div');
-          bar.className = 'flex-1 rounded-t-sm transition-all duration-300 cursor-pointer';
-          bar.style.height = heightPct + '%';
-          bar.style.minWidth = '4px';
-          bar.style.background = pt.healthScore >= 80 ? '#22c55e' : pt.healthScore >= 60 ? '#eab308' : '#ef4444';
-          bar.title = `${new Date(pt.date).toLocaleDateString()}: ${pt.healthScore}/100`;
-          container.appendChild(bar);
+          bar.className = 'bar'; bar.style.flex = '1'; bar.style.minWidth = '4px';
+          bar.style.height = pt.healthScore + '%';
+          bar.style.background = pt.healthScore >= 80 ? 'var(--sage)' : pt.healthScore >= 60 ? '#FBBF24' : 'var(--coral)';
+          bar.title = new Date(pt.date).toLocaleDateString() + ': ' + pt.healthScore + '/100';
+          c.appendChild(bar);
         });
-      } catch (err) {
-        document.getElementById('health-trend').classList.add('hidden');
-      }
+      } catch { document.getElementById('health-trend').classList.add('hidden'); }
     }
 
     async function viewAudit(auditId) {
       try {
-        const res = await fetch(`/dashboard/api/audits/${auditId}`);
+        const res = await fetch('/dashboard/api/audits/' + auditId);
         if (!res.ok) return;
         const data = await res.json();
-
-        // Simple modal with full result
         const resultText = typeof data.fullResult === 'object' && data.fullResult.content?.[0]?.text
-          ? data.fullResult.content[0].text
-          : JSON.stringify(data.fullResult, null, 2);
-
+          ? data.fullResult.content[0].text : JSON.stringify(data.fullResult, null, 2);
         const modal = document.createElement('div');
-        modal.className = 'modal-overlay active';
-        modal.style.display = 'flex';
-        modal.innerHTML = `
-          <div class="w-full max-w-3xl mx-4 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl max-h-[80vh] flex flex-col">
-            <div class="p-6 border-b border-white/5 flex items-center justify-between shrink-0">
-              <div>
-                <h3 class="text-lg font-bold">${escHtml(data.toolName)}</h3>
-                <p class="text-sm text-slate-400">${escHtml(data.siteUrl)} · ${new Date(data.createdAt).toLocaleString()}</p>
-              </div>
-              <div class="flex items-center gap-3">
-                ${data.healthScore != null ? `<span class="px-3 py-1 rounded-lg text-sm font-bold ${data.healthScore >= 80 ? 'text-green-400 bg-green-500/10' : 'text-amber-400 bg-amber-500/10'}">${data.healthScore}/100</span>` : ''}
-                <button onclick="this.closest('.modal-overlay').remove()" class="text-slate-500 hover:text-white text-xl">×</button>
-              </div>
+        modal.className = 'modal-overlay active'; modal.style.display = 'flex';
+        modal.innerHTML = `<div style="width:100%; max-width:700px; margin:16px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:16px; max-height:80vh; display:flex; flex-direction:column;">
+          <div style="padding:20px 24px; border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+            <div>
+              <div style="font-size:17px; font-weight:600;">${escHtml(data.toolName)}</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">${escHtml(data.siteUrl)} · ${new Date(data.createdAt).toLocaleString()}</div>
             </div>
-            <div class="p-6 overflow-y-auto flex-1">
-              <pre class="text-xs text-slate-300 font-mono whitespace-pre-wrap leading-relaxed">${escHtml(resultText)}</pre>
+            <div style="display:flex; align-items:center; gap:12px;">
+              ${data.healthScore != null ? `<span style="padding:4px 12px; border-radius:8px; font-size:14px; font-weight:600; ${data.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : 'color:#FBBF24; background:rgba(251,191,36,0.1);'}">${data.healthScore}/100</span>` : ''}
+              <button onclick="this.closest('.modal-overlay').remove()" style="color:var(--text-tertiary); font-size:20px; cursor:pointer;">×</button>
             </div>
-          </div>`;
+          </div>
+          <div style="padding:20px 24px; overflow-y:auto; flex:1;">
+            <pre style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary); white-space:pre-wrap; line-height:1.6;">${escHtml(resultText)}</pre>
+          </div>
+        </div>`;
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
-      } catch (err) {
-        console.error('Failed to load audit:', err);
-      }
+      } catch (err) { console.error('Failed to load audit:', err); }
     }
 
     // ── API Keys ──
     function renderKeys(keys) {
-      const section = document.getElementById('keys-section');
-      section.classList.remove('hidden');
-
+      document.getElementById('keys-section').classList.remove('hidden');
       const activeCount = keys.filter(k => k.isActive).length;
       const planLimit = { free: 1, pro: 5, agency: 20, enterprise: 999 }[dashData.user.plan] || 1;
-      document.getElementById('keys-count').textContent = `${activeCount} / ${planLimit} keys`;
-
+      document.getElementById('keys-count').textContent = activeCount + ' / ' + planLimit + ' keys';
       const tbody = document.getElementById('keys-table');
-      if (keys.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-500 text-sm">No API keys yet</td></tr>';
-        return;
-      }
-
+      if (keys.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:var(--text-tertiary);">No API keys yet</td></tr>'; return; }
       tbody.innerHTML = keys.map(k => {
-        const statusClass = k.isActive ? 'badge-active' : 'badge-revoked';
-        const statusText = k.isActive ? 'Active' : 'Revoked';
+        const statusBadge = k.isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-revoked">Revoked</span>';
         const lastUsed = k.lastUsedAt ? timeAgo(new Date(k.lastUsedAt)) : 'Never';
         const created = new Date(k.createdAt).toLocaleDateString();
-
         const scopeHtml = k.scopes && k.scopes.length > 0
-          ? `<div class="flex flex-wrap gap-1 mt-1">${k.scopes.map(s => `<span class="px-1.5 py-0.5 text-[10px] rounded bg-brand-500/10 text-brand-300 border border-brand-500/20">${escHtml(s)}</span>`).join('')}</div>`
+          ? '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-top:4px;">' + k.scopes.map(s => '<span style="padding:1px 6px; font-size:10px; border-radius:4px; background:var(--amber-muted); color:var(--amber); border:1px solid rgba(229,164,48,0.15);">' + escHtml(s) + '</span>').join('') + '</div>'
           : '';
-
-        return `<tr class="border-b border-white/5">
-          <td class="py-3 pr-4 font-mono text-xs text-slate-300">${escHtml(k.prefix)}...</td>
-          <td class="py-3 pr-4"><span class="text-slate-300">${escHtml(k.name)}</span>${scopeHtml}</td>
-          <td class="py-3 pr-4 hidden sm:table-cell"><span class="px-2 py-0.5 rounded text-xs font-medium ${statusClass}">${statusText}</span></td>
-          <td class="py-3 pr-4 text-slate-500 text-xs hidden md:table-cell">${lastUsed}</td>
-          <td class="py-3 pr-4 text-slate-500 text-xs hidden md:table-cell">${created}</td>
-          <td class="py-3 text-right">${k.isActive ? `<button onclick="openRevokeModal('${k.id}', '${escHtml(k.prefix)}')" class="text-xs text-red-400 hover:text-red-300 transition">Revoke</button>` : ''}</td>
+        return `<tr>
+          <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">${escHtml(k.prefix)}...</td>
+          <td><span style="font-size:13px;">${escHtml(k.name)}</span>${scopeHtml}</td>
+          <td class="hide-mobile">${statusBadge}</td>
+          <td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${lastUsed}</td>
+          <td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${created}</td>
+          <td style="text-align:right;">${k.isActive ? '<button onclick="openRevokeModal(\'' + k.id + '\', \'' + escHtml(k.prefix) + '\')" style="font-size:12px; color:var(--coral); cursor:pointer;">Revoke</button>' : ''}</td>
         </tr>`;
       }).join('');
     }
 
     // ── Google ──
     function renderGoogle(google) {
-      const section = document.getElementById('google-section');
-      section.classList.remove('hidden');
-      const statusEl = document.getElementById('google-status');
-
+      document.getElementById('google-section').classList.remove('hidden');
+      const el = document.getElementById('google-status');
       if (google.connected) {
-        statusEl.innerHTML = `
-          <div class="flex items-center justify-between p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl">✅</span>
-              <div>
-                <div class="text-sm font-medium text-white">${escHtml(google.email || 'Connected')}</div>
-                <div class="text-xs text-slate-400">${escHtml(google.scopes || 'GSC + GA4')}</div>
-              </div>
+        el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:20px;">✅</span>
+            <div>
+              <div style="font-size:14px; font-weight:500;">${escHtml(google.email || 'Connected')}</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">${escHtml(google.scopes || 'GSC + GA4')}</div>
             </div>
-            <a href="/api/auth/google/disconnect" class="text-xs text-red-400 hover:text-red-300 transition">Disconnect</a>
-          </div>`;
+          </div>
+          <a href="/api/auth/google/disconnect" style="font-size:12px; color:var(--coral);">Disconnect</a>
+        </div>`;
       } else {
-        statusEl.innerHTML = `
-          <div class="flex items-center justify-between p-4 bg-surface-700/50 border border-white/5 rounded-xl">
-            <div class="flex items-center gap-3">
-              <span class="text-2xl opacity-50">🔗</span>
-              <div>
-                <div class="text-sm font-medium text-slate-300">Not connected</div>
-                <div class="text-xs text-slate-500">Required for Search Console and Analytics tools</div>
-              </div>
+        el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span style="font-size:20px; opacity:0.5;">🔗</span>
+            <div>
+              <div style="font-size:14px; font-weight:500; color:var(--text-secondary);">Not connected</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Required for Search Console and Analytics tools</div>
             </div>
-            <a href="/api/auth/google/start" class="px-4 py-2 text-sm font-medium bg-white text-surface-900 rounded-lg hover:bg-slate-100 transition">Connect Google</a>
-          </div>`;
+          </div>
+          <a href="/api/auth/google/start" style="padding:8px 16px; font-size:13px; font-weight:500; background:var(--text-primary); color:var(--bg-deep); border-radius:8px;">Connect Google</a>
+        </div>`;
       }
     }
 
     // ── Activity ──
     function renderActivity(calls) {
-      const section = document.getElementById('activity-section');
-      section.classList.remove('hidden');
+      document.getElementById('activity-section').classList.remove('hidden');
       const tbody = document.getElementById('activity-table');
       const noActivity = document.getElementById('no-activity');
-
-      if (!calls || calls.length === 0) {
-        tbody.closest('table').classList.add('hidden');
-        noActivity.classList.remove('hidden');
-        return;
-      }
-
-      noActivity.classList.add('hidden');
-      tbody.closest('table').classList.remove('hidden');
-
+      if (!calls || calls.length === 0) { tbody.closest('table').classList.add('hidden'); noActivity.classList.remove('hidden'); return; }
+      noActivity.classList.add('hidden'); tbody.closest('table').classList.remove('hidden');
       tbody.innerHTML = calls.map(c => {
         const time = timeAgo(new Date(c.createdAt));
-        const statusClass = `badge-${c.status}`;
-        const duration = c.durationMs ? `${c.durationMs}ms` : '—';
-
-        return `<tr class="border-b border-white/5">
-          <td class="py-2.5 pr-4 text-xs text-slate-500">${time}</td>
-          <td class="py-2.5 pr-4 font-mono text-xs text-slate-300">${escHtml(c.tool)}</td>
-          <td class="py-2.5 pr-4"><span class="px-2 py-0.5 rounded text-xs font-medium ${statusClass}">${c.status}</span></td>
-          <td class="py-2.5 text-right text-xs text-slate-400">${duration}</td>
+        const dur = c.durationMs ? c.durationMs + 'ms' : '—';
+        return `<tr>
+          <td style="font-size:12px; color:var(--text-tertiary);">${time}</td>
+          <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">${escHtml(c.tool)}</td>
+          <td><span class="badge badge-${c.status}">${c.status}</span></td>
+          <td style="text-align:right; font-size:12px; color:var(--text-tertiary);">${dur}</td>
         </tr>`;
       }).join('');
     }
 
     // ── Scheduled Audits ──
     async function loadSchedules() {
-      const section = document.getElementById('schedules-section');
       try {
         const res = await fetch('/dashboard/api/schedules', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        section.classList.remove('hidden');
-        
+        document.getElementById('schedules-section').classList.remove('hidden');
         const limitEl = document.getElementById('schedule-limit');
         const max = data.limits.max === 'unlimited' ? '∞' : data.limits.max;
-        limitEl.textContent = `${data.limits.used}/${max} schedules`;
-        
-        if (data.limits.max === 0) {
-          document.getElementById('add-schedule-btn').disabled = true;
-          document.getElementById('add-schedule-btn').title = 'Upgrade to Pro to use scheduled audits';
-        }
-        
+        limitEl.textContent = data.limits.used + '/' + max + ' schedules';
+        if (data.limits.max === 0) { document.getElementById('add-schedule-btn').disabled = true; document.getElementById('add-schedule-btn').title = 'Upgrade to Pro'; }
         const list = document.getElementById('schedules-list');
         const noSched = document.getElementById('no-schedules');
-        
-        if (data.schedules.length === 0) {
-          noSched.classList.remove('hidden');
-          list.innerHTML = '';
-          return;
-        }
+        if (data.schedules.length === 0) { noSched.classList.remove('hidden'); list.innerHTML = ''; return; }
         noSched.classList.add('hidden');
-        
         list.innerHTML = data.schedules.map(s => {
-          const statusClass = s.isActive ? 'badge-active' : 'badge-revoked';
-          const statusText = s.isActive ? 'Active' : 'Paused';
+          const statusBadge = s.isActive ? '<span class="badge badge-active">Active</span>' : '<span class="badge badge-revoked">Paused</span>';
           const nextRun = s.isActive && s.nextRunAt ? new Date(s.nextRunAt).toLocaleString() : '—';
           const lastRun = s.lastRunAt ? new Date(s.lastRunAt).toLocaleString() : 'Never';
-          const error = s.lastError ? `<span class="text-xs text-red-400 ml-2">${escHtml(s.lastError)}</span>` : '';
-          return `<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-surface-900/50 border border-white/5 rounded-xl gap-3">
-            <div class="flex-1 min-w-0">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-sm font-medium text-white truncate">${escHtml(s.siteUrl)}</span>
-                <span class="px-2 py-0.5 rounded text-xs font-medium ${statusClass}">${statusText}</span>
+          const error = s.lastError ? '<span style="font-size:11px; color:var(--coral); margin-left:8px;">' + escHtml(s.lastError) + '</span>' : '';
+          return `<div style="display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:10px; gap:12px; flex-wrap:wrap;">
+            <div style="flex:1; min-width:200px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+                <span style="font-size:13px; font-weight:500;">${escHtml(s.siteUrl)}</span>
+                ${statusBadge}
               </div>
-              <div class="text-xs text-slate-500">${escHtml(s.description)} · ${s.toolName} · ${s.runCount} runs${error}</div>
-              <div class="text-xs text-slate-600 mt-1">Next: ${nextRun} · Last: ${lastRun}</div>
+              <div style="font-size:11px; color:var(--text-tertiary);">${escHtml(s.description)} · ${s.toolName} · ${s.runCount} runs${error}</div>
+              <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px;">Next: ${nextRun} · Last: ${lastRun}</div>
             </div>
-            <div class="flex items-center gap-2 shrink-0">
-              <button onclick="toggleSchedule('${s.id}', ${!s.isActive})" class="text-xs px-2 py-1 rounded border border-white/10 bg-surface-700 hover:bg-surface-600 text-slate-300 transition">${s.isActive ? 'Pause' : 'Resume'}</button>
-              <button onclick="runScheduleNow('${s.id}')" class="text-xs px-2 py-1 rounded border border-white/10 bg-surface-700 hover:bg-surface-600 text-slate-300 transition" ${!s.isActive ? 'disabled' : ''}>Run Now</button>
-              <button onclick="deleteSchedule('${s.id}')" class="text-xs px-2 py-1 rounded border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 transition">Delete</button>
+            <div style="display:flex; gap:6px; flex-shrink:0;">
+              <button onclick="toggleSchedule('${s.id}', ${!s.isActive})" class="btn-ghost" style="padding:4px 10px; font-size:11px;">${s.isActive ? 'Pause' : 'Resume'}</button>
+              <button onclick="runScheduleNow('${s.id}')" class="btn-ghost" style="padding:4px 10px; font-size:11px;" ${!s.isActive ? 'disabled' : ''}>Run Now</button>
+              <button onclick="deleteSchedule('${s.id}')" class="btn-danger" style="padding:4px 10px; font-size:11px;">Delete</button>
             </div>
           </div>`;
         }).join('');
-      } catch (err) {
-        console.error('Failed to load schedules:', err);
-      }
+      } catch (err) { console.error('Failed to load schedules:', err); }
     }
-    
+
     function showScheduleModal() { document.getElementById('schedule-modal').classList.add('active'); }
     function closeScheduleModal() { document.getElementById('schedule-modal').classList.remove('active'); }
-    
+
     function updateDayField() {
       const freq = document.getElementById('sched-freq').value;
       const wrap = document.getElementById('sched-day-wrap');
@@ -1054,184 +1037,110 @@
           sel.innerHTML = '<option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option>';
         } else {
           label.textContent = 'Day';
-          sel.innerHTML = [...Array(28)].map((_,i) => `<option value="${i+1}">${i+1}</option>`).join('');
+          sel.innerHTML = [...Array(28)].map((_, i) => '<option value="' + (i + 1) + '">' + (i + 1) + '</option>').join('');
         }
       }
     }
-    
+
     async function createSchedule(e) {
       e.preventDefault();
-      const errEl = document.getElementById('schedule-error');
-      errEl.classList.add('hidden');
+      const errEl = document.getElementById('schedule-error'); errEl.classList.add('hidden');
       const freq = document.getElementById('sched-freq').value;
-      const body = {
-        siteUrl: document.getElementById('sched-site').value,
-        toolName: document.getElementById('sched-tool').value,
-        schedule: freq,
-        hour: parseInt(document.getElementById('sched-hour').value),
-      };
+      const body = { siteUrl: document.getElementById('sched-site').value, toolName: document.getElementById('sched-tool').value, schedule: freq, hour: parseInt(document.getElementById('sched-hour').value) };
       if (freq !== 'daily') body.day = parseInt(document.getElementById('sched-day').value);
       try {
-        const res = await fetch('/dashboard/api/schedules', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
+        const res = await fetch('/dashboard/api/schedules', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
-        closeScheduleModal();
-        document.getElementById('schedule-form').reset();
-        loadSchedules();
+        closeScheduleModal(); document.getElementById('schedule-form').reset(); loadSchedules();
       } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
     }
-    
+
     async function toggleSchedule(id, isActive) {
-      await fetch(`/dashboard/api/schedules/${id}/update`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isActive }),
-      });
+      await fetch('/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) });
       loadSchedules();
     }
-    
+
     async function runScheduleNow(id) {
-      await fetch(`/dashboard/api/schedules/${id}/run`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
+      await fetch('/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const toast = document.getElementById('copy-toast');
-      toast.textContent = '🚀 Audit triggered!';
-      toast.classList.add('show');
+      toast.textContent = '🚀 Audit triggered!'; toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 2500);
     }
-    
+
     async function deleteSchedule(id) {
       if (!confirm('Delete this scheduled audit?')) return;
-      await fetch(`/dashboard/api/schedules/${id}/delete`, {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
+      await fetch('/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       loadSchedules();
     }
 
     // ── Webhooks ──
     async function loadWebhooks() {
-      const section = document.getElementById('webhooks-section');
       try {
         const res = await fetch('/dashboard/api/webhook', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        section.classList.remove('hidden');
-        
-        if (data.webhook.url) {
-          document.getElementById('webhook-url').value = data.webhook.url;
-        }
-        
+        document.getElementById('webhooks-section').classList.remove('hidden');
+        if (data.webhook.url) document.getElementById('webhook-url').value = data.webhook.url;
         const tbody = document.getElementById('deliveries-body');
-        const noDeliveries = document.getElementById('no-deliveries');
-        const table = document.getElementById('deliveries-table');
-        
-        if (data.deliveries.length === 0) {
-          noDeliveries.classList.remove('hidden');
-          table.classList.add('hidden');
-        } else {
-          noDeliveries.classList.add('hidden');
-          table.classList.remove('hidden');
+        const noD = document.getElementById('no-deliveries');
+        const tbl = document.getElementById('deliveries-table');
+        if (data.deliveries.length === 0) { noD.classList.remove('hidden'); tbl.classList.add('hidden'); }
+        else {
+          noD.classList.add('hidden'); tbl.classList.remove('hidden');
           tbody.innerHTML = data.deliveries.map(d => {
-            const statusClass = d.success ? 'text-green-400' : 'text-red-400';
-            const statusText = d.success ? `${d.statusCode || 'OK'}` : (d.error || 'Failed');
-            const time = new Date(d.createdAt).toLocaleString();
-            return `<tr class="border-b border-white/5">
-              <td class="py-2 pr-4 text-xs font-mono text-slate-300">${escHtml(d.event)}</td>
-              <td class="py-2 pr-4 text-xs ${statusClass}">${escHtml(statusText)}</td>
-              <td class="py-2 pr-4 text-xs text-slate-500 hidden sm:table-cell">${d.durationMs ? d.durationMs + 'ms' : '—'}</td>
-              <td class="py-2 text-xs text-slate-500">${time}</td>
-            </tr>`;
+            const cls = d.success ? 'color:var(--sage);' : 'color:var(--coral);';
+            const st = d.success ? (d.statusCode || 'OK') : (d.error || 'Failed');
+            return `<tr><td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">${escHtml(d.event)}</td><td style="font-size:12px; ${cls}">${escHtml(st)}</td><td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${d.durationMs ? d.durationMs + 'ms' : '—'}</td><td style="font-size:12px; color:var(--text-tertiary);">${new Date(d.createdAt).toLocaleString()}</td></tr>`;
           }).join('');
         }
       } catch (err) { console.error('Failed to load webhooks:', err); }
     }
-    
+
     async function saveWebhook(e) {
       e.preventDefault();
-      const errEl = document.getElementById('webhook-error');
-      const sucEl = document.getElementById('webhook-success');
+      const errEl = document.getElementById('webhook-error'); const sucEl = document.getElementById('webhook-success');
       errEl.classList.add('hidden'); sucEl.classList.add('hidden');
-      const url = document.getElementById('webhook-url').value;
       try {
-        const res = await fetch('/dashboard/api/webhook', {
-          method: 'POST', credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url }),
-        });
+        const res = await fetch('/dashboard/api/webhook', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: document.getElementById('webhook-url').value }) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
         sucEl.textContent = 'Webhook URL saved ✓'; sucEl.classList.remove('hidden');
         setTimeout(() => sucEl.classList.add('hidden'), 3000);
       } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
     }
-    
+
     async function removeWebhook() {
-      await fetch('/dashboard/api/webhook/remove', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
+      await fetch('/dashboard/api/webhook/remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       document.getElementById('webhook-url').value = '';
-      document.getElementById('webhook-success').textContent = 'Webhook removed';
-      document.getElementById('webhook-success').classList.remove('hidden');
-      setTimeout(() => document.getElementById('webhook-success').classList.add('hidden'), 3000);
+      const s = document.getElementById('webhook-success'); s.textContent = 'Webhook removed'; s.classList.remove('hidden');
+      setTimeout(() => s.classList.add('hidden'), 3000);
     }
-    
+
     async function testWebhook() {
-      const res = await fetch('/dashboard/api/webhook/test', {
-        method: 'POST', credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({}),
-      });
+      const res = await fetch('/dashboard/api/webhook/test', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const data = await res.json();
-      if (!res.ok) {
-        document.getElementById('webhook-error').textContent = data.error;
-        document.getElementById('webhook-error').classList.remove('hidden');
-        return;
-      }
-      document.getElementById('webhook-success').textContent = 'Test webhook sent! Check deliveries.';
-      document.getElementById('webhook-success').classList.remove('hidden');
-      setTimeout(() => { document.getElementById('webhook-success').classList.add('hidden'); loadWebhooks(); }, 2000);
+      if (!res.ok) { document.getElementById('webhook-error').textContent = data.error; document.getElementById('webhook-error').classList.remove('hidden'); return; }
+      const s = document.getElementById('webhook-success'); s.textContent = 'Test webhook sent!'; s.classList.remove('hidden');
+      setTimeout(() => { s.classList.add('hidden'); loadWebhooks(); }, 2000);
     }
 
     // ── Billing ──
     function renderBilling(billing, currentPlan) {
-      const section = document.getElementById('billing-section');
-      section.classList.remove('hidden');
-      const statusEl = document.getElementById('billing-status');
-
+      document.getElementById('billing-section').classList.remove('hidden');
+      const el = document.getElementById('billing-status');
       if (!billing && currentPlan === 'free') {
-        // Free plan — show upgrade options
-        statusEl.innerHTML = `
-          <p class="text-sm text-slate-400 mb-4">You're on the <span class="text-white font-medium">Free</span> plan (50 calls/mo).</p>
-          <div class="grid sm:grid-cols-2 gap-4">
-            <div class="p-4 bg-surface-700/50 border border-white/5 rounded-xl">
-              <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold text-white">Pro</span>
-                <span class="text-brand-400 font-bold">$29/mo</span>
-              </div>
-              <p class="text-xs text-slate-400 mb-3">2,000 calls/mo · 5 sites · 5 API keys</p>
-              <button onclick="handleUpgrade('pro')" class="w-full py-2 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">
-                Upgrade to Pro
-              </button>
+        el.innerHTML = `<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You're on the <span style="font-weight:500; color:var(--text-primary);">Free</span> plan (50 calls/mo).</p>
+          <div class="grid-2">
+            <div style="padding:20px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Pro</span><span style="color:var(--amber); font-weight:700;">$29/mo</span></div>
+              <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">2,000 calls/mo · 5 sites · 5 API keys</p>
+              <button onclick="handleUpgrade('pro')" class="btn-amber" style="width:100%;">Upgrade to Pro</button>
             </div>
-            <div class="p-4 bg-surface-700/50 border border-brand-500/20 rounded-xl">
-              <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold text-white">Agency</span>
-                <span class="text-brand-400 font-bold">$79/mo</span>
-              </div>
-              <p class="text-xs text-slate-400 mb-3">10,000 calls/mo · Unlimited sites · 20 keys</p>
-              <button onclick="handleUpgrade('agency')" class="w-full py-2 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">
-                Upgrade to Agency
-              </button>
+            <div style="padding:20px; background:var(--bg-raised); border:1px solid rgba(229,164,48,0.2); border-radius:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Agency</span><span style="color:var(--amber); font-weight:700;">$79/mo</span></div>
+              <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">10,000 calls/mo · Unlimited sites · 20 keys</p>
+              <button onclick="handleUpgrade('agency')" class="btn-amber" style="width:100%;">Upgrade to Agency</button>
             </div>
           </div>`;
       } else if (billing) {
@@ -1239,222 +1148,113 @@
         const isCancelling = billing.cancelAtPeriodEnd;
         const isPastDue = billing.status === 'past_due';
         const renewDate = billing.renewsAt ? new Date(billing.renewsAt).toLocaleDateString() : 'N/A';
-
-        let statusHtml = '';
-
+        let html = '';
         if (isPastDue) {
-          statusHtml = `
-            <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-xl mb-4">
-              <div class="flex items-center gap-2 mb-1">
-                <span class="text-lg">⚠️</span>
-                <span class="font-semibold text-red-400">Payment Failed</span>
-              </div>
-              <p class="text-sm text-red-300/80">Your last payment failed. Please update your payment method to keep access.</p>
-              ${billing.updatePaymentUrl ? `<a href="${escHtml(billing.updatePaymentUrl)}" target="_blank" class="inline-block mt-2 px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg transition">Update Payment →</a>` : ''}
-            </div>`;
+          html += `<div style="padding:16px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:12px; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span>⚠️</span><span style="font-weight:600; color:var(--coral);">Payment Failed</span></div>
+            <p style="font-size:13px; color:rgba(248,113,113,0.8);">Please update your payment method to keep access.</p>
+            ${billing.updatePaymentUrl ? '<a href="' + escHtml(billing.updatePaymentUrl) + '" target="_blank" class="btn-danger" style="display:inline-block; margin-top:8px;">Update Payment →</a>' : ''}
+          </div>`;
         }
-
         if (isCancelling) {
-          statusHtml += `
-            <div class="p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-semibold text-white capitalize">${escHtml(billing.plan)} Plan</span>
-                    <span class="px-2 py-0.5 rounded text-xs font-medium text-amber-400 bg-amber-500/10 border border-amber-500/20">Cancelling</span>
-                  </div>
-                  <p class="text-sm text-slate-400">Access until ${renewDate}</p>
-                </div>
-                <button onclick="handleResume()" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Resume</button>
-              </div>
-            </div>`;
+          html += `<div style="padding:16px; background:rgba(229,164,48,0.06); border:1px solid rgba(229,164,48,0.2); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge" style="background:rgba(229,164,48,0.1); color:var(--amber); border:1px solid rgba(229,164,48,0.2);">Cancelling</span></div><p style="font-size:13px; color:var(--text-tertiary);">Access until ${renewDate}</p></div>
+              <button onclick="handleResume()" class="btn-amber">Resume</button>
+            </div>
+          </div>`;
         } else if (isActive) {
-          statusHtml += `
-            <div class="p-4 bg-green-500/5 border border-green-500/20 rounded-xl">
-              <div class="flex items-center justify-between">
-                <div>
-                  <div class="flex items-center gap-2 mb-1">
-                    <span class="font-semibold text-white capitalize">${escHtml(billing.plan)} Plan</span>
-                    <span class="px-2 py-0.5 rounded text-xs font-medium badge-active">Active</span>
-                  </div>
-                  <p class="text-sm text-slate-400">Renews ${renewDate}</p>
-                </div>
-                <div class="flex gap-2">
-                  ${billing.portalUrl ? `<a href="${escHtml(billing.portalUrl)}" target="_blank" class="px-3 py-2 text-xs text-slate-400 hover:text-white border border-white/10 rounded-lg transition">Manage →</a>` : ''}
-                  <button onclick="handleCancel()" class="px-3 py-2 text-xs text-red-400 hover:text-red-300 border border-red-500/20 rounded-lg transition">Cancel</button>
-                </div>
+          html += `<div style="padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge badge-active">Active</span></div><p style="font-size:13px; color:var(--text-tertiary);">Renews ${renewDate}</p></div>
+              <div style="display:flex; gap:8px;">
+                ${billing.portalUrl ? '<a href="' + escHtml(billing.portalUrl) + '" target="_blank" class="btn-ghost" style="font-size:12px;">Manage →</a>' : ''}
+                <button onclick="handleCancel()" style="font-size:12px; color:var(--coral); padding:8px 12px; border:1px solid rgba(248,113,113,0.15); border-radius:8px; cursor:pointer;">Cancel</button>
               </div>
-            </div>`;
-
-          // Show upgrade option if on Pro
-          if (billing.plan === 'pro') {
-            statusHtml += `
-              <div class="mt-3 p-3 bg-surface-700/30 border border-white/5 rounded-lg flex items-center justify-between">
-                <span class="text-sm text-slate-400">Need more? Agency: 10K calls, unlimited sites</span>
-                <button onclick="handleUpgrade('agency')" class="px-3 py-1.5 text-xs font-medium bg-brand-500/20 text-brand-300 hover:bg-brand-500/30 rounded-lg transition">Upgrade →</button>
-              </div>`;
-          }
+            </div>
+          </div>`;
+          if (billing.plan === 'pro') html += `<div style="margin-top:10px; padding:10px 14px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:13px; color:var(--text-tertiary);">Need more? Agency: 10K calls, unlimited sites</span><button onclick="handleUpgrade('agency')" style="font-size:12px; color:var(--amber); padding:6px 12px; background:var(--amber-muted); border-radius:6px; cursor:pointer;">Upgrade →</button></div>`;
         } else {
-          // Expired or other status
-          statusHtml += `
-            <div class="p-4 bg-surface-700/50 border border-white/5 rounded-xl">
-              <div class="flex items-center gap-2 mb-2">
-                <span class="font-semibold text-slate-300 capitalize">${escHtml(billing.plan)} Plan</span>
-                <span class="px-2 py-0.5 rounded text-xs font-medium badge-revoked">${escHtml(billing.status)}</span>
-              </div>
-              <p class="text-sm text-slate-500 mb-3">Your subscription has ended.</p>
-              <button onclick="handleUpgrade('${billing.plan}')" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Resubscribe</button>
-            </div>`;
+          html += `<div style="padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge badge-revoked">${escHtml(billing.status)}</span></div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:12px;">Your subscription has ended.</p>
+            <button onclick="handleUpgrade('${billing.plan}')" class="btn-amber">Resubscribe</button>
+          </div>`;
         }
-
-        statusEl.innerHTML = statusHtml;
+        el.innerHTML = html;
       }
     }
 
     async function handleUpgrade(plan) {
       try {
-        const res = await fetch('/api/billing/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ plan }),
-        });
+        const res = await fetch('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
         const data = await res.json();
-
-        if (!res.ok) {
-          alert(data.error || 'Failed to create checkout');
-          return;
-        }
-
-        // Try Lemon.js overlay first, fallback to redirect
-        if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) {
-          LemonSqueezy.Url.Open(data.url);
-        } else {
-          window.open(data.url, '_blank');
-        }
-      } catch (err) {
-        alert('Failed to start checkout');
-      }
+        if (!res.ok) { alert(data.error || 'Failed to create checkout'); return; }
+        if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) LemonSqueezy.Url.Open(data.url);
+        else window.open(data.url, '_blank');
+      } catch { alert('Failed to start checkout'); }
     }
 
     async function handleCancel() {
-      if (!confirm('Are you sure you want to cancel? You\'ll keep access until the end of your billing period.')) return;
+      if (!confirm('Cancel? You\'ll keep access until the end of your billing period.')) return;
       try {
-        const res = await fetch('/api/billing/cancel', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
-        if (res.ok) {
-          loadDashboard();
-        } else {
-          const data = await res.json();
-          alert(data.error || 'Failed to cancel');
-        }
-      } catch (err) {
-        alert('Failed to cancel subscription');
-      }
+        const res = await fetch('/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
+      } catch { alert('Failed to cancel'); }
     }
 
     async function handleResume() {
       try {
-        const res = await fetch('/api/billing/resume', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
-        if (res.ok) {
-          loadDashboard();
-        } else {
-          const data = await res.json();
-          alert(data.error || 'Failed to resume');
-        }
-      } catch (err) {
-        alert('Failed to resume subscription');
-      }
+        const res = await fetch('/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
+      } catch { alert('Failed to resume'); }
     }
 
     // ── Key Management ──
     function toggleScopes() {
       const opts = document.getElementById('scope-options');
-      const toggleText = document.getElementById('scope-toggle-text');
-      if (opts.classList.contains('hidden')) {
-        opts.classList.remove('hidden');
-        toggleText.textContent = 'Allow all tools';
-      } else {
-        opts.classList.add('hidden');
-        // Uncheck all
-        document.querySelectorAll('input[name="scope"]').forEach(cb => cb.checked = false);
-        document.getElementById('scope-info').textContent = 'All tools accessible (unrestricted)';
-        toggleText.textContent = 'Restrict access';
-      }
+      const txt = document.getElementById('scope-toggle-text');
+      if (opts.classList.contains('hidden')) { opts.classList.remove('hidden'); opts.style.display = 'grid'; txt.textContent = 'Allow all tools'; }
+      else { opts.classList.add('hidden'); opts.style.display = ''; document.querySelectorAll('input[name="scope"]').forEach(cb => cb.checked = false); document.getElementById('scope-info').textContent = 'All tools accessible (unrestricted)'; txt.textContent = 'Restrict access'; }
     }
 
-    // Update scope info when checkboxes change
     document.addEventListener('change', (e) => {
       if (e.target.name === 'scope') {
         const checked = Array.from(document.querySelectorAll('input[name="scope"]:checked')).map(cb => cb.value);
-        const info = document.getElementById('scope-info');
-        if (checked.length === 0) {
-          info.textContent = 'All tools accessible (unrestricted)';
-        } else {
-          info.textContent = `Restricted to: ${checked.join(', ')}`;
-        }
+        document.getElementById('scope-info').textContent = checked.length === 0 ? 'All tools accessible (unrestricted)' : 'Restricted to: ' + checked.join(', ');
       }
     });
 
     function openCreateKey() {
       document.getElementById('create-key-modal').classList.add('active');
-      document.getElementById('key-step-1').classList.remove('hidden');
+      document.getElementById('key-step-1').classList.remove('hidden'); document.getElementById('key-step-1').style.display = '';
       document.getElementById('key-step-2').classList.add('hidden');
-      document.getElementById('key-name').value = '';
-      document.getElementById('key-create-error').classList.add('hidden');
-      document.getElementById('scope-options').classList.add('hidden');
+      document.getElementById('key-name').value = ''; document.getElementById('key-create-error').classList.add('hidden');
+      document.getElementById('scope-options').classList.add('hidden'); document.getElementById('scope-options').style.display = '';
       document.getElementById('scope-toggle-text').textContent = 'Restrict access';
       document.getElementById('scope-info').textContent = 'All tools accessible (unrestricted)';
       document.querySelectorAll('input[name="scope"]').forEach(cb => cb.checked = false);
       setTimeout(() => document.getElementById('key-name').focus(), 100);
     }
 
-    function closeCreateKey() {
-      document.getElementById('create-key-modal').classList.remove('active');
-    }
+    function closeCreateKey() { document.getElementById('create-key-modal').classList.remove('active'); }
 
     async function handleCreateKey(e) {
       e.preventDefault();
-      const btn = document.getElementById('key-create-btn');
-      const errEl = document.getElementById('key-create-error');
+      const btn = document.getElementById('key-create-btn'); const errEl = document.getElementById('key-create-error');
       const name = document.getElementById('key-name').value.trim() || 'Untitled';
-
-      // Collect scopes
       const checkedScopes = Array.from(document.querySelectorAll('input[name="scope"]:checked')).map(cb => cb.value);
       const scopes = checkedScopes.length > 0 ? checkedScopes : undefined;
-
-      btn.textContent = 'Creating...';
-      btn.disabled = true;
-      errEl.classList.add('hidden');
-
+      btn.textContent = 'Creating...'; btn.disabled = true; errEl.classList.add('hidden');
       try {
-        const res = await fetch('/dashboard/api/keys', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, scopes }),
-        });
+        const res = await fetch('/dashboard/api/keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, scopes }) });
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to create key');
-        }
-
+        if (!res.ok) throw new Error(data.error || 'Failed');
         document.getElementById('new-key-display').value = data.key;
         document.getElementById('key-step-1').classList.add('hidden');
         document.getElementById('key-step-2').classList.remove('hidden');
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.classList.remove('hidden');
-      } finally {
-        btn.textContent = 'Create Key';
-        btn.disabled = false;
-      }
+      } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+      finally { btn.textContent = 'Create Key'; btn.disabled = false; }
     }
 
     function openRevokeModal(keyId, keyPrefix) {
@@ -1462,221 +1262,102 @@
       document.getElementById('revoke-key-prefix').textContent = keyPrefix + '...';
       document.getElementById('revoke-modal').classList.add('active');
     }
-
-    function closeRevokeModal() {
-      document.getElementById('revoke-modal').classList.remove('active');
-      revokeKeyId = null;
-    }
+    function closeRevokeModal() { document.getElementById('revoke-modal').classList.remove('active'); revokeKeyId = null; }
 
     async function confirmRevoke() {
       if (!revokeKeyId) return;
       try {
-        const res = await fetch(`/dashboard/api/keys/${revokeKeyId}/revoke`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({}),
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          alert(data.error || 'Failed to revoke key');
-          return;
-        }
-        closeRevokeModal();
-        loadDashboard();
-      } catch (err) {
-        alert('Failed to revoke key');
-      }
+        const res = await fetch('/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        if (!res.ok) { const data = await res.json(); alert(data.error || 'Failed'); return; }
+        closeRevokeModal(); loadDashboard();
+      } catch { alert('Failed to revoke key'); }
     }
 
-    // ── Password Change ──
+    // ── Password ──
     async function handlePasswordChange(e) {
       e.preventDefault();
-      const errEl = document.getElementById('password-error');
-      const successEl = document.getElementById('password-success');
-      errEl.classList.add('hidden');
-      successEl.classList.add('hidden');
-
-      const currentPassword = document.getElementById('current-password').value;
-      const newPassword = document.getElementById('new-password').value;
-
+      const errEl = document.getElementById('password-error'); const sucEl = document.getElementById('password-success');
+      errEl.classList.add('hidden'); sucEl.classList.add('hidden');
       try {
-        const res = await fetch('/dashboard/api/password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ currentPassword, newPassword }),
-        });
+        const res = await fetch('/dashboard/api/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: document.getElementById('current-password').value, newPassword: document.getElementById('new-password').value }) });
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Failed to update password');
-        }
-
-        successEl.textContent = '✓ Password updated successfully';
-        successEl.classList.remove('hidden');
-        document.getElementById('current-password').value = '';
-        document.getElementById('new-password').value = '';
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.classList.remove('hidden');
-      }
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        sucEl.textContent = '✓ Password updated'; sucEl.classList.remove('hidden');
+        document.getElementById('current-password').value = ''; document.getElementById('new-password').value = '';
+      } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
     }
 
     // ── Logout ──
-    async function handleLogout() {
-      await fetch('/dashboard/logout', { method: 'POST' });
-      window.location.href = '/dashboard/login';
-    }
+    async function handleLogout() { await fetch('/dashboard/logout', { method: 'POST' }); window.location.href = '/dashboard/login'; }
 
     // ── Onboarding ──
     function renderOnboarding(d) {
-      // Don't show if dismissed
       if (localStorage.getItem('onboarding-dismissed')) return;
-
-      // Determine completion of each step
-      const steps = {
-        account: true, // Always done if they're here
-        verify: d.user.emailVerified === true,
-        key: true, // They have at least one key from signup
-        google: d.google.connected === true,
-        usage: d.usage.used > 0,
-      };
-
+      const steps = { account: true, verify: d.user.emailVerified === true, key: true, google: d.google.connected === true, usage: d.usage.used > 0 };
       const completed = Object.values(steps).filter(Boolean).length;
       const total = Object.keys(steps).length;
-
-      // If all complete, don't show (auto-dismiss)
-      if (completed === total) {
-        localStorage.setItem('onboarding-dismissed', '1');
-        return;
-      }
-
-      // Update progress badge
-      document.getElementById('onb-progress').textContent = `${completed}/${total} complete`;
-
-      // Update each step's icon
+      if (completed === total) { localStorage.setItem('onboarding-dismissed', '1'); return; }
+      document.getElementById('onb-progress').textContent = completed + '/' + total + ' complete';
       for (const [step, done] of Object.entries(steps)) {
-        const el = document.getElementById(`onb-step-${step}`);
+        const el = document.getElementById('onb-step-' + step);
         if (!el) continue;
         const icon = el.querySelector('.onb-icon');
-        if (done) {
-          icon.textContent = '✅';
-          el.classList.add('opacity-60');
-        } else {
-          icon.textContent = '⬜';
-        }
+        if (done) { icon.textContent = '✅'; el.classList.add('done'); } else { icon.textContent = '⬜'; }
       }
-
-      // Fill in MCP config with user's actual key prefix
       const firstKey = d.keys.find(k => k.isActive);
       if (firstKey) {
-        document.getElementById('onb-config').textContent = JSON.stringify({
-          mcpServers: {
-            seo: {
-              url: 'https://seomcp.dev/mcp',
-              headers: { Authorization: `Bearer ${firstKey.prefix}...` }
-            }
-          }
-        }, null, 2);
+        document.getElementById('onb-config').textContent = JSON.stringify({ mcpServers: { seo: { url: 'https://seomcp.dev/mcp', headers: { Authorization: 'Bearer ' + firstKey.prefix + '...' } } } }, null, 2);
       }
-
-      // Update Google button if already connected
-      if (steps.google) {
-        const btn = document.getElementById('onb-google-btn');
-        if (btn) btn.style.display = 'none';
-      }
-
+      if (steps.google) { const btn = document.getElementById('onb-google-btn'); if (btn) btn.style.display = 'none'; }
       document.getElementById('onboarding').classList.remove('hidden');
     }
 
-    function dismissOnboarding() {
-      localStorage.setItem('onboarding-dismissed', '1');
-      document.getElementById('onboarding').classList.add('hidden');
-    }
-
-    function scrollTo(selector) {
-      const el = document.querySelector(selector);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+    function dismissOnboarding() { localStorage.setItem('onboarding-dismissed', '1'); document.getElementById('onboarding').classList.add('hidden'); }
+    function scrollTo(sel) { const el = document.querySelector(sel); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 
     async function resendVerification() {
       const btn = document.getElementById('resend-btn');
-      btn.disabled = true;
-      btn.textContent = 'Sending...';
+      btn.disabled = true; btn.textContent = 'Sending...';
       try {
-        const res = await fetch('/api/auth/resend-verification', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: dashData.user.email }),
-        });
-        if (res.ok) {
-          btn.textContent = '✓ Sent!';
-          btn.classList.remove('bg-amber-500/20', 'hover:bg-amber-500/30', 'text-amber-200', 'border-amber-500/30');
-          btn.classList.add('bg-green-500/20', 'text-green-200', 'border-green-500/30');
-          setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000);
-        } else {
-          const data = await res.json();
-          btn.textContent = data.error || 'Failed';
-          setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000);
-        }
-      } catch {
-        btn.textContent = 'Error';
-        setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000);
-      }
+        const res = await fetch('/api/auth/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: dashData.user.email }) });
+        if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000); }
+        else { const data = await res.json(); btn.textContent = data.error || 'Failed'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
+      } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
     }
 
     // ── Helpers ──
-    function escHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str || '';
-      return div.innerHTML;
-    }
-
+    function escHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
     function timeAgo(date) {
-      const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-      if (seconds < 60) return 'just now';
-      const minutes = Math.floor(seconds / 60);
-      if (minutes < 60) return `${minutes}m ago`;
-      const hours = Math.floor(minutes / 60);
-      if (hours < 24) return `${hours}h ago`;
-      const days = Math.floor(hours / 24);
-      return `${days}d ago`;
+      const s = Math.floor((Date.now() - date.getTime()) / 1000);
+      if (s < 60) return 'just now';
+      const m = Math.floor(s / 60); if (m < 60) return m + 'm ago';
+      const h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
+      return Math.floor(h / 24) + 'd ago';
     }
-
     function copyText(text) {
       navigator.clipboard.writeText(text).then(() => {
-        const toast = document.getElementById('copy-toast');
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 2000);
+        const t = document.getElementById('copy-toast'); t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
       });
     }
 
-    // ── Modal escape/overlay handlers ──
+    // ── Modal handlers ──
     document.querySelectorAll('.modal-overlay').forEach(modal => {
-      modal.addEventListener('click', (e) => {
-        if (e.target === e.currentTarget) {
-          modal.classList.remove('active');
-        }
-      });
+      modal.addEventListener('click', (e) => { if (e.target === e.currentTarget) modal.classList.remove('active'); });
     });
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-      }
+      if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     });
 
     // ── Init ──
-    // Check for upgrade redirect
     if (new URLSearchParams(window.location.search).get('upgraded') === 'true') {
-      // Clean URL and show a brief success message
       history.replaceState(null, '', '/dashboard');
       setTimeout(() => {
-        const toast = document.getElementById('copy-toast');
-        toast.textContent = '🎉 Plan upgraded!';
-        toast.classList.add('show');
-        setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 3000);
+        const t = document.getElementById('copy-toast');
+        t.textContent = '🎉 Plan upgraded!'; t.classList.add('show');
+        setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 3000);
       }, 1000);
     }
-
     loadDashboard();
   </script>
 </body>

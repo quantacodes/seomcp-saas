@@ -33,31 +33,27 @@ describe("Landing page", () => {
     const res = await req("/");
     const html = await res.text();
     // Hero
-    expect(html).toContain("Give any AI agent");
-    expect(html).toContain("SEO superpowers");
+    expect(html).toContain("35 SEO tools");
+    expect(html).toContain("One line of config");
     // How it works
-    expect(html).toContain("Three steps. Under a minute.");
-    // Real data section
-    expect(html).toContain("Your real Google data");
+    expect(html).toContain("Three steps. Under 60 seconds.");
     // Tools grid
-    expect(html).toContain("35 tools. Every SEO workflow.");
+    expect(html).toContain("Every SEO tool your agent needs");
     expect(html).toContain("site_audit");
     expect(html).toContain("gsc_performance");
     expect(html).toContain("ga4_report");
     expect(html).toContain("indexnow_submit_url");
     expect(html).toContain("generate_report");
-    // Comparison table
-    expect(html).toContain("Stop overpaying for SEO data");
+    // Comparison
+    expect(html).toContain("Stop juggling SEO APIs");
     // Pricing
-    expect(html).toContain("Simple, transparent pricing");
-    expect(html).toContain("$0");
+    expect(html).toContain("$0.83/day");
     expect(html).toContain("$29");
-    expect(html).toContain("$79");
     // FAQ
     expect(html).toContain("Frequently asked questions");
     expect(html).toContain("What is MCP?");
     // CTA
-    expect(html).toContain("Get Free API Key");
+    expect(html).toContain("Get API Key");
     // Footer
     expect(html).toContain("QuantaCodes");
   });
@@ -73,8 +69,8 @@ describe("Landing page", () => {
   it("includes MCP config snippet", async () => {
     const res = await req("/");
     const html = await res.text();
-    expect(html).toContain("https://seomcp.dev/mcp");
-    expect(html).toContain("sk_live_REDACTED_key");
+    expect(html).toContain("seomcp.dev/sse");
+    expect(html).toContain("YOUR_KEY");
     expect(html).toContain("mcpServers");
   });
 

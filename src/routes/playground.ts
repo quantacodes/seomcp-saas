@@ -273,25 +273,28 @@ function renderPlaygroundPage(): string {
   <meta property="og:url" content="https://seomcp.dev/playground">
   <link rel="canonical" href="https://seomcp.dev/playground">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg: #0a0a0f; --card: #12121a; --border: #1e1e2e;
-      --text: #e0e0e0; --muted: #888; --accent: #6366f1;
-      --green: #22c55e; --blue: #3b82f6; --orange: #f59e0b;
-      --red: #ef4444;
+      --bg: #0C0C0F; --card: #16161D; --border: #2A2A36;
+      --text: #EDEDF0; --muted: #8E8EA0; --accent: #E5A430;
+      --green: #4ADE80; --blue: #60A5FA; --orange: #FBBF24;
+      --red: #F87171;
     }
-    body { font-family: -apple-system, 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; -webkit-font-smoothing: antialiased; }
     .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
 
     /* Header */
     .back { display: inline-block; color: var(--accent); text-decoration: none; margin-bottom: 1rem; font-size: 0.9rem; }
-    .back:hover { text-decoration: underline; }
+    .back:hover { opacity: 0.8; }
     header { margin-bottom: 2rem; }
-    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    header h1 { font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: -0.02em; }
     header h1 span { color: var(--accent); }
     header p { color: var(--muted); }
-    .limits { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding: 0.4rem 0.8rem; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 8px; font-size: 0.85rem; }
+    .limits { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.75rem; padding: 0.4rem 0.8rem; background: rgba(229,164,48,0.08); border: 1px solid rgba(229,164,48,0.15); border-radius: 8px; font-size: 0.85rem; }
     .limits .dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; }
 
     /* Tool selector */
@@ -311,7 +314,7 @@ function renderPlaygroundPage(): string {
     .input-row input:focus { border-color: var(--accent); }
     .input-row input::placeholder { color: #555; }
     .run-btn { background: var(--accent); color: white; border: none; border-radius: 8px; padding: 0.75rem 1.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-    .run-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(99,102,241,0.4); }
+    .run-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(229,164,48,0.3); }
     .run-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .run-btn.loading { position: relative; color: transparent; }
     .run-btn.loading::after { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border: 2px solid transparent; border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; }
@@ -337,11 +340,11 @@ function renderPlaygroundPage(): string {
     .result-error .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; padding: 1rem; color: var(--red); }
 
     /* CTA */
-    .cta { text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.05)); border: 1px solid rgba(99,102,241,0.2); border-radius: 16px; margin-top: 2rem; }
-    .cta h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+    .cta { text-align: center; padding: 2rem; background: linear-gradient(135deg, rgba(229,164,48,0.06), rgba(229,164,48,0.02)); border: 1px solid rgba(229,164,48,0.15); border-radius: 16px; margin-top: 2rem; }
+    .cta h3 { font-size: 1.3rem; margin-bottom: 0.5rem; font-weight: 600; }
     .cta p { color: var(--muted); margin-bottom: 1rem; font-size: 0.95rem; }
-    .cta a { display: inline-block; background: var(--accent); color: white; padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.2s; }
-    .cta a:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
+    .cta a { display: inline-block; background: var(--accent); color: #0C0C0F; padding: 0.6rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600; transition: all 0.2s; }
+    .cta a:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(229,164,48,0.3); }
 
     /* Footer */
     footer { text-align: center; padding: 2rem 0; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 2rem; }

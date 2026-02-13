@@ -29,51 +29,49 @@
             mono: ['JetBrains Mono', 'monospace'],
           },
           colors: {
-            brand: { 50: '#f0f9ff', 100: '#e0f2fe', 200: '#bae6fd', 300: '#7dd3fc', 400: '#38bdf8', 500: '#0ea5e9', 600: '#0284c7', 700: '#0369a1' },
-            surface: { 900: '#0f172a', 800: '#1e293b', 700: '#334155', 600: '#475569' },
+            brand: { 50: '#FFF8E7', 100: '#FFF0C4', 200: '#FFE08A', 300: '#F0B840', 400: '#E5A430', 500: '#E5A430', 600: '#C98A1A', 700: '#A06E10' },
+            surface: { 900: '#0C0C0F', 800: '#16161D', 700: '#1E1E28', 600: '#2A2A36' },
           }
         }
       }
     }
   </script>
   <style>
-    body { background: #0f172a; color: #e2e8f0; }
+    body { background: #0C0C0F; color: #EDEDF0; -webkit-font-smoothing: antialiased; }
     .gradient-text {
-      background: linear-gradient(135deg, #0ea5e9, #38bdf8, #7dd3fc);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      color: #E5A430;
     }
     .code-block {
-      background: #0d1117; border: 1px solid #30363d; border-radius: 0.75rem;
+      background: #16161D; border: 1px solid #2A2A36; border-radius: 0.75rem;
       overflow-x: auto; font-size: 0.8125rem;
     }
     .code-block pre { padding: 1rem; margin: 0; }
-    .code-label { padding: 0.5rem 1rem; border-bottom: 1px solid #30363d; font-size: 0.75rem; color: #8b949e; }
-    .toc-link { display: block; padding: 0.25rem 0; color: #94a3b8; font-size: 0.875rem; }
-    .toc-link:hover { color: #38bdf8; }
-    .toc-link.active { color: #38bdf8; border-left: 2px solid #38bdf8; padding-left: 0.75rem; }
+    .code-label { padding: 0.5rem 1rem; border-bottom: 1px solid #2A2A36; font-size: 0.75rem; color: #5C5C6E; }
+    .toc-link { display: block; padding: 0.25rem 0; color: #8E8EA0; font-size: 0.875rem; }
+    .toc-link:hover { color: #E5A430; }
+    .toc-link.active { color: #E5A430; border-left: 2px solid #E5A430; padding-left: 0.75rem; }
     .doc-section { scroll-margin-top: 5rem; }
-    h2.doc-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    h2.doc-heading { font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid #2A2A36; }
     h3.doc-subheading { font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; margin-top: 1.5rem; }
     .method-badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
-    .method-post { background: #22c55e20; color: #22c55e; }
-    .method-get { background: #3b82f620; color: #3b82f6; }
-    .tool-card { background: #1e293b; border: 1px solid rgba(255,255,255,0.05); border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    .method-post { background: rgba(74,222,128,0.12); color: #4ADE80; }
+    .method-get { background: rgba(96,165,250,0.12); color: #60A5FA; }
+    .tool-card { background: #16161D; border: 1px solid #2A2A36; border-radius: 0.5rem; padding: 0.75rem 1rem; }
   </style>
 </head>
 <body class="font-sans antialiased">
 
   <!-- Nav -->
-  <nav class="sticky top-0 z-40 bg-surface-900/95 backdrop-blur-xl border-b border-white/5">
+  <nav class="sticky top-0 z-40 bg-surface-900/90 backdrop-blur-xl border-b border-surface-600/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 text-base font-bold">
-        <span class="text-xl">🔍</span>
-        <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
+      <a href="/" class="flex items-center gap-0 text-base font-semibold">
+        <span>seomcp</span><span class="gradient-text">.dev</span>
       </a>
       <div class="flex items-center gap-4 text-sm">
-        <span class="text-slate-500">Docs</span>
-        <a href="/tools" class="text-slate-400 hover:text-white transition">Tools</a>
-        <a href="/dashboard" class="text-slate-400 hover:text-white transition">Dashboard</a>
-        <a href="/" class="px-3 py-1.5 bg-brand-500 hover:bg-brand-600 text-white rounded-lg font-medium transition text-xs">Get API Key</a>
+        <span class="text-surface-600">Docs</span>
+        <a href="/tools" class="text-surface-600 hover:text-white transition">Tools</a>
+        <a href="/dashboard" class="text-surface-600 hover:text-white transition">Dashboard</a>
+        <a href="/" class="px-3 py-1.5 bg-brand-500 text-surface-900 rounded-lg font-semibold transition text-xs hover:brightness-110">Get API Key</a>
       </div>
     </div>
   </nav>

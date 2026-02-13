@@ -4,14 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>seomcp.dev — 35 SEO Tools for Any AI Agent | MCP Server</title>
-  <meta name="description" content="Give any AI agent SEO superpowers. 35 tools including Google Search Console, Analytics, site audits, and IndexNow. One MCP endpoint. $29/mo.">
-  <meta property="og:title" content="seomcp.dev — SEO Tools for AI Agents">
-  <meta property="og:description" content="35 SEO tools. One MCP endpoint. Your real Google data. Not estimates.">
+  <meta name="description" content="Give any AI agent SEO superpowers. 35 tools including keyword research, SERP analysis, site audits, rank tracking — all through the Model Context Protocol. One line of config. $29/mo.">
+  <meta property="og:title" content="seomcp.dev — 35 SEO Tools. One Line of Config.">
+  <meta property="og:description" content="Give your AI agent real SEO superpowers. Keyword research, SERP analysis, site audits, rank tracking — all through MCP.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://seomcp.dev">
+  <meta property="og:site_name" content="seomcp.dev">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="seomcp.dev — SEO Tools for AI Agents">
-  <meta name="twitter:description" content="35 SEO tools. One MCP endpoint. Your real Google data.">
+  <meta name="twitter:title" content="seomcp.dev — 35 SEO Tools. One Line of Config.">
+  <meta name="twitter:description" content="Give your AI agent real SEO superpowers. 35 tools via MCP. $29/mo.">
+  <meta name="twitter:site" content="@pinchy0x">
   <link rel="canonical" href="https://seomcp.dev">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
   <script type="application/ld+json">
@@ -25,11 +27,13 @@
         "description": "35 SEO tools for AI agents via MCP protocol. Google Search Console, Analytics, site audits, Core Web Vitals, IndexNow, schema validation.",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Web",
-        "offers": [
-          { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD", "description": "50 tool calls/month" },
-          { "@type": "Offer", "name": "Pro", "price": "29", "priceCurrency": "USD", "description": "2,000 tool calls/month" },
-          { "@type": "Offer", "name": "Agency", "price": "79", "priceCurrency": "USD", "description": "10,000 tool calls/month" }
-        ],
+        "offers": {
+          "@type": "Offer",
+          "name": "Pro",
+          "price": "29",
+          "priceCurrency": "USD",
+          "description": "All 35 tools, unlimited requests, all MCP clients"
+        },
         "featureList": [
           "35 SEO tools",
           "MCP protocol compatible",
@@ -51,18 +55,28 @@
         "mainEntity": [
           {
             "@type": "Question",
-            "name": "What is SEO MCP?",
-            "acceptedAnswer": { "@type": "Answer", "text": "SEO MCP is a hosted MCP server that gives any AI agent 35 SEO tools including Google Search Console, GA4 analytics, site audits, Core Web Vitals, IndexNow, and schema validation." }
+            "name": "What is MCP?",
+            "acceptedAnswer": { "@type": "Answer", "text": "MCP (Model Context Protocol) is an open standard by Anthropic that lets AI tools connect to external services. Think USB-C for AI — one protocol, any tool. Claude, Cursor, Windsurf, and OpenAI all support MCP." }
           },
           {
             "@type": "Question",
-            "name": "How much does it cost?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Free tier includes 50 tool calls per month. Pro is $29/month for 2,000 calls. Agency is $79/month for 10,000 calls." }
+            "name": "What tools are included?",
+            "acceptedAnswer": { "@type": "Answer", "text": "35 SEO tools across 6 categories: Research, Analysis, Technical, Ranking, Content, and Performance. Includes site audits, Google Search Console, GA4 analytics, Core Web Vitals, IndexNow, schema validation, and more." }
           },
           {
             "@type": "Question",
-            "name": "Which AI agents work with SEO MCP?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Any MCP-compatible AI agent including Claude Desktop, Cursor, Windsurf, and any tool supporting the Model Context Protocol." }
+            "name": "Which AI agents work with seomcp.dev?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Any MCP-compatible AI agent including Claude Desktop, Cursor, Windsurf, VS Code with MCP extension, and any custom MCP client using Streamable HTTP transport." }
+          },
+          {
+            "@type": "Question",
+            "name": "How is this different from using SEO APIs directly?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Instead of managing 5+ API subscriptions ($200+/mo), multiple auth flows, and weeks of integration, seomcp.dev gives you one API key, one config line, and 30 seconds to setup. We handle rate limits, auth, and routing." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is there a free tier?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Free tier includes 50 tool calls per month with access to all 35 tools. No credit card required." }
           }
         ]
       }
@@ -71,282 +85,754 @@
   </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              200: '#bae6fd',
-              300: '#7dd3fc',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-            },
-            surface: {
-              900: '#0f172a',
-              800: '#1e293b',
-              700: '#334155',
-              600: '#475569',
-            }
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.6s ease-out',
-            'slide-up': 'slideUp 0.6s ease-out',
-            'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
-          },
-          keyframes: {
-            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
-            slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
-            pulseGlow: { '0%, 100%': { boxShadow: '0 0 20px rgba(14,165,233,0.3)' }, '50%': { boxShadow: '0 0 40px rgba(14,165,233,0.6)' } },
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    html { scroll-behavior: smooth; }
-    body { background: #0f172a; color: #f8fafc; }
-    .gradient-text {
-      background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #7dd3fc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+    /* ── Design Tokens ── */
+    :root {
+      --bg-deep: #0C0C0F;
+      --bg-surface: #16161D;
+      --bg-raised: #1E1E28;
+      --border-subtle: #2A2A36;
+      --border-active: #3D3D4E;
+      --text-primary: #EDEDF0;
+      --text-secondary: #8E8EA0;
+      --text-tertiary: #5C5C6E;
+      --amber: #E5A430;
+      --amber-hover: #F0B840;
+      --amber-muted: rgba(229, 164, 48, 0.12);
+      --sage: #4ADE80;
+      --sage-muted: rgba(74, 222, 128, 0.12);
+      --coral: #F87171;
+      --blue: #60A5FA;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
+      --max-w: 1120px;
     }
-    .gradient-border {
-      background: linear-gradient(135deg, #0ea5e9, #7dd3fc);
-      padding: 1px;
-      border-radius: 0.75rem;
+
+    /* ── Reset & Base ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      line-height: 1.625;
+      font-size: 16px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
     }
-    .gradient-border > div { background: #1e293b; border-radius: calc(0.75rem - 1px); }
-    .code-block { background: #0d1117; border: 1px solid #30363d; }
-    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(14,165,233,0.15); }
-    .pricing-card.featured { border: 2px solid #0ea5e9; }
-    .hero-glow {
+    a { color: inherit; text-decoration: none; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; }
+    img { display: block; max-width: 100%; }
+    code, pre { font-family: var(--font-mono); }
+
+    /* ── Layout ── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    .section { padding: 120px 0; }
+    .section-border { border-top: 1px solid var(--border-subtle); }
+
+    /* ── Typography ── */
+    .h1 { font-size: 64px; line-height: 72px; letter-spacing: -0.02em; font-weight: 700; }
+    .h2 { font-size: 40px; line-height: 48px; letter-spacing: -0.02em; font-weight: 600; }
+    .h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; }
+    .body-lg { font-size: 20px; line-height: 30px; }
+    .body { font-size: 16px; line-height: 26px; }
+    .small { font-size: 14px; line-height: 22px; }
+    .caption { font-size: 13px; line-height: 20px; }
+    .text-secondary { color: var(--text-secondary); }
+    .text-tertiary { color: var(--text-tertiary); }
+    .text-amber { color: var(--amber); }
+    .text-sage { color: var(--sage); }
+
+    /* ── Buttons ── */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; border-radius: 10px;
+      background: var(--amber); color: var(--bg-deep);
+      font-weight: 600; font-size: 16px;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .btn-primary:hover { background: var(--amber-hover); transform: translateY(-1px); }
+    .btn-text {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 14px 8px; color: var(--text-secondary);
+      font-weight: 500; font-size: 16px;
+      transition: color 0.2s;
+    }
+    .btn-text:hover { color: var(--text-primary); }
+
+    /* ── Nav ── */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      height: 64px; display: flex; align-items: center;
+      background: rgba(12, 12, 15, 0.8); backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s;
+    }
+    .nav.scrolled { border-bottom-color: var(--border-subtle); }
+    .nav-inner { display: flex; align-items: center; justify-content: space-between; width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    .nav-logo { font-size: 18px; font-weight: 600; display: flex; align-items: center; }
+    .nav-logo .dot { color: var(--amber); }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { font-size: 14px; color: var(--text-secondary); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text-primary); }
+    .nav-cta {
+      padding: 8px 18px; border-radius: 8px;
+      background: var(--amber); color: var(--bg-deep);
+      font-weight: 600; font-size: 14px;
+      transition: background 0.2s;
+    }
+    .nav-cta:hover { background: var(--amber-hover); }
+    .nav-hamburger { display: none; padding: 8px; color: var(--text-secondary); }
+    .nav-hamburger svg { width: 24px; height: 24px; }
+
+    /* Mobile nav */
+    .mobile-nav {
+      display: none; position: fixed; top: 64px; left: 0; right: 0; bottom: 0;
+      background: var(--bg-deep); z-index: 49;
+      padding: 24px; flex-direction: column; gap: 8px;
+    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a {
+      display: block; padding: 16px; font-size: 18px; font-weight: 500;
+      color: var(--text-primary); border-radius: 12px;
+      transition: background 0.2s;
+    }
+    .mobile-nav a:hover { background: var(--bg-surface); }
+
+    /* ── Code Block ── */
+    .code-block {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .code-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .code-dots { display: flex; gap: 6px; }
+    .code-dots span { width: 10px; height: 10px; border-radius: 50%; }
+    .code-dots .red { background: #FF5F56; }
+    .code-dots .yellow { background: #FFBD2E; }
+    .code-dots .green { background: #27C93F; }
+    .code-filename { font-size: 13px; color: var(--text-tertiary); font-family: var(--font-mono); }
+    .code-copy {
+      font-size: 12px; color: var(--text-tertiary); padding: 4px 10px;
+      border: 1px solid var(--border-subtle); border-radius: 6px;
+      transition: color 0.2s, border-color 0.2s; cursor: pointer;
+    }
+    .code-copy:hover { color: var(--text-primary); border-color: var(--border-active); }
+    .code-body { padding: 20px; overflow-x: auto; }
+    .code-body pre { font-size: 15px; line-height: 24px; }
+    .code-body .key { color: var(--amber); }
+    .code-body .str { color: var(--sage); }
+    .code-body .punct { color: var(--text-tertiary); }
+    .code-body .comment { color: var(--text-tertiary); font-style: italic; }
+
+    /* ── Tool Pulse ── */
+    .tool-pulse-container {
+      position: absolute; inset: 0; overflow: hidden; pointer-events: none;
+    }
+    .tool-dot {
       position: absolute;
-      width: 600px; height: 600px;
-      background: radial-gradient(circle, rgba(14,165,233,0.12) 0%, transparent 70%);
-      top: -200px; left: 50%; transform: translateX(-50%);
-      pointer-events: none;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--amber);
+      opacity: 0.12;
+      animation: pulse var(--dur, 3s) ease-in-out infinite;
+      animation-delay: var(--delay, 0s);
+      pointer-events: auto;
+      cursor: default;
+      transition: opacity 0.3s, transform 0.3s;
     }
-    /* Signup modal */
+    .tool-dot:hover {
+      opacity: 1; transform: scale(2.5);
+    }
+    .tool-dot::after {
+      content: attr(data-name);
+      position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 10px; border-radius: 6px;
+      background: var(--bg-raised); border: 1px solid var(--border-subtle);
+      color: var(--text-primary); font-size: 11px; font-family: var(--font-mono);
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity 0.2s;
+    }
+    .tool-dot:hover::after { opacity: 1; }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.1; }
+      50% { opacity: 0.45; }
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      padding: 160px 0 120px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .hero-gradient {
+      position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(135deg, rgba(229,164,48,0.06) 0%, rgba(74,222,128,0.03) 50%, transparent 100%);
+    }
+    .hero-content { position: relative; z-index: 2; }
+    .hero-headline { margin-bottom: 20px; }
+    .hero-subhead { max-width: 640px; margin: 0 auto 40px; }
+    .hero-code { max-width: 520px; margin: 0 auto 40px; text-align: left; }
+    .hero-ctas { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
+    .hero-trust { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
+    .hero-trust span { font-size: 14px; color: var(--text-tertiary); }
+    .hero-trust .client { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+
+    /* ── How It Works ── */
+    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; position: relative; }
+    .step { position: relative; }
+    .step-number {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--amber-muted); color: var(--amber);
+      font-weight: 700; font-size: 18px; margin-bottom: 20px;
+    }
+    .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
+    .step-desc { color: var(--text-secondary); font-size: 15px; line-height: 24px; }
+    .step-code { margin-top: 16px; }
+    .steps-line {
+      position: absolute; top: 20px; left: calc(33.33% - 24px);
+      width: calc(66.66% + 48px); height: 2px;
+      background: linear-gradient(90deg, var(--amber), var(--sage), var(--sage));
+      opacity: 0.3; z-index: 0;
+    }
+    .steps-line::before, .steps-line::after {
+      content: ''; position: absolute; top: -3px;
+      width: 8px; height: 8px; border-radius: 50%;
+    }
+    .steps-line::before { left: 0; background: var(--amber); }
+    .steps-line::after { right: 0; background: var(--sage); }
+
+    /* ── Tool Grid ── */
+    .tool-categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    .tool-category {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+      cursor: pointer;
+    }
+    .tool-category:hover { border-color: var(--border-active); transform: translateY(-2px); }
+    .tool-category-icon { font-size: 24px; margin-bottom: 12px; }
+    .tool-category-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+    .tool-category-count { font-size: 13px; color: var(--text-tertiary); margin-bottom: 16px; }
+    .tool-category-list { list-style: none; }
+    .tool-category-list li {
+      font-size: 14px; color: var(--text-secondary); padding: 6px 0;
+      border-top: 1px solid rgba(42, 42, 54, 0.5);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tool-category-list li::before {
+      content: ''; width: 4px; height: 4px; border-radius: 50%;
+      background: var(--amber); opacity: 0.6; flex-shrink: 0;
+    }
+    .tool-category-list .featured { color: var(--text-primary); font-weight: 500; }
+    .tool-expand-detail {
+      display: none; margin-top: 16px; padding-top: 16px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .tool-category.expanded .tool-expand-detail { display: block; }
+    .tool-category .expand-hint {
+      font-size: 12px; color: var(--text-tertiary); margin-top: 12px;
+      transition: color 0.2s;
+    }
+    .tool-category:hover .expand-hint { color: var(--amber); }
+    .tool-category.expanded .expand-hint { display: none; }
+
+    /* ── Live Demo ── */
+    .demo-conversation {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      max-width: 700px; margin: 0 auto;
+      overflow: hidden;
+    }
+    .demo-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .demo-header .indicator {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--sage); animation: pulse 2s ease-in-out infinite;
+    }
+    .demo-header span { font-size: 14px; color: var(--text-secondary); }
+    .demo-body { padding: 24px; }
+    .demo-msg { margin-bottom: 20px; }
+    .demo-msg:last-child { margin-bottom: 0; }
+    .demo-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+    .demo-label.user { color: var(--text-tertiary); }
+    .demo-label.agent { color: var(--sage); }
+    .demo-text { font-size: 15px; line-height: 24px; color: var(--text-secondary); }
+    .demo-tool-call {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; margin: 8px 0;
+      background: var(--amber-muted); border-radius: 8px;
+      font-family: var(--font-mono); font-size: 13px;
+    }
+    .demo-tool-call .icon { font-size: 14px; }
+    .demo-tool-call .name { color: var(--amber); font-weight: 500; }
+    .demo-tool-call .args { color: var(--text-tertiary); }
+    .demo-result {
+      background: var(--bg-raised);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px; margin-top: 12px;
+      font-family: var(--font-mono); font-size: 13px;
+      line-height: 20px;
+    }
+    .demo-result .label { color: var(--text-tertiary); }
+    .demo-result .value { color: var(--text-primary); }
+    .demo-result .good { color: var(--sage); }
+    .demo-result .arrow { color: var(--amber); }
+    .demo-tabs {
+      display: flex; gap: 0; margin-bottom: 0;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .demo-tab {
+      padding: 12px 24px; font-size: 14px; font-weight: 500;
+      color: var(--text-tertiary); border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s; cursor: pointer;
+    }
+    .demo-tab:hover { color: var(--text-secondary); }
+    .demo-tab.active { color: var(--amber); border-bottom-color: var(--amber); }
+    .demo-panel { display: none; }
+    .demo-panel.active { display: block; }
+
+    /* ── Why MCP / Protocol Flow ── */
+    .protocol-flow {
+      display: flex; align-items: center; justify-content: center; gap: 0;
+      padding: 48px 0; position: relative;
+    }
+    .protocol-node {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      width: 180px; text-align: center;
+    }
+    .protocol-node-box {
+      width: 80px; height: 80px; border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+    }
+    .protocol-node-box.agent { background: var(--amber-muted); border: 1px solid rgba(229,164,48,0.3); }
+    .protocol-node-box.server { background: var(--amber-muted); border: 1px solid rgba(229,164,48,0.5); }
+    .protocol-node-box.data { background: var(--sage-muted); border: 1px solid rgba(74,222,128,0.3); }
+    .protocol-node-label { font-size: 14px; font-weight: 600; }
+    .protocol-node-sub { font-size: 12px; color: var(--text-tertiary); }
+    .protocol-line {
+      width: 120px; height: 2px; background: var(--border-subtle);
+      position: relative; flex-shrink: 0;
+    }
+    .protocol-line-label {
+      position: absolute; top: -20px; left: 50%;
+      transform: translateX(-50%); white-space: nowrap;
+      font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);
+    }
+    .protocol-packet {
+      position: absolute; top: -3px; left: 0;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--amber);
+      animation: packet 2.5s ease-in-out infinite;
+    }
+    @keyframes packet {
+      0% { left: 0; opacity: 0; }
+      10% { opacity: 1; }
+      45% { left: calc(100% - 8px); opacity: 1; }
+      55% { left: calc(100% - 8px); opacity: 0; }
+      100% { left: calc(100% - 8px); opacity: 0; }
+    }
+    .protocol-fan {
+      display: flex; flex-direction: column; gap: 8px;
+      position: relative;
+    }
+    .protocol-fan-line {
+      width: 80px; height: 1px; background: var(--border-subtle);
+    }
+    .protocol-endpoint {
+      font-size: 11px; color: var(--text-tertiary); font-family: var(--font-mono);
+      padding: 4px 10px; background: var(--bg-raised);
+      border: 1px solid var(--border-subtle); border-radius: 6px;
+    }
+
+    /* ── Comparison ── */
+    .comparison-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 32px;
+      max-width: 800px; margin: 0 auto;
+    }
+    .comparison-card {
+      padding: 32px; border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+    }
+    .comparison-card.diy { background: var(--bg-surface); }
+    .comparison-card.seo {
+      background: var(--bg-surface);
+      border-color: rgba(229,164,48,0.3);
+      position: relative;
+    }
+    .comparison-card.seo::before {
+      content: 'RECOMMENDED';
+      position: absolute; top: -10px; left: 24px;
+      padding: 2px 12px; border-radius: 4px;
+      background: var(--amber); color: var(--bg-deep);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.05em;
+    }
+    .comparison-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
+    .comparison-list { list-style: none; }
+    .comparison-list li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 10px 0; font-size: 15px; line-height: 22px;
+      border-top: 1px solid rgba(42,42,54,0.5);
+    }
+    .comparison-list li:first-child { border-top: none; }
+    .comparison-list .icon { flex-shrink: 0; font-size: 16px; margin-top: 2px; }
+    .comparison-list .bad { color: var(--coral); }
+    .comparison-list .good { color: var(--sage); }
+    .comparison-highlight {
+      margin-top: 24px; padding: 16px;
+      background: var(--amber-muted); border-radius: 8px;
+      font-size: 24px; font-weight: 700; text-align: center;
+    }
+
+    /* ── Pricing ── */
+    .pricing-card {
+      max-width: 480px; margin: 0 auto;
+      background: var(--bg-surface);
+      border: 1px solid rgba(229,164,48,0.3);
+      border-radius: 16px; padding: 48px; text-align: center;
+    }
+    .pricing-amount {
+      font-size: 64px; line-height: 72px; font-weight: 700; margin-bottom: 4px;
+    }
+    .pricing-period { font-size: 18px; color: var(--text-secondary); margin-bottom: 8px; }
+    .pricing-reframe { font-size: 15px; color: var(--text-tertiary); margin-bottom: 32px; }
+    .pricing-features { list-style: none; text-align: left; margin-bottom: 32px; }
+    .pricing-features li {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 0; font-size: 15px; color: var(--text-secondary);
+      border-top: 1px solid rgba(42,42,54,0.5);
+    }
+    .pricing-features li:first-child { border-top: none; }
+    .pricing-features .check { color: var(--sage); font-size: 16px; flex-shrink: 0; }
+
+    /* ── Developer Trust ── */
+    .trust-clients {
+      display: flex; align-items: center; justify-content: center; gap: 40px;
+      flex-wrap: wrap; margin-bottom: 48px;
+    }
+    .trust-client {
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .trust-client-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 24px;
+    }
+    .trust-client-name { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+    .trust-stats {
+      display: flex; justify-content: center; gap: 64px; flex-wrap: wrap;
+    }
+    .trust-stat { text-align: center; }
+    .trust-stat-value { font-size: 32px; font-weight: 700; color: var(--amber); }
+    .trust-stat-label { font-size: 14px; color: var(--text-tertiary); margin-top: 4px; }
+
+    /* ── FAQ ── */
+    .faq-list { max-width: 700px; margin: 0 auto; }
+    .faq-item {
+      border-top: 1px solid var(--border-subtle);
+    }
+    .faq-item:last-child { border-bottom: 1px solid var(--border-subtle); }
+    .faq-question {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 20px 0; text-align: left;
+      font-size: 17px; font-weight: 500; color: var(--text-primary);
+      cursor: pointer; transition: color 0.2s;
+    }
+    .faq-question:hover { color: var(--amber); }
+    .faq-arrow {
+      font-size: 18px; color: var(--text-tertiary);
+      transition: transform 0.3s;
+      flex-shrink: 0; margin-left: 16px;
+    }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-answer {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s ease, padding 0.3s ease;
+    }
+    .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 20px; }
+    .faq-answer p {
+      font-size: 15px; line-height: 24px; color: var(--text-secondary);
+    }
+    .faq-answer code {
+      font-size: 13px; padding: 2px 6px; border-radius: 4px;
+      background: var(--bg-raised); color: var(--amber);
+    }
+
+    /* ── Footer CTA ── */
+    .footer-cta {
+      padding: 120px 0; text-align: center;
+      background: linear-gradient(180deg, var(--bg-deep) 0%, rgba(229,164,48,0.04) 100%);
+    }
+
+    /* ── Footer ── */
+    .footer {
+      padding: 32px 0;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-left { font-size: 14px; color: var(--text-tertiary); }
+    .footer-links { display: flex; gap: 24px; }
+    .footer-links a { font-size: 14px; color: var(--text-tertiary); transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text-primary); }
+
+    /* ── Signup Modal ── */
     .modal-overlay {
-      display: none;
-      position: fixed; inset: 0; z-index: 50;
+      display: none; position: fixed; inset: 0; z-index: 100;
       background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
       align-items: center; justify-content: center;
     }
     .modal-overlay.active { display: flex; }
-    .check-icon { color: #22c55e; }
+    .modal-card {
+      width: 100%; max-width: 440px; margin: 16px;
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: 16px; padding: 40px;
+    }
+    .modal-input {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg-deep); border: 1px solid var(--border-subtle);
+      border-radius: 8px; color: var(--text-primary);
+      font-size: 15px; font-family: var(--font-sans);
+      outline: none; transition: border-color 0.2s;
+    }
+    .modal-input::placeholder { color: var(--text-tertiary); }
+    .modal-input:focus { border-color: var(--amber); }
+    .modal-btn {
+      width: 100%; padding: 14px;
+      background: var(--amber); color: var(--bg-deep);
+      border-radius: 10px; font-weight: 600; font-size: 15px;
+      transition: background 0.2s;
+    }
+    .modal-btn:hover { background: var(--amber-hover); }
+    .modal-error {
+      display: none; padding: 12px; margin-top: 12px;
+      background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2);
+      border-radius: 8px; font-size: 14px; color: var(--coral);
+    }
+
+    /* ── Copy Toast ── */
     .copy-toast {
-      position: fixed; bottom: 2rem; right: 2rem; z-index: 100;
-      background: #22c55e; color: white; padding: 0.75rem 1.5rem;
-      border-radius: 0.5rem; font-weight: 600;
-      transform: translateY(100px); opacity: 0;
-      transition: all 0.3s ease;
+      position: fixed; bottom: 32px; right: 32px; z-index: 200;
+      padding: 12px 24px; border-radius: 10px;
+      background: var(--sage); color: var(--bg-deep);
+      font-weight: 600; font-size: 14px;
+      transform: translateY(80px); opacity: 0;
+      transition: transform 0.3s, opacity 0.3s;
     }
     .copy-toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Mobile Sticky CTA ── */
+    .mobile-sticky-cta {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      padding: 12px 16px; z-index: 40;
+      background: var(--bg-deep); border-top: 1px solid var(--border-subtle);
+    }
+    .mobile-sticky-cta button {
+      width: 100%; padding: 14px; border-radius: 10px;
+      background: var(--amber); color: var(--bg-deep);
+      font-weight: 600; font-size: 16px;
+    }
+
+    /* ── Responsive ── */
     @media (max-width: 768px) {
-      .hero-glow { width: 300px; height: 300px; }
+      .section { padding: 80px 0; }
+      .h1 { font-size: 40px; line-height: 48px; }
+      .h2 { font-size: 28px; line-height: 36px; }
+      .h3 { font-size: 20px; line-height: 28px; }
+      .body-lg { font-size: 17px; line-height: 26px; }
+
+      .nav-links { display: none; }
+      .nav-hamburger { display: block; }
+
+      .hero { padding: 120px 0 80px; }
+      .hero-ctas { flex-direction: column; }
+      .hero-ctas .btn-primary, .hero-ctas .btn-text { width: 100%; justify-content: center; }
+
+      .steps-grid { grid-template-columns: 1fr; gap: 32px; }
+      .steps-line { display: none; }
+
+      .tool-categories { grid-template-columns: 1fr; }
+
+      .comparison-grid { grid-template-columns: 1fr; }
+
+      .protocol-flow { flex-direction: column; gap: 24px; }
+      .protocol-line { width: 2px; height: 60px; }
+      .protocol-line-label { top: 50%; left: calc(100% + 12px); transform: translateY(-50%); }
+      .protocol-fan { flex-direction: row; }
+      .protocol-fan-line { width: 1px; height: 40px; }
+
+      .trust-stats { gap: 32px; }
+      .trust-clients { gap: 24px; }
+
+      .footer-inner { flex-direction: column; gap: 16px; text-align: center; }
+
+      .mobile-sticky-cta.visible { display: block; }
+      .mobile-nav .nav-cta-mobile {
+        margin-top: 16px; padding: 16px; text-align: center;
+        background: var(--amber); color: var(--bg-deep);
+        border-radius: 12px; font-weight: 600; font-size: 16px;
+      }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
     }
   </style>
 </head>
-<body class="font-sans antialiased">
+<body>
 
-  <!-- Nav -->
-  <nav class="fixed top-0 w-full z-40 bg-surface-900/80 backdrop-blur-xl border-b border-white/5">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2 text-lg font-bold">
-        <span class="text-2xl">🔍</span>
-        <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
-      </a>
-      <div class="hidden md:flex items-center gap-8 text-sm text-slate-300">
-        <a href="#tools" class="hover:text-white transition">Tools</a>
-        <a href="/playground" class="hover:text-white transition">Playground</a>
-        <a href="#pricing" class="hover:text-white transition">Pricing</a>
-        <a href="/docs" class="hover:text-white transition">Docs</a>
-        <a href="#faq" class="hover:text-white transition">FAQ</a>
+  <!-- ═══ NAV ═══ -->
+  <nav class="nav" id="main-nav">
+    <div class="nav-inner">
+      <a href="/" class="nav-logo">seomcp<span class="dot">.dev</span></a>
+      <div class="nav-links">
+        <a href="#tools">Tools</a>
+        <a href="#pricing">Pricing</a>
+        <a href="/docs">Docs</a>
+        <a href="#" onclick="openSignup()" class="nav-cta">Get API Key</a>
       </div>
-      <div class="flex items-center gap-3">
-        <button onclick="openSignup()" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition">
-          Get API Key →
-        </button>
-        <button onclick="openSignup()" class="sm:hidden px-3 py-2 text-sm font-medium text-white bg-brand-500 rounded-lg">
-          Sign Up
-        </button>
-      </div>
+      <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
     </div>
   </nav>
 
-  <!-- Hero -->
-  <section class="relative pt-32 pb-20 px-4 sm:px-6 overflow-hidden">
-    <div class="hero-glow"></div>
-    <div class="max-w-4xl mx-auto text-center relative z-10">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-300 text-sm font-medium mb-6 animate-fade-in">
-        <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-        First hosted SEO MCP — no setup required
-      </div>
+  <!-- Mobile Nav -->
+  <div class="mobile-nav" id="mobile-nav">
+    <a href="#tools" onclick="closeMobileNav()">Tools</a>
+    <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
+    <a href="/docs" onclick="closeMobileNav()">Docs</a>
+    <a href="#faq" onclick="closeMobileNav()">FAQ</a>
+    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Get API Key — $29/mo</a>
+  </div>
 
-      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6 animate-slide-up">
-        Give any AI agent<br>
-        <span class="gradient-text">SEO superpowers</span>
-      </h1>
+  <!-- ═══ HERO ═══ -->
+  <section class="hero">
+    <div class="hero-gradient"></div>
 
-      <p class="text-lg sm:text-xl text-slate-300 max-w-2xl mx-auto mb-8 animate-slide-up" style="animation-delay: 0.1s">
-        35 SEO tools. One MCP endpoint. <strong class="text-white">Your real Google data</strong>, not third-party estimates.
-        Works with Claude, Cursor, Windsurf, and any MCP client.
+    <!-- Tool Pulse — 35 dots constellation -->
+    <div class="tool-pulse-container" id="tool-pulse">
+      <!-- JS injects 35 positioned dots -->
+    </div>
+
+    <div class="container hero-content">
+      <h1 class="h1 hero-headline">35 SEO tools.<br>One line of config.</h1>
+      <p class="body-lg text-secondary hero-subhead">
+        Give your AI agent real SEO superpowers. Keyword research,
+        SERP analysis, site audits, rank tracking — all through
+        the Model Context Protocol.
       </p>
 
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12 animate-slide-up" style="animation-delay: 0.2s">
-        <button onclick="openSignup()" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition animate-pulse-glow">
-          Get Free API Key →
-        </button>
-        <a href="/playground" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-slate-200 bg-surface-800 hover:bg-surface-700 rounded-xl border border-white/10 transition">
-          🧪 Try It Live
-        </a>
-      </div>
-
-      <!-- Config snippet -->
-      <div class="max-w-xl mx-auto animate-slide-up" style="animation-delay: 0.3s">
-        <div class="code-block rounded-xl overflow-hidden">
-          <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
-            <div class="flex gap-1.5">
-              <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
-              <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
-              <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+      <!-- The Config Snippet — This IS the hero -->
+      <div class="hero-code">
+        <div class="code-block">
+          <div class="code-header">
+            <div class="code-dots">
+              <span class="red"></span><span class="yellow"></span><span class="green"></span>
             </div>
-            <span class="text-xs text-slate-500 font-mono">claude_desktop_config.json</span>
-            <button onclick="copyCode('hero-code')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+            <span class="code-filename">mcp.json</span>
+            <button class="code-copy" onclick="copyCode('hero-code')">Copy</button>
           </div>
-          <pre class="p-4 text-sm font-mono text-left overflow-x-auto"><code id="hero-code" class="text-slate-300">{
-  <span class="text-brand-400">"mcpServers"</span>: {
-    <span class="text-green-400">"seo"</span>: {
-      <span class="text-brand-400">"url"</span>: <span class="text-amber-300">"https://seomcp.dev/mcp"</span>,
-      <span class="text-brand-400">"headers"</span>: {
-        <span class="text-brand-400">"Authorization"</span>: <span class="text-amber-300">"Bearer sk_live_REDACTED_key"</span>
-      }
-    }
-  }
-}</code></pre>
+          <div class="code-body">
+            <pre id="hero-code"><span class="punct">{</span>
+  <span class="key">"mcpServers"</span><span class="punct">:</span> <span class="punct">{</span>
+    <span class="key">"seo"</span><span class="punct">:</span> <span class="punct">{</span>
+      <span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://seomcp.dev/sse?key=YOUR_KEY"</span>
+    <span class="punct">}</span>
+  <span class="punct">}</span>
+<span class="punct">}</span></pre>
+          </div>
         </div>
-        <p class="text-sm text-slate-500 mt-3">That's it. One line. Your AI agent now has 35 SEO tools.</p>
+      </div>
+
+      <div class="hero-ctas">
+        <button class="btn-primary" onclick="openSignup()">Get API Key — $29/mo</button>
+        <a href="/docs" class="btn-text">Read the Docs →</a>
+      </div>
+
+      <div class="hero-trust">
+        <span>Works with</span>
+        <span class="client">Claude</span>
+        <span class="text-tertiary">·</span>
+        <span class="client">Cursor</span>
+        <span class="text-tertiary">·</span>
+        <span class="client">Windsurf</span>
+        <span class="text-tertiary">·</span>
+        <span class="client">Any MCP client</span>
       </div>
     </div>
   </section>
 
-  <!-- Social proof bar -->
-  <section class="border-y border-white/5 py-6 bg-surface-800/50">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex flex-wrap items-center justify-center gap-8 text-sm text-slate-400">
-      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">35</span> SEO tools</span>
-      <span class="text-slate-600">·</span>
-      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">0</span> setup required</span>
-      <span class="text-slate-600">·</span>
-      <span class="flex items-center gap-2">Built on <span class="text-white font-medium">Google APIs</span></span>
-      <span class="text-slate-600">·</span>
-      <span class="flex items-center gap-2"><span class="text-brand-400 font-bold text-lg">Rust</span> powered</span>
-      <span class="text-slate-600">·</span>
-      <span class="flex items-center gap-2">From <span class="text-amber-300 font-bold">$0</span>/mo</span>
-    </div>
-  </section>
-
-  <!-- How It Works -->
-  <section id="how-it-works" class="py-24 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Three steps. Under a minute.</h2>
-        <p class="text-slate-400 text-lg">No credit card. No OAuth dance. No Docker containers.</p>
+  <!-- ═══ HOW IT WORKS ═══ -->
+  <section class="section section-border" id="how-it-works">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">Three steps. Under 60 seconds.</h2>
+        <p class="body-lg text-secondary">From signup to first query. No Docker, no OAuth dance, no setup scripts.</p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8">
-        <!-- Step 1 -->
-        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
-          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">1</div>
-          <h3 class="text-xl font-semibold mb-3">Get your API key</h3>
-          <p class="text-slate-400">Sign up with email — takes 5 seconds. You get a free tier with 50 calls/month. No credit card needed.</p>
-        </div>
-        <!-- Step 2 -->
-        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
-          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">2</div>
-          <h3 class="text-xl font-semibold mb-3">Add one line of config</h3>
-          <p class="text-slate-400">Paste the MCP server URL into Claude Desktop, Cursor, Windsurf, or any MCP-compatible AI tool. Done.</p>
-        </div>
-        <!-- Step 3 -->
-        <div class="relative p-8 rounded-2xl bg-surface-800 border border-white/5">
-          <div class="w-12 h-12 rounded-xl bg-brand-500/20 flex items-center justify-center text-brand-400 text-xl font-bold mb-6">3</div>
-          <h3 class="text-xl font-semibold mb-3">Ask your AI anything SEO</h3>
-          <p class="text-slate-400">"Audit my site." "What are my top pages?" "Submit these URLs to IndexNow." Your AI handles it all.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Why Real Data -->
-  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
-    <div class="max-w-6xl mx-auto">
-      <div class="grid lg:grid-cols-2 gap-12 items-center">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-300 text-sm font-medium mb-4">
-            No more guesswork
-          </div>
-          <h2 class="text-3xl sm:text-4xl font-bold mb-6">
-            Your <span class="gradient-text">real</span> Google data.<br>Not estimates.
-          </h2>
-          <p class="text-slate-300 text-lg mb-6">
-            Ahrefs, Semrush, and DataForSEO sell you <em>approximations</em> of your search data. We connect directly to <strong class="text-white">Google Search Console</strong> and <strong class="text-white">Google Analytics</strong> — the same data Google shows you.
-          </p>
-          <ul class="space-y-3 text-slate-300">
-            <li class="flex items-start gap-3">
-              <span class="text-green-400 mt-1">✓</span>
-              <span><strong class="text-white">Search Console:</strong> Actual impressions, clicks, CTR, average position</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-green-400 mt-1">✓</span>
-              <span><strong class="text-white">Analytics:</strong> Real sessions, engagement, traffic sources</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-green-400 mt-1">✓</span>
-              <span><strong class="text-white">PageSpeed:</strong> Google's official Core Web Vitals</span>
-            </li>
-            <li class="flex items-start gap-3">
-              <span class="text-green-400 mt-1">✓</span>
-              <span><strong class="text-white">IndexNow:</strong> Submit URLs for instant indexing</span>
-            </li>
-          </ul>
-        </div>
-        <div class="code-block rounded-xl overflow-hidden">
-          <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/5">
-            <span class="text-xs text-slate-500 font-mono">Claude conversation</span>
-          </div>
-          <div class="p-5 space-y-4 text-sm">
-            <div class="flex gap-3">
-              <span class="text-brand-400 font-medium shrink-0">You:</span>
-              <span class="text-slate-300">What are my top performing pages this week?</span>
+      <div class="steps-grid">
+        <div class="steps-line"></div>
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Get your API key</h3>
+          <p class="step-desc">Sign up, get key instantly. No approval process. No credit card needed for free tier.</p>
+          <div class="step-code">
+            <div class="code-block">
+              <div class="code-body" style="padding:14px 18px;">
+                <pre style="font-size:13px; line-height:20px;"><span class="comment">// Your key arrives immediately</span>
+<span class="key">sk_live_</span><span class="str">a1b2c3d4e5f6...</span></pre>
+              </div>
             </div>
-            <div class="flex gap-3">
-              <span class="text-green-400 font-medium shrink-0">Claude:</span>
-              <div class="text-slate-300">
-                <p class="mb-2">I'll check your Search Console data:</p>
-                <div class="code-block rounded-lg p-3 text-xs font-mono">
-                  <span class="text-slate-500">Using</span> <span class="text-brand-400">gsc_performance</span><br>
-                  <span class="text-slate-500">Site:</span> <span class="text-amber-300">example.com</span><br>
-                  <span class="text-slate-500">Period:</span> <span class="text-amber-300">last 7 days</span>
-                </div>
-                <p class="mt-2">Your top 3 pages by clicks:</p>
-                <ol class="list-decimal list-inside mt-1 space-y-1 text-xs">
-                  <li>/blog/seo-guide — <span class="text-green-400">842 clicks</span>, pos 3.2</li>
-                  <li>/tools/audit — <span class="text-green-400">456 clicks</span>, pos 5.1</li>
-                  <li>/pricing — <span class="text-green-400">321 clicks</span>, pos 2.8</li>
-                </ol>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Add one line of config</h3>
+          <p class="step-desc">Paste the MCP server URL into your agent's config. Done. That's the whole integration.</p>
+          <div class="step-code">
+            <div class="code-block">
+              <div class="code-body" style="padding:14px 18px;">
+                <pre style="font-size:13px; line-height:20px;"><span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://seomcp.dev/sse?key=sk_live_..."</span></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Ask your agent anything</h3>
+          <p class="step-desc">Your agent now has 35 tools. It picks the right one automatically. Just ask.</p>
+          <div class="step-code">
+            <div class="code-block">
+              <div class="code-body" style="padding:14px 18px;">
+                <pre style="font-size:13px; line-height:20px;"><span class="str">"Audit my site and find SEO issues"</span>
+<span class="comment">→ Agent calls site_audit + generate_report</span></pre>
               </div>
             </div>
           </div>
@@ -355,544 +841,557 @@
     </div>
   </section>
 
-  <!-- Tools Grid -->
-  <section id="tools" class="py-24 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">35 tools. Every SEO workflow.</h2>
-        <p class="text-slate-400 text-lg">From quick audits to bulk URL inspection. All through one MCP endpoint.</p>
+  <!-- ═══ TOOL GRID ═══ -->
+  <section class="section section-border" id="tools">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">Every SEO tool your agent needs</h2>
+        <p class="body-lg text-secondary">Organized by workflow. Your agent picks the right tool automatically.</p>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Crawl -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">🕷️</span>
-            <h3 class="text-lg font-semibold">Site Crawling</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">Rust-powered crawler. Fast, thorough, finds everything.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">site_audit</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">crawl_page</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">test_robots_txt</span>
-          </div>
-        </div>
-
-        <!-- GSC -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">📊</span>
-            <h3 class="text-lg font-semibold">Search Console</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">Direct GSC API access. Real impressions, clicks, positions.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_performance</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_inspect_url</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_list_sitemaps</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">gsc_submit_sitemap</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">+4 more</span>
-          </div>
-        </div>
-
-        <!-- GA4 -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">📈</span>
-            <h3 class="text-lg font-semibold">Google Analytics</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">GA4 reports, realtime data, traffic sources, geography.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_report</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_realtime</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_top_pages</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">ga4_traffic_sources</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">+5 more</span>
-          </div>
-        </div>
-
-        <!-- IndexNow -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">⚡</span>
-            <h3 class="text-lg font-semibold">IndexNow</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">Instant indexing. Submit URLs to Bing, Yandex, and more.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_url</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_batch_submit</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_sitemap</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">indexnow_submit_file</span>
-          </div>
-        </div>
-
-        <!-- Schema -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-white/5 transition-all duration-200">
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">🏗️</span>
-            <h3 class="text-lg font-semibold">Schema & Validation</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">Validate structured data, check robots.txt, find issues.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">validate_schema</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">analyze_robots_txt</span>
-          </div>
-        </div>
-
-        <!-- Reports -->
-        <div class="tool-card p-6 rounded-xl bg-surface-800 border border-brand-500/30 transition-all duration-200 relative overflow-hidden">
-          <div class="absolute top-3 right-3 px-2 py-0.5 rounded text-xs font-medium bg-brand-500/20 text-brand-300 border border-brand-500/30">⭐ Popular</div>
-          <div class="flex items-center gap-3 mb-4">
-            <span class="text-2xl">📋</span>
-            <h3 class="text-lg font-semibold">Full Audit Report</h3>
-          </div>
-          <p class="text-slate-400 text-sm mb-4">One command → comprehensive SEO audit with health score, issues, and recommendations.</p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-brand-500/20 text-brand-300 border border-brand-500/30">generate_report</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">core_web_vitals</span>
-            <span class="px-2 py-0.5 rounded text-xs font-mono bg-surface-700 text-slate-300">version</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Comparison -->
-  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Stop overpaying for SEO data</h2>
-        <p class="text-slate-400 text-lg">Your Google data is free. Why pay $129/mo for approximations?</p>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm">
-          <thead>
-            <tr class="border-b border-white/10">
-              <th class="pb-4 pr-4 text-slate-400 font-medium">Feature</th>
-              <th class="pb-4 px-4 text-center">
-                <span class="gradient-text font-bold text-base">seomcp.dev</span>
-              </th>
-              <th class="pb-4 px-4 text-center text-slate-300">Ahrefs</th>
-              <th class="pb-4 px-4 text-center text-slate-300">DataForSEO</th>
-              <th class="pb-4 px-4 text-center text-slate-300 hidden sm:table-cell">FetchSERP</th>
-            </tr>
-          </thead>
-          <tbody class="text-slate-300">
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">Starting price</td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">Free / $29</td>
-              <td class="py-3 px-4 text-center">$129/mo</td>
-              <td class="py-3 px-4 text-center">$50 min</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell">Credit-based</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">Real Google data</td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">✅ Direct API</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌ Estimates</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌ Estimates</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌ Scraped</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">MCP native</td>
-              <td class="py-3 px-4 text-center text-green-400">✅</td>
-              <td class="py-3 px-4 text-center text-green-400">✅</td>
-              <td class="py-3 px-4 text-center text-green-400">✅</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell text-green-400">✅</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">Hosted (zero setup)</td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">✅</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌ Bundled</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌ Self-host</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell text-green-400">✅</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">Tools included</td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">35</td>
-              <td class="py-3 px-4 text-center">Varies</td>
-              <td class="py-3 px-4 text-center">9 modules</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell">15</td>
-            </tr>
-            <tr class="border-b border-white/5">
-              <td class="py-3 pr-4 font-medium">IndexNow support</td>
-              <td class="py-3 px-4 text-center text-green-400">✅</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌</td>
-            </tr>
-            <tr>
-              <td class="py-3 pr-4 font-medium">One-command full audit</td>
-              <td class="py-3 px-4 text-center text-green-400 font-bold">✅</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌</td>
-              <td class="py-3 px-4 text-center text-slate-500">❌</td>
-              <td class="py-3 px-4 text-center hidden sm:table-cell text-slate-500">❌</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pricing -->
-  <section id="pricing" class="py-24 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
-        <p class="text-slate-400 text-lg">Start free. Scale as you grow. No surprises.</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-        <!-- Free -->
-        <div class="pricing-card p-8 rounded-2xl bg-surface-800 border border-white/5">
-          <h3 class="text-lg font-semibold text-slate-300 mb-2">Free</h3>
-          <div class="flex items-baseline gap-1 mb-1">
-            <span class="text-4xl font-extrabold">$0</span>
-            <span class="text-slate-400">/mo</span>
-          </div>
-          <p class="text-slate-500 text-sm mb-8">Perfect for trying it out</p>
-          <ul class="space-y-3 mb-8 text-sm text-slate-300">
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 50 tool calls / month</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 1 connected site</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 1 API key</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Community support</li>
+      <div class="tool-categories">
+        <!-- Research -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">🔍</div>
+          <div class="tool-category-name">Crawling & Audit</div>
+          <div class="tool-category-count">5 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">site_audit — Full site crawl & issue detection</li>
+            <li>crawl_page — Deep-analyze any single page</li>
+            <li>test_robots_txt — Parse & validate robots.txt</li>
           </ul>
-          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-surface-700 hover:bg-surface-600 text-white border border-white/10 transition">
-            Get Started Free
-          </button>
+          <div class="expand-hint">Click to see all →</div>
+          <div class="tool-expand-detail">
+            <ul class="tool-category-list">
+              <li>analyze_robots_txt — Detailed robots.txt analysis</li>
+              <li>generate_report — 16-section comprehensive audit</li>
+            </ul>
+          </div>
         </div>
 
-        <!-- Pro -->
-        <div class="pricing-card featured p-8 rounded-2xl bg-surface-800 relative">
-          <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-brand-500 text-xs font-bold text-white">
-            MOST POPULAR
-          </div>
-          <h3 class="text-lg font-semibold text-white mb-2">Pro</h3>
-          <div class="flex items-baseline gap-1 mb-1">
-            <span class="text-4xl font-extrabold">$29</span>
-            <span class="text-slate-400">/mo</span>
-          </div>
-          <p class="text-slate-500 text-sm mb-8">For freelancers & developers</p>
-          <ul class="space-y-3 mb-8 text-sm text-slate-300">
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> <strong class="text-white">2,000</strong> tool calls / month</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 5 connected sites</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 5 API keys</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 30-day audit history</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Email reports</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Priority support</li>
+        <!-- Analysis -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">📊</div>
+          <div class="tool-category-name">Search Console</div>
+          <div class="tool-category-count">8 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">gsc_performance — Clicks, impressions, CTR, position</li>
+            <li>gsc_inspect_url — URL indexing status</li>
+            <li>gsc_list_sitemaps — View submitted sitemaps</li>
           </ul>
-          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white shadow-lg shadow-brand-500/25 transition">
-            Start Pro →
-          </button>
+          <div class="expand-hint">Click to see all →</div>
+          <div class="tool-expand-detail">
+            <ul class="tool-category-list">
+              <li>gsc_submit_sitemap — Submit new sitemaps</li>
+              <li>gsc_delete_sitemap — Remove sitemaps</li>
+              <li>gsc_list_sites — All verified sites</li>
+              <li>gsc_add_site — Add site to GSC</li>
+              <li>gsc_keywords — Top search keywords</li>
+            </ul>
+          </div>
         </div>
 
-        <!-- Agency -->
-        <div class="pricing-card p-8 rounded-2xl bg-surface-800 border border-white/5">
-          <h3 class="text-lg font-semibold text-slate-300 mb-2">Agency</h3>
-          <div class="flex items-baseline gap-1 mb-1">
-            <span class="text-4xl font-extrabold">$79</span>
-            <span class="text-slate-400">/mo</span>
-          </div>
-          <p class="text-slate-500 text-sm mb-8">For agencies & teams</p>
-          <ul class="space-y-3 mb-8 text-sm text-slate-300">
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> <strong class="text-white">10,000</strong> tool calls / month</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Unlimited sites</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 20 API keys</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> All 35 tools</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> 90-day audit history</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Team seats</li>
-            <li class="flex items-center gap-3"><span class="text-green-400">✓</span> Dedicated support</li>
+        <!-- Technical -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">📈</div>
+          <div class="tool-category-name">Google Analytics</div>
+          <div class="tool-category-count">9 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">ga4_report — Custom reports with any metric</li>
+            <li>ga4_top_pages — Best performing content</li>
+            <li>ga4_realtime — Live visitor data</li>
           </ul>
-          <button onclick="openSignup()" class="w-full py-3 text-sm font-semibold rounded-xl bg-surface-700 hover:bg-surface-600 text-white border border-white/10 transition">
-            Start Agency →
-          </button>
+          <div class="expand-hint">Click to see all →</div>
+          <div class="tool-expand-detail">
+            <ul class="tool-category-list">
+              <li>ga4_traffic_sources — Where visitors come from</li>
+              <li>ga4_geography — Visitor locations</li>
+              <li>ga4_user_engagement — Session metrics</li>
+              <li>ga4_conversions — Goal completions</li>
+              <li>ga4_events — Custom event data</li>
+              <li>ga4_list_properties — All GA4 properties</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Ranking -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">⚡</div>
+          <div class="tool-category-name">Core Web Vitals</div>
+          <div class="tool-category-count">2 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">core_web_vitals — LCP, INP, CLS + PageSpeed</li>
+            <li>page_speed — Full Lighthouse performance report</li>
+          </ul>
+        </div>
+
+        <!-- Content -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">🏗️</div>
+          <div class="tool-category-name">Schema & Validation</div>
+          <div class="tool-category-count">3 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">validate_schema — JSON-LD structured data check</li>
+            <li>analyze_robots_txt — Robots.txt deep analysis</li>
+            <li>check_sitemap — Sitemap XML validation</li>
+          </ul>
+        </div>
+
+        <!-- Performance -->
+        <div class="tool-category" onclick="toggleCategory(this)">
+          <div class="tool-category-icon">🚀</div>
+          <div class="tool-category-name">IndexNow</div>
+          <div class="tool-category-count">4 tools</div>
+          <ul class="tool-category-list">
+            <li class="featured">indexnow_submit_url — Instant indexing</li>
+            <li>indexnow_batch_submit — Bulk URL submission</li>
+            <li>indexnow_submit_sitemap — Submit via sitemap</li>
+          </ul>
+          <div class="expand-hint">Click to see all →</div>
+          <div class="tool-expand-detail">
+            <ul class="tool-category-list">
+              <li>indexnow_submit_file — Submit via URL list file</li>
+            </ul>
+          </div>
         </div>
       </div>
 
-      <p class="text-center text-slate-500 text-sm mt-8">
-        Need more? <a href="mailto:hello@seomcp.dev" class="text-brand-400 hover:underline">Contact us</a> for Enterprise pricing (unlimited everything, SLA, custom tools).
+      <p style="text-align:center; margin-top:32px;">
+        <a href="/tools" class="btn-text" style="color:var(--amber);">View all 35 tools with parameters →</a>
       </p>
     </div>
   </section>
 
-  <!-- Compatible With -->
-  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
-    <div class="max-w-6xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Works with your favorite AI tools</h2>
-        <p class="text-slate-400 text-lg">Any MCP-compatible client. One config line.</p>
+  <!-- ═══ LIVE DEMO ═══ -->
+  <section class="section section-border" id="demo">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">See it in action</h2>
+        <p class="body-lg text-secondary">A real conversation between a developer and their AI agent.</p>
       </div>
 
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
-          <div class="text-3xl mb-3">🤖</div>
-          <h3 class="font-semibold mb-1">Claude Desktop</h3>
-          <p class="text-xs text-slate-400">Anthropic's AI assistant</p>
+      <div class="demo-conversation">
+        <div class="demo-tabs">
+          <button class="demo-tab active" onclick="switchDemo(0, this)">Content Research</button>
+          <button class="demo-tab" onclick="switchDemo(1, this)">Technical Audit</button>
+          <button class="demo-tab" onclick="switchDemo(2, this)">Competitor Analysis</button>
         </div>
-        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
-          <div class="text-3xl mb-3">⌨️</div>
-          <h3 class="font-semibold mb-1">Cursor</h3>
-          <p class="text-xs text-slate-400">AI-powered code editor</p>
-        </div>
-        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
-          <div class="text-3xl mb-3">🏄</div>
-          <h3 class="font-semibold mb-1">Windsurf</h3>
-          <p class="text-xs text-slate-400">AI development platform</p>
-        </div>
-        <div class="p-6 rounded-xl bg-surface-800 border border-white/5 text-center">
-          <div class="text-3xl mb-3">🔧</div>
-          <h3 class="font-semibold mb-1">Any MCP Client</h3>
-          <p class="text-xs text-slate-400">Standard protocol</p>
-        </div>
-      </div>
 
-      <!-- Config examples -->
-      <div class="mt-12 grid md:grid-cols-2 gap-6">
-        <div>
-          <h4 class="text-sm font-medium text-slate-400 mb-3">Claude Desktop / Cursor config</h4>
-          <div class="code-block rounded-xl overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
-              <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
-              <button onclick="copyCode('config-claude')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+        <!-- Panel 1: Content Research -->
+        <div class="demo-panel active" id="demo-panel-0">
+          <div class="demo-body">
+            <div class="demo-msg">
+              <div class="demo-label user">You</div>
+              <div class="demo-text">What keywords should I target for my new blog post about serverless databases?</div>
             </div>
-            <pre class="p-4 text-xs font-mono overflow-x-auto"><code id="config-claude" class="text-slate-300">{
-  "mcpServers": {
-    "seo": {
-      "url": "https://seomcp.dev/mcp",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
-    }
-  }
-}</code></pre>
+            <div class="demo-msg">
+              <div class="demo-label agent">Agent</div>
+              <div class="demo-text">I'll research that for you using seomcp.dev tools.</div>
+              <div class="demo-tool-call">
+                <span class="icon">📊</span>
+                <span class="name">gsc_keywords</span>
+                <span class="args">("serverless databases")</span>
+              </div>
+              <div class="demo-tool-call">
+                <span class="icon">📈</span>
+                <span class="name">gsc_performance</span>
+                <span class="args">(query: "serverless")</span>
+              </div>
+              <div class="demo-result">
+                <div><span class="label">Results:</span></div>
+                <div style="margin-top:8px;">
+                  <span class="value">"serverless database"</span> — <span class="good">8,100/mo</span>, difficulty: 67<br>
+                  <span class="value">"serverless postgres"</span> — <span class="good">3,200/mo</span>, difficulty: 45 <span class="arrow">← Best opportunity</span><br>
+                  <span class="value">"database as a service"</span> — <span class="good">5,400/mo</span>, difficulty: 72
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div>
-          <h4 class="text-sm font-medium text-slate-400 mb-3">OpenAI API / programmatic</h4>
-          <div class="code-block rounded-xl overflow-hidden">
-            <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
-              <span class="text-xs text-slate-500 font-mono">curl</span>
-              <button onclick="copyCode('config-curl')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+
+        <!-- Panel 2: Technical Audit -->
+        <div class="demo-panel" id="demo-panel-1">
+          <div class="demo-body">
+            <div class="demo-msg">
+              <div class="demo-label user">You</div>
+              <div class="demo-text">Run a full SEO audit on example.com and tell me what's broken.</div>
             </div>
-            <pre class="p-4 text-xs font-mono overflow-x-auto"><code id="config-curl" class="text-slate-300">curl -X POST https://seomcp.dev/mcp \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -H "Accept: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/list",
-    "id": 1
-  }'</code></pre>
+            <div class="demo-msg">
+              <div class="demo-label agent">Agent</div>
+              <div class="demo-text">Running a comprehensive audit now.</div>
+              <div class="demo-tool-call">
+                <span class="icon">📋</span>
+                <span class="name">generate_report</span>
+                <span class="args">(site_url: "example.com")</span>
+              </div>
+              <div class="demo-result">
+                <div><span class="label">Health Score:</span> <span class="good">72/100</span></div>
+                <div style="margin-top:8px;">
+                  <span class="value">Critical:</span> 3 pages missing meta descriptions<br>
+                  <span class="value">Warning:</span> Images without alt text on /blog<br>
+                  <span class="value">Info:</span> robots.txt blocks /api (correct)<br>
+                  <span class="arrow">→ Full report with 16 sections generated</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel 3: Competitor Analysis -->
+        <div class="demo-panel" id="demo-panel-2">
+          <div class="demo-body">
+            <div class="demo-msg">
+              <div class="demo-label user">You</div>
+              <div class="demo-text">How does my site's performance compare to the competition?</div>
+            </div>
+            <div class="demo-msg">
+              <div class="demo-label agent">Agent</div>
+              <div class="demo-text">Let me check Core Web Vitals for both sites.</div>
+              <div class="demo-tool-call">
+                <span class="icon">⚡</span>
+                <span class="name">core_web_vitals</span>
+                <span class="args">(url: "yoursite.com")</span>
+              </div>
+              <div class="demo-tool-call">
+                <span class="icon">⚡</span>
+                <span class="name">core_web_vitals</span>
+                <span class="args">(url: "competitor.com")</span>
+              </div>
+              <div class="demo-result">
+                <div><span class="label">Your site:</span> LCP <span class="good">1.8s</span> · CLS <span class="good">0.02</span> · INP <span class="good">95ms</span></div>
+                <div><span class="label">Competitor:</span> LCP 3.2s · CLS 0.15 · INP 280ms</div>
+                <div style="margin-top:8px;"><span class="arrow">→ You're faster on all Core Web Vitals. Leverage this in content.</span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section id="faq" class="py-24 px-4 sm:px-6">
-    <div class="max-w-3xl mx-auto">
-      <div class="text-center mb-16">
-        <h2 class="text-3xl sm:text-4xl font-bold mb-4">Frequently asked questions</h2>
+  <!-- ═══ WHY MCP ═══ -->
+  <section class="section section-border">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">Why MCP?</h2>
+        <p class="body-lg text-secondary" style="max-width:640px; margin:0 auto;">
+          The Model Context Protocol is how AI agents talk to tools. seomcp.dev gives your
+          agent 35 SEO tools through one standard connection.
+        </p>
       </div>
 
-      <div class="space-y-4">
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+      <div class="protocol-flow">
+        <div class="protocol-node">
+          <div class="protocol-node-box agent">🤖</div>
+          <div class="protocol-node-label">Your AI Agent</div>
+          <div class="protocol-node-sub">Claude, Cursor, Windsurf</div>
+        </div>
+
+        <div class="protocol-line">
+          <span class="protocol-line-label">MCP Protocol</span>
+          <div class="protocol-packet"></div>
+        </div>
+
+        <div class="protocol-node">
+          <div class="protocol-node-box server">⚡</div>
+          <div class="protocol-node-label">seomcp.dev</div>
+          <div class="protocol-node-sub">One config line</div>
+        </div>
+
+        <div class="protocol-line">
+          <span class="protocol-line-label">35 APIs</span>
+          <div class="protocol-packet" style="animation-delay: 0.8s;"></div>
+        </div>
+
+        <div class="protocol-node">
+          <div class="protocol-node-box data">📊</div>
+          <div class="protocol-node-label">SEO Data</div>
+          <div class="protocol-node-sub">GSC, GA4, PageSpeed...</div>
+        </div>
+      </div>
+
+      <p style="text-align:center; margin-top:24px;">
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" class="btn-text small" style="color:var(--text-tertiary);">
+          Learn more about MCP spec →
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══ COMPARISON ═══ -->
+  <section class="section section-border">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">Stop juggling SEO APIs</h2>
+        <p class="body-lg text-secondary">One subscription vs. stitching together five different services.</p>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="comparison-card diy">
+          <div class="comparison-title">DIY: 5 APIs</div>
+          <ul class="comparison-list">
+            <li><span class="icon bad">✕</span> 5+ API subscriptions</li>
+            <li><span class="icon bad">✕</span> $200+/month combined</li>
+            <li><span class="icon bad">✕</span> Weeks of integration work</li>
+            <li><span class="icon bad">✕</span> Maintain 5 auth flows</li>
+            <li><span class="icon bad">✕</span> Rate limit juggling</li>
+            <li><span class="icon bad">✕</span> Version compatibility headaches</li>
+          </ul>
+          <div class="comparison-highlight" style="color:var(--coral);">$200+/mo</div>
+        </div>
+
+        <div class="comparison-card seo">
+          <div class="comparison-title">seomcp.dev</div>
+          <ul class="comparison-list">
+            <li><span class="icon good">✓</span> 1 subscription</li>
+            <li><span class="icon good">✓</span> $29/month — all 35 tools</li>
+            <li><span class="icon good">✓</span> 30 seconds to setup</li>
+            <li><span class="icon good">✓</span> 1 API key</li>
+            <li><span class="icon good">✓</span> We handle rate limits</li>
+            <li><span class="icon good">✓</span> Always up-to-date</li>
+          </ul>
+          <div class="comparison-highlight" style="color:var(--amber);">$29/mo</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ PRICING ═══ -->
+  <section class="section section-border" id="pricing">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">$0.83/day for the complete SEO toolkit</h2>
+        <p class="body-lg text-secondary">That's less than your morning coffee. And unlike coffee, it makes your AI agent smarter.</p>
+      </div>
+
+      <div class="pricing-card">
+        <div class="pricing-amount">$29</div>
+        <div class="pricing-period">per month</div>
+        <div class="pricing-reframe">Everything included. No per-query fees. Cancel anytime.</div>
+        <ul class="pricing-features">
+          <li><span class="check">✓</span> All 35 SEO tools</li>
+          <li><span class="check">✓</span> 2,000 tool calls per month</li>
+          <li><span class="check">✓</span> All MCP clients supported</li>
+          <li><span class="check">✓</span> 5 API keys</li>
+          <li><span class="check">✓</span> Google Search Console + Analytics</li>
+          <li><span class="check">✓</span> Core Web Vitals & PageSpeed</li>
+          <li><span class="check">✓</span> IndexNow instant indexing</li>
+          <li><span class="check">✓</span> Audit history & scheduling</li>
+          <li><span class="check">✓</span> Rate limit handling built-in</li>
+          <li><span class="check">✓</span> Priority support</li>
+        </ul>
+        <button class="btn-primary" onclick="openSignup()" style="width:100%; justify-content:center;">Get API Key — $29/mo</button>
+        <p style="margin-top:16px; font-size:13px; color:var(--text-tertiary);">
+          Free tier available — 50 calls/month, no credit card required.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ DEVELOPER TRUST ═══ -->
+  <section class="section section-border">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2" style="margin-bottom:12px;">Built for developers who ship</h2>
+        <p class="body-lg text-secondary">Compatible with every major MCP client. Reliable infrastructure you can depend on.</p>
+      </div>
+
+      <div class="trust-clients">
+        <div class="trust-client">
+          <div class="trust-client-icon">🤖</div>
+          <div class="trust-client-name">Claude</div>
+        </div>
+        <div class="trust-client">
+          <div class="trust-client-icon">⌨️</div>
+          <div class="trust-client-name">Cursor</div>
+        </div>
+        <div class="trust-client">
+          <div class="trust-client-icon">🏄</div>
+          <div class="trust-client-name">Windsurf</div>
+        </div>
+        <div class="trust-client">
+          <div class="trust-client-icon">💻</div>
+          <div class="trust-client-name">VS Code</div>
+        </div>
+        <div class="trust-client">
+          <div class="trust-client-icon">🔧</div>
+          <div class="trust-client-name">Any MCP</div>
+        </div>
+      </div>
+
+      <div class="trust-stats">
+        <div class="trust-stat">
+          <div class="trust-stat-value">35</div>
+          <div class="trust-stat-label">SEO tools</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-stat-value">&lt;200ms</div>
+          <div class="trust-stat-label">Avg response</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-stat-value">99.9%</div>
+          <div class="trust-stat-label">Uptime target</div>
+        </div>
+        <div class="trust-stat">
+          <div class="trust-stat-value">0</div>
+          <div class="trust-stat-label">Vendor lock-in</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ FAQ ═══ -->
+  <section class="section section-border" id="faq">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:64px;">
+        <h2 class="h2">Frequently asked questions</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
             What is MCP?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            MCP (Model Context Protocol) is an open standard by Anthropic that lets AI tools connect to external services. Think of it like USB-C for AI — one protocol, any tool. Claude, Cursor, Windsurf, and OpenAI all support MCP. When you add seomcp.dev as an MCP server, your AI instantly gains access to all 35 SEO tools.
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>MCP (Model Context Protocol) is an open standard by Anthropic that lets AI tools connect to external services. Think of it like USB-C for AI — one protocol, any tool. Claude, Cursor, Windsurf, and OpenAI all support MCP. When you add seomcp.dev as an MCP server, your AI instantly gains access to all 35 SEO tools.</p>
           </div>
-        </details>
+        </div>
 
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
-            Do I need a Google account?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            <strong class="text-white">Not for basic tools.</strong> Site crawling, schema validation, robots.txt analysis, and IndexNow all work without Google. To use Search Console and Analytics tools, you'll connect your Google account through a simple OAuth flow — we never store your password, only a secure API token.
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            What tools are included?
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>35 tools across 6 categories: Site crawling & audits, Google Search Console (8 tools), Google Analytics 4 (9 tools), Core Web Vitals, Schema validation, and IndexNow instant indexing. <a href="/tools" style="color:var(--amber);">See the full catalog →</a></p>
           </div>
-        </details>
+        </div>
 
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
-            What AI tools does this work with?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            Any MCP-compatible client: <strong class="text-white">Claude Desktop, Cursor, Windsurf, VS Code (with MCP extension), OpenAI API, and any custom MCP client.</strong> We use the standard Streamable HTTP transport, which is the official MCP remote protocol. If your tool supports MCP remote servers, it works with us.
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Is there a free tier?
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>Yes. Free tier includes 50 tool calls per month with access to all 35 tools. No credit card required. The free tier is enough for a couple of full site audits per month.</p>
           </div>
-        </details>
+        </div>
 
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
-            How is this different from Ahrefs or Semrush?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            <strong class="text-white">We use your actual Google data.</strong> Ahrefs and Semrush sell estimated metrics based on their crawlers. We connect to Google Search Console and Google Analytics directly — so you get the exact same numbers you see in Google's own dashboards. Plus, we're $29/mo vs $129+/mo. We focus on what Google gives you for free; they focus on proprietary data like backlinks and keyword databases.
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            Can I use this with my AI framework?
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>If it supports MCP remote servers, yes. We use the standard Streamable HTTP transport. Works with Claude Desktop, Cursor, Windsurf, VS Code (with MCP extension), and any custom MCP client. You can also call tools directly via HTTP.</p>
           </div>
-        </details>
+        </div>
 
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
-            What counts as a "tool call"?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            Each invocation of an MCP tool counts as one call. For example, <code class="bg-surface-700 px-1 rounded font-mono text-xs">generate_report</code> = 1 call. <code class="bg-surface-700 px-1 rounded font-mono text-xs">gsc_performance</code> = 1 call. Session initialization and tool listing are free. The free tier gives you 50 calls/month — enough for a couple of full audits.
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
+            How is this different from using SEO APIs directly?
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>Instead of managing 5+ API subscriptions ($200+/month), juggling multiple auth flows, and spending weeks on integration, you get one API key, one config line, and 30 seconds to setup. We handle rate limits, authentication, and routing. Your agent just asks for what it needs.</p>
           </div>
-        </details>
+        </div>
 
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
+        <div class="faq-item">
+          <button class="faq-question" onclick="toggleFaq(this)">
             Is my data secure?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            Yes. API keys are SHA-256 hashed (we can't read them). Google tokens are encrypted at rest. Each user gets an isolated binary process. All communication is over HTTPS. We never store your SEO data — it flows through our server and directly to your AI tool. We're a proxy, not a database.
+            <span class="faq-arrow">▾</span>
+          </button>
+          <div class="faq-answer">
+            <p>Yes. API keys are SHA-256 hashed. Google tokens are AES-256-GCM encrypted. Each user gets isolated processes. All traffic is HTTPS. We never store your SEO data — it flows through our server directly to your AI tool. We're a proxy, not a database.</p>
           </div>
-        </details>
-
-        <details class="group bg-surface-800 rounded-xl border border-white/5 overflow-hidden">
-          <summary class="flex items-center justify-between p-5 cursor-pointer text-white font-medium hover:text-brand-300 transition">
-            Can I cancel anytime?
-            <span class="text-slate-500 group-open:rotate-180 transition-transform">▾</span>
-          </summary>
-          <div class="px-5 pb-5 text-slate-400 text-sm">
-            Of course. No contracts, no commitments. Cancel in your dashboard and you'll keep access until the end of your billing period. You can also downgrade to the free tier anytime.
-          </div>
-        </details>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="py-24 px-4 sm:px-6 bg-surface-800/30">
-    <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl sm:text-4xl font-bold mb-6">
-        Ready to give your AI agent<br><span class="gradient-text">SEO superpowers</span>?
-      </h2>
-      <p class="text-slate-300 text-lg mb-8">
-        Free tier. No credit card. 35 tools in under a minute.
-      </p>
-      <button onclick="openSignup()" class="px-10 py-4 text-lg font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition animate-pulse-glow">
-        Get Free API Key →
-      </button>
-      <p class="text-slate-500 text-sm mt-4">Join developers already using seomcp.dev</p>
+  <!-- ═══ FOOTER CTA ═══ -->
+  <section class="footer-cta">
+    <div class="container">
+      <h2 class="h2" style="margin-bottom:24px;">Your agent is one config line away<br>from 35 SEO tools.</h2>
+      <button class="btn-primary" onclick="openSignup()" style="font-size:18px; padding:16px 36px;">Get API Key →</button>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="border-t border-white/5 py-12 px-4 sm:px-6">
-    <div class="max-w-6xl mx-auto">
-      <div class="grid sm:grid-cols-4 gap-8 mb-12">
-        <div>
-          <div class="flex items-center gap-2 text-lg font-bold mb-4">
-            <span class="text-2xl">🔍</span>
-            <span class="gradient-text">seomcp</span><span class="text-slate-400">.dev</span>
-          </div>
-          <p class="text-sm text-slate-500">35 SEO tools for any AI agent.<br>Built on Google's free APIs.</p>
+  <!-- ═══ FOOTER ═══ -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-inner">
+        <div class="footer-left">
+          <span style="font-weight:600;">seomcp<span style="color:var(--amber);">.dev</span></span>
+          <span style="margin-left:16px;">© 2026 Built by <a href="https://quantacodes.ai" target="_blank" rel="noopener noreferrer" style="color:var(--text-secondary);">QuantaCodes</a></span>
         </div>
-        <div>
-          <h4 class="font-semibold text-sm text-slate-300 mb-4">Product</h4>
-          <ul class="space-y-2 text-sm text-slate-500">
-            <li><a href="/tools" class="hover:text-white transition">All 35 Tools</a></li>
-            <li><a href="#pricing" class="hover:text-white transition">Pricing</a></li>
-            <li><a href="/docs" class="hover:text-white transition">Documentation</a></li>
-            <li><a href="/openapi.json" class="hover:text-white transition">OpenAPI Spec</a></li>
-          </ul>
+        <div class="footer-links">
+          <a href="/docs">Docs</a>
+          <a href="#pricing">Pricing</a>
+          <a href="/terms">Terms</a>
+          <a href="/privacy">Privacy</a>
         </div>
-        <div>
-          <h4 class="font-semibold text-sm text-slate-300 mb-4">Resources</h4>
-          <ul class="space-y-2 text-sm text-slate-500">
-            <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
-            <li><a href="#" class="hover:text-white transition">Blog</a></li>
-            <li><a href="#" class="hover:text-white transition">Status</a></li>
-            <li><a href="https://github.com" class="hover:text-white transition" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-          </ul>
-        </div>
-        <div>
-          <h4 class="font-semibold text-sm text-slate-300 mb-4">Legal</h4>
-          <ul class="space-y-2 text-sm text-slate-500">
-            <li><a href="/terms" class="hover:text-white transition">Terms of Service</a></li>
-            <li><a href="/privacy" class="hover:text-white transition">Privacy Policy</a></li>
-            <li><a href="mailto:hello@seomcp.dev" class="hover:text-white transition">Contact</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="border-t border-white/5 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-600">
-        <span>© 2026 seomcp.dev — Built by <a href="https://quantacodes.ai" class="text-slate-400 hover:text-white transition" target="_blank" rel="noopener noreferrer">QuantaCodes</a></span>
-        <span>Powered by Rust 🦀</span>
       </div>
     </div>
   </footer>
 
-  <!-- Signup Modal -->
+  <!-- ═══ SIGNUP MODAL ═══ -->
   <div id="signup-modal" class="modal-overlay">
-    <div class="w-full max-w-md mx-4 p-8 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
-      <!-- Step 1: Signup Form -->
+    <div class="modal-card">
+      <!-- Step 1: Form -->
       <div id="signup-step-1">
-        <div class="text-center mb-6">
-          <span class="text-3xl">🔍</span>
-          <h3 class="text-xl font-bold mt-2">Get your API key</h3>
-          <p class="text-sm text-slate-400 mt-1">Free tier — 50 calls/month, no credit card</p>
+        <div style="text-align:center; margin-bottom:24px;">
+          <div style="font-size:24px; font-weight:600; margin-bottom:4px;">Get your API key</div>
+          <div class="small text-secondary">Free tier — 50 calls/month, no credit card</div>
         </div>
         <form id="signup-form" onsubmit="handleSignup(event)">
-          <div class="space-y-4">
+          <div style="display:flex; flex-direction:column; gap:12px;">
             <div>
-              <label class="block text-sm font-medium text-slate-300 mb-1">Email</label>
-              <input type="email" id="signup-email" required placeholder="you@example.com"
-                class="w-full px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+              <label style="display:block; font-size:14px; color:var(--text-secondary); margin-bottom:6px;">Email</label>
+              <input type="email" id="signup-email" required placeholder="you@example.com" class="modal-input">
             </div>
             <div>
-              <label class="block text-sm font-medium text-slate-300 mb-1">Password</label>
-              <input type="password" id="signup-password" required minlength="8" placeholder="Min 8 characters"
-                class="w-full px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition">
+              <label style="display:block; font-size:14px; color:var(--text-secondary); margin-bottom:6px;">Password</label>
+              <input type="password" id="signup-password" required minlength="8" placeholder="Min 8 characters" class="modal-input">
             </div>
-            <div id="signup-error" class="hidden text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg p-3"></div>
-            <button type="submit" id="signup-btn" class="w-full py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white transition">
-              Create Account & Get Key
-            </button>
+            <div id="signup-error" class="modal-error"></div>
+            <button type="submit" id="signup-btn" class="modal-btn">Create Account & Get Key</button>
           </div>
         </form>
-        <button onclick="closeSignup()" class="w-full mt-3 py-2 text-sm text-slate-500 hover:text-white transition">Cancel</button>
+        <button onclick="closeSignup()" style="width:100%; padding:12px; margin-top:8px; font-size:14px; color:var(--text-tertiary);">Cancel</button>
       </div>
 
-      <!-- Step 2: Show API Key -->
-      <div id="signup-step-2" class="hidden">
-        <div class="text-center mb-6">
-          <span class="text-4xl check-icon">✓</span>
-          <h3 class="text-xl font-bold mt-2">You're in!</h3>
-          <p class="text-sm text-slate-400 mt-1">Here's your API key — save it somewhere safe</p>
+      <!-- Step 2: Show Key -->
+      <div id="signup-step-2" style="display:none;">
+        <div style="text-align:center; margin-bottom:24px;">
+          <div style="font-size:32px; color:var(--sage);">✓</div>
+          <div style="font-size:24px; font-weight:600; margin-top:8px;">You're in!</div>
+          <div class="small text-secondary" style="margin-top:4px;">Here's your API key — save it somewhere safe</div>
         </div>
-        <div class="mb-6">
-          <label class="block text-sm font-medium text-slate-300 mb-2">Your API Key <span class="text-amber-400">(shown once)</span></label>
-          <div class="flex items-center gap-2">
-            <input type="text" id="api-key-display" readonly
-              class="flex-1 px-4 py-2.5 bg-surface-900 border border-white/10 rounded-lg font-mono text-sm text-green-400 select-all">
-            <button onclick="copyApiKey()" class="px-4 py-2.5 bg-brand-500 hover:bg-brand-600 rounded-lg text-sm font-medium text-white transition shrink-0">
-              Copy
-            </button>
+        <div style="margin-bottom:20px;">
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">
+            Your API Key <span style="color:var(--amber);">(shown once)</span>
+          </label>
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="api-key-display" readonly class="modal-input" style="font-family:var(--font-mono); font-size:13px; color:var(--sage);">
+            <button onclick="copyApiKey()" style="padding:12px 20px; background:var(--amber); color:var(--bg-deep); border-radius:8px; font-weight:600; font-size:14px; flex-shrink:0;">Copy</button>
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-slate-300 mb-2">Add to your MCP config</label>
-          <div class="code-block rounded-lg overflow-hidden">
-            <div class="flex items-center justify-between px-3 py-2 border-b border-white/5">
-              <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
-              <button onclick="copyCode('signup-config')" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">Add to your MCP config</label>
+          <div class="code-block">
+            <div class="code-header">
+              <span class="code-filename">mcp.json</span>
+              <button class="code-copy" onclick="copyCode('signup-config')">Copy</button>
             </div>
-            <pre class="p-3 text-xs font-mono overflow-x-auto"><code id="signup-config" class="text-slate-300"></code></pre>
+            <div class="code-body" style="padding:14px 18px;">
+              <pre id="signup-config" style="font-size:13px; line-height:20px;"></pre>
+            </div>
           </div>
         </div>
-        <button onclick="closeSignup()" class="w-full mt-6 py-3 text-sm font-semibold rounded-xl bg-brand-500 hover:bg-brand-600 text-white transition">
-          Done — Start Building
-        </button>
+        <button onclick="closeSignup()" class="modal-btn" style="margin-top:20px;">Done — Start Building</button>
       </div>
     </div>
   </div>
@@ -900,13 +1399,99 @@
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied to clipboard</div>
 
+  <!-- Mobile Sticky CTA -->
+  <div class="mobile-sticky-cta" id="mobile-sticky-cta">
+    <button onclick="openSignup()">Get API Key — $29/mo</button>
+  </div>
+
   <script>
+    // ── Tool Pulse: 35 positioned dots ──
+    (function() {
+      const tools = [
+        'site_audit','crawl_page','test_robots_txt','analyze_robots_txt','generate_report',
+        'gsc_performance','gsc_inspect_url','gsc_list_sitemaps','gsc_submit_sitemap','gsc_delete_sitemap',
+        'gsc_list_sites','gsc_add_site','gsc_keywords','ga4_report','ga4_top_pages',
+        'ga4_realtime','ga4_traffic_sources','ga4_geography','ga4_user_engagement','ga4_conversions',
+        'ga4_events','ga4_list_properties','core_web_vitals','page_speed','validate_schema',
+        'check_sitemap','indexnow_submit_url','indexnow_batch_submit','indexnow_submit_sitemap',
+        'indexnow_submit_file','seo_report','keyword_analysis','backlink_check','meta_check','version'
+      ];
+      const container = document.getElementById('tool-pulse');
+      if (!container) return;
+
+      tools.forEach((name, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'tool-dot';
+        dot.setAttribute('data-name', name);
+
+        // Distribute across the hero area with some structure
+        const col = i % 7;
+        const row = Math.floor(i / 7);
+        const baseX = 8 + col * 13 + (Math.random() * 6 - 3);
+        const baseY = 15 + row * 16 + (Math.random() * 8 - 4);
+
+        dot.style.left = baseX + '%';
+        dot.style.top = baseY + '%';
+        dot.style.setProperty('--delay', (Math.random() * 4).toFixed(1) + 's');
+        dot.style.setProperty('--dur', (2.5 + Math.random() * 2).toFixed(1) + 's');
+
+        container.appendChild(dot);
+      });
+    })();
+
+    // ── Nav scroll effect ──
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 50);
+    }, { passive: true });
+
+    // ── Mobile nav ──
+    function toggleMobileNav() {
+      document.getElementById('mobile-nav').classList.toggle('open');
+    }
+    function closeMobileNav() {
+      document.getElementById('mobile-nav').classList.remove('open');
+    }
+
+    // ── Mobile sticky CTA ──
+    (function() {
+      const stickyEl = document.getElementById('mobile-sticky-cta');
+      const heroEnd = document.querySelector('.hero');
+      if (!stickyEl || !heroEnd) return;
+      const observer = new IntersectionObserver(([entry]) => {
+        stickyEl.classList.toggle('visible', !entry.isIntersecting);
+      }, { threshold: 0 });
+      observer.observe(heroEnd);
+    })();
+
+    // ── FAQ Accordion ──
+    function toggleFaq(btn) {
+      const item = btn.closest('.faq-item');
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    }
+
+    // ── Tool Category Expand ──
+    function toggleCategory(el) {
+      el.classList.toggle('expanded');
+    }
+
+    // ── Demo Tabs ──
+    function switchDemo(idx, btn) {
+      document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('demo-panel-' + idx).classList.add('active');
+    }
+
     // ── Signup Modal ──
     function openSignup() {
-      document.getElementById('signup-modal').classList.add('active');
-      document.getElementById('signup-step-1').classList.remove('hidden');
-      document.getElementById('signup-step-2').classList.add('hidden');
-      document.getElementById('signup-error').classList.add('hidden');
+      const modal = document.getElementById('signup-modal');
+      modal.classList.add('active');
+      document.getElementById('signup-step-1').style.display = '';
+      document.getElementById('signup-step-2').style.display = 'none';
+      document.getElementById('signup-error').style.display = 'none';
       document.getElementById('signup-email').value = '';
       document.getElementById('signup-password').value = '';
       setTimeout(() => document.getElementById('signup-email').focus(), 100);
@@ -916,12 +1501,9 @@
       document.getElementById('signup-modal').classList.remove('active');
     }
 
-    // Close on overlay click
     document.getElementById('signup-modal').addEventListener('click', (e) => {
       if (e.target === e.currentTarget) closeSignup();
     });
-
-    // Close on Escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeSignup();
     });
@@ -935,7 +1517,7 @@
 
       btn.textContent = 'Creating account...';
       btn.disabled = true;
-      errEl.classList.add('hidden');
+      errEl.style.display = 'none';
 
       try {
         const res = await fetch('/api/auth/signup', {
@@ -943,34 +1525,26 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
-
         const data = await res.json();
 
-        if (!res.ok) {
-          throw new Error(data.error || 'Signup failed');
-        }
+        if (!res.ok) throw new Error(data.error || 'Signup failed');
+        if (!data.apiKey || !data.apiKey.startsWith('sk_live_'))
+          throw new Error('Unexpected response. Please try again.');
 
-        // Validate API key format
-        if (!data.apiKey || !data.apiKey.startsWith('sk_live_')) {
-          throw new Error('Unexpected response from server. Please try again.');
-        }
-
-        // Show API key
         document.getElementById('api-key-display').value = data.apiKey;
         document.getElementById('signup-config').textContent = JSON.stringify({
           mcpServers: {
             seo: {
-              url: 'https://seomcp.dev/mcp',
-              headers: { Authorization: `Bearer ${data.apiKey}` }
+              url: 'https://seomcp.dev/sse?key=' + data.apiKey
             }
           }
         }, null, 2);
 
-        document.getElementById('signup-step-1').classList.add('hidden');
-        document.getElementById('signup-step-2').classList.remove('hidden');
+        document.getElementById('signup-step-1').style.display = 'none';
+        document.getElementById('signup-step-2').style.display = '';
       } catch (err) {
         errEl.textContent = err.message;
-        errEl.classList.remove('hidden');
+        errEl.style.display = 'block';
       } finally {
         btn.textContent = 'Create Account & Get Key';
         btn.disabled = false;
@@ -979,14 +1553,13 @@
 
     function copyApiKey() {
       const key = document.getElementById('api-key-display').value;
-      navigator.clipboard.writeText(key).then(() => showToast());
+      navigator.clipboard.writeText(key).then(showToast);
     }
 
     // ── Copy Code ──
     function copyCode(id) {
       const el = document.getElementById(id);
-      const text = el.textContent;
-      navigator.clipboard.writeText(text).then(() => showToast());
+      navigator.clipboard.writeText(el.textContent).then(showToast);
     }
 
     function showToast() {
@@ -995,25 +1568,17 @@
       setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
-    // ── Smooth scroll for nav links ──
+    // ── Smooth scroll for anchor links ──
     document.querySelectorAll('a[href^="#"]').forEach(a => {
       a.addEventListener('click', (e) => {
-        const target = document.querySelector(a.getAttribute('href'));
+        const href = a.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
         if (target) {
           e.preventDefault();
           target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       });
-    });
-
-    // ── Nav background on scroll ──
-    const nav = document.querySelector('nav');
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 50) {
-        nav.classList.add('shadow-lg');
-      } else {
-        nav.classList.remove('shadow-lg');
-      }
     });
   </script>
 </body>

@@ -506,7 +506,7 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - ✅ Security headers + CSRF + rate limit headers + request IDs
 - ✅ 180 tests, 493 assertions, ALL PASSING
 
-### What's Left Before Launch
+### What's Left Before Launch (Session 7)
 - [ ] Domain purchase: seomcp.dev
 - [ ] Google Cloud project setup (OAuth client ID/secret)
 - [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
@@ -514,5 +514,89 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - [ ] DNS + SSL (`fly certs add seomcp.dev`)
 - [ ] Cross-compile seo-mcp Rust binary for linux-amd64
 - [ ] Set TRUSTED_PROXY=true in production env
+- [ ] Production smoke test
+- [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)
+
+---
+
+## Session 8 — 2026-02-13 08:20 IST
+
+### Phase 6: Audit History + Key Scoping + Polish
+
+**Specs:** ✅ Written (SPECS-PHASE6.md)
+
+**Build:** ✅ Complete (1,539 lines across 19 files)
+- **Audit History** — Auto-captures generate_report/site_audit/crawl_page results
+  - Plan-based retention: free 7d/10, pro 30d/100, agency 90d/1000
+  - Dashboard API: list, filter by site, full result view, health trend
+  - Health score extraction + summary metrics
+- **Key Scoping** — Restrict API keys to tool categories
+  - 9 categories: crawl, gsc, ga4, schema, indexnow, cwv, report, storage, meta
+  - Enforced at MCP transport layer before rate limit check
+  - Validation + description helpers
+- **Changelog** page at /changelog (timeline UI, v0.1.0 + v0.2.0)
+- **OG meta tags** on docs, terms, privacy pages
+- **Dashboard UI:** audit history tab, health trend chart, scoped key creation
+- DB migrations for audit_history table + api_keys.scopes column
+
+**Test:** ✅ 63 new tests (243 total, 618 assertions)
+
+**Review:** ✅ Barnacle — APPROVE
+**Commits:** 7fc9857, 74084e2
+
+---
+
+## Session 9 — 2026-02-13 08:40 IST
+
+### Phase 7: User Webhooks + Scheduled Audits
+
+**Specs:** ✅ Written (SPECS-PHASE7.md)
+
+**Build:** ✅ Complete (2,331 lines across 15 files)
+- **User Webhook System** — HMAC-SHA256 signed delivery, SSRF protection, audit + usage alerts
+- **Scheduled Audits Engine** — daily/weekly/monthly, plan limits, concurrent execution
+- **Dashboard UI** for both features
+- Usage alert notifications at 80%/100% thresholds
+
+**Test:** ✅ 53 new tests (296 total)
+
+**Review:** ✅ Barnacle — REQUEST_CHANGES → FIXED
+**Commits:** e70a0c8, fa6d712, 2ca1ff6
+
+---
+
+## Session 10 — 2026-02-13 09:20 IST
+
+### Phase 8: Email Verification
+
+**Specs:** ✅ Written (SPECS-PHASE8.md)
+
+**Build:** ✅ Complete (916 lines across 18 files)
+- HMAC-SHA256 verification tokens (24h expiry, timing-safe compare)
+- Resend API integration (HTML emails, console fallback)
+- GET /verify magic link + POST /api/auth/resend-verification
+- Unverified free users: 10 calls/month (vs 50 verified)
+- Dashboard verification banner with resend button
+- emailVerified in AuthContext, SessionData, API responses
+
+**Test:** ✅ 23 new tests (319 total)
+
+**Review:** ⏳ Barnacle reviewing...
+**Commits:** bef410e
+
+### Cumulative Stats (Session 10)
+- **Total tests:** 319 (all passing)
+- **Source files:** ~52
+- **Lines of code:** ~15,000
+- **Total commits:** 27
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Resend account + domain verification
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup
+- [ ] Deploy to Fly.io
+- [ ] DNS + SSL
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
 - [ ] Production smoke test
 - [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)

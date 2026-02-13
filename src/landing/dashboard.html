@@ -705,27 +705,22 @@
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
   <script>
-    // ── Clerk + API Config ──
+    // ── Config ──
     const API_BASE = 'https://api.seomcp.dev';
-    const CLERK_PK = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
-    const CLERK_FRONTEND = 'https://clerk.seomcp.dev';
     let clerkInstance = null;
 
     // ── Cross-origin fetch wrapper (send Clerk session token) ──
     const _origFetch = window.fetch;
-    window.fetch = async function(url, opts = {}) {
+    window.fetch = async function(url, opts) {
+      opts = opts || {};
       if (typeof url === 'string' && url.startsWith(API_BASE)) {
         opts.credentials = 'include';
         if (clerkInstance && clerkInstance.session) {
           try {
-            const token = await clerkInstance.session.getToken();
+            var token = await clerkInstance.session.getToken();
             if (token) {
               opts.headers = opts.headers || {};
-              if (opts.headers instanceof Headers) {
-                opts.headers.set('Authorization', 'Bearer ' + token);
-              } else {
-                opts.headers['Authorization'] = 'Bearer ' + token;
-              }
+              opts.headers['Authorization'] = 'Bearer ' + token;
             }
           } catch (e) { /* fallback to cookie auth */ }
         }
@@ -738,37 +733,48 @@
     let revokeKeyId = null;
 
     // ── Load Clerk then dashboard ──
-    async function initDashboard() {
+    (function() {
+      var pk = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
+      var s = document.createElement('script');
+      s.setAttribute('data-clerk-publishable-key', pk);
+      s.src = 'https://clerk.seomcp.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+      s.addEventListener('load', function() {
+        var attempts = 0;
+        var interval = setInterval(function() {
+          attempts++;
+          var c = window.Clerk;
+          if (c && c.loaded !== undefined) {
+            clearInterval(interval);
+            onClerkReady(c);
+          } else if (attempts > 100) {
+            clearInterval(interval);
+            console.warn('Clerk timeout, falling back to cookie auth');
+            loadDashboard();
+          }
+        }, 100);
+      });
+      s.addEventListener('error', function() {
+        console.warn('Clerk load failed, falling back to cookie auth');
+        loadDashboard();
+      });
+      document.head.appendChild(s);
+    })();
+
+    async function onClerkReady(clerk) {
       try {
-        const script = document.createElement('script');
-        script.src = CLERK_FRONTEND + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-        script.crossOrigin = 'anonymous';
-        document.head.appendChild(script);
-        await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
-
-        const Clerk = window.Clerk;
-        if (typeof Clerk === 'function' && Clerk.prototype) {
-          clerkInstance = new Clerk(CLERK_PK);
-          await clerkInstance.load();
-        } else if (Clerk && Clerk.load) {
-          clerkInstance = Clerk;
-          await clerkInstance.load();
-        }
-
-        if (clerkInstance && !clerkInstance.user) {
+        if (!clerk.loaded) await clerk.load();
+        clerkInstance = clerk;
+        if (!clerk.user) {
           window.location.href = '/login';
           return;
         }
-        if (clerkInstance && clerkInstance.user) {
-          const emailEl = document.getElementById('user-email');
-          if (emailEl) emailEl.textContent = clerkInstance.user.primaryEmailAddress?.emailAddress || '';
-        }
+        var emailEl = document.getElementById('user-email');
+        if (emailEl) emailEl.textContent = clerk.user.primaryEmailAddress?.emailAddress || '';
       } catch (e) {
-        console.warn('Clerk init failed, falling back to cookie auth:', e);
+        console.warn('Clerk auth failed:', e);
       }
       loadDashboard();
     }
-    initDashboard();
 
     // ── Load Dashboard ──
     async function loadDashboard() {

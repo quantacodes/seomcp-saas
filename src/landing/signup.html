@@ -36,6 +36,8 @@
     .back-link { margin-top: 24px; }
     .back-link a { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
     .back-link a:hover { color: var(--text-secondary); }
+    .error-msg { color: #F87171; font-size: 14px; }
+    .error-msg a { color: var(--amber); }
   </style>
 </head>
 <body>
@@ -47,74 +49,78 @@
   </div>
 
   <script>
-    // Load Clerk JS dynamically and wait for it
-    const CLERK_PK = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
-    const CLERK_FRONTEND = 'https://clerk.seomcp.dev';
-
-    async function initClerk() {
-      // Load the Clerk JS bundle
-      const script = document.createElement('script');
-      script.src = CLERK_FRONTEND + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-      script.crossOrigin = 'anonymous';
-      document.head.appendChild(script);
-
-      // Wait for it to load
-      await new Promise((resolve, reject) => {
-        script.onload = resolve;
-        script.onerror = reject;
-      });
-
-      // Initialize Clerk
-      const Clerk = window.Clerk;
-      if (!Clerk) { showError('Clerk SDK not found'); return; }
-
-      // If Clerk is a class/constructor, instantiate it; if already an object, use directly
-      let clerk;
-      if (typeof Clerk === 'function' && Clerk.prototype) {
-        clerk = new Clerk(CLERK_PK);
-        await clerk.load();
-      } else if (Clerk.load) {
-        clerk = Clerk;
-        await clerk.load();
-      } else {
-        showError('Unexpected Clerk format'); return;
-      }
-
-      if (clerk.user) {
-        window.location.href = '/dashboard';
-        return;
-      }
-
-      const authDiv = document.getElementById('clerk-auth');
-      authDiv.innerHTML = '';
-
-      clerk.mountSignUp(authDiv, {
-        afterSignUpUrl: '/dashboard',
-        afterSignUpUrl: '/dashboard',
-        appearance: {
-          variables: {
-            colorPrimary: '#E5A430',
-            colorBackground: '#16161D',
-            colorText: '#EDEDF0',
-            colorTextSecondary: '#8E8EA0',
-            colorInputBackground: '#0C0C0F',
-            colorInputText: '#EDEDF0',
-            borderRadius: '8px',
-          },
-          elements: {
-            card: { backgroundColor: '#16161D', border: '1px solid #2A2A36', borderRadius: '16px' },
-            formButtonPrimary: { backgroundColor: '#E5A430', color: '#0C0C0F', fontWeight: '600' },
+    // Clerk ClerkJS CDN — non-async, with publishable key in the URL params
+    // This is the recommended "Clerk without framework" approach
+    (function() {
+      var pk = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
+      var s = document.createElement('script');
+      s.setAttribute('data-clerk-publishable-key', pk);
+      s.src = 'https://clerk.seomcp.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+      s.addEventListener('load', function() {
+        // After the script loads, window.Clerk should be available
+        // Poll until Clerk is ready (it auto-initializes from the data attribute)
+        var attempts = 0;
+        var interval = setInterval(function() {
+          attempts++;
+          var c = window.Clerk;
+          if (c && c.loaded !== undefined) {
+            clearInterval(interval);
+            waitForClerk(c);
+          } else if (attempts > 100) {
+            clearInterval(interval);
+            showError('Clerk failed to initialize after 10s');
           }
-        }
+        }, 100);
       });
+      s.addEventListener('error', function() {
+        showError('Failed to load Clerk SDK');
+      });
+      document.head.appendChild(s);
+    })();
+
+    async function waitForClerk(clerk) {
+      try {
+        // Wait for Clerk to fully load if not yet
+        if (!clerk.loaded) {
+          await clerk.load();
+        }
+
+        if (clerk.user) {
+          window.location.href = '/dashboard';
+          return;
+        }
+
+        var authDiv = document.getElementById('clerk-auth');
+        authDiv.innerHTML = '';
+
+        clerk.mountSignUp(authDiv, {
+          afterSignInUrl: '/dashboard',
+          afterSignUpUrl: '/dashboard',
+          appearance: {
+            variables: {
+              colorPrimary: '#E5A430',
+              colorBackground: '#16161D',
+              colorText: '#EDEDF0',
+              colorTextSecondary: '#8E8EA0',
+              colorInputBackground: '#0C0C0F',
+              colorInputText: '#EDEDF0',
+              borderRadius: '8px',
+            },
+            elements: {
+              card: { backgroundColor: '#16161D', border: '1px solid #2A2A36', borderRadius: '16px' },
+              formButtonPrimary: { backgroundColor: '#E5A430', color: '#0C0C0F', fontWeight: '600' },
+            }
+          }
+        });
+      } catch (e) {
+        showError(e.message);
+      }
     }
 
     function showError(msg) {
       document.getElementById('clerk-auth').innerHTML =
-        '<p style="color:#F87171;">Failed to load: ' + msg + '. <a href="javascript:location.reload()" style="color:#E5A430;">Retry</a></p>';
+        '<p class="error-msg">Failed to load: ' + msg + '. <a href="javascript:location.reload()">Retry</a></p>';
     }
-
-    initClerk().catch(e => showError(e.message));
   </script>
 </body>
 </html>

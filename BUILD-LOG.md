@@ -423,3 +423,96 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - [ ] Cross-compile seo-mcp Rust binary for linux-amd64
 - [ ] Production smoke test
 - [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)
+
+---
+
+## Session 7 — 2026-02-13 07:51 IST
+
+### Production Hardening, E2E Tests, Legal Pages
+
+**Build:**
+- **IP rate limiting** on signup (5/hr) and login (10/15min) per IP
+  - Rate limit applied AFTER validation — don't burn quota on malformed requests
+  - `getClientIp()` — uses Fly-Client-IP/CF-Connecting-IP (proxy-level, not spoofable)
+  - Falls back to X-Forwarded-For only in dev/test or with TRUSTED_PROXY=true
+  - `"no-ip"` fallback skips rate limiting (avoids shared bucket DoS)
+- **Unified rate limiting** — dashboard login migrated to shared rate-limit-ip module
+  - Removed duplicate loginAttempts Map + setInterval from dashboard.ts
+  - Cleanup uses fixed 2-hour threshold (fixes first-caller-wins windowMs bug)
+- **Structured JSON request logger** with timing (replaces hono/logger)
+  - Health check logs suppressed (noisy)
+- **Terms of Service** page at /terms
+- **Privacy Policy** page at /privacy
+  - Google data handling section (required for OAuth verification)
+  - Google API Services User Data Policy compliance statement
+  - Data table: what's collected, purpose, retention
+  - "What we DON'T collect" section
+- **Sitemap** updated with /terms and /privacy
+- Landing page footer links updated to real /terms and /privacy
+- Config: lemonSqueezy uses getter for test isolation (fixes 15 flaky tests)
+- Graceful shutdown includes IP rate limit cleanup
+
+**Test:** ✅ 30 new tests, 127 new assertions
+- E2E integration test (21 tests): complete user journey from signup to dashboard
+  - Signup → Login → MCP init → tools/list → tools/call → usage tracking
+  - Dashboard login → key management → plan limits → key revocation
+  - Signup rate limiting (IP-based, blocks after 5)
+  - Input validation edge cases (empty email, short password, non-JSON body)
+- Legal page tests (9 tests): terms content, privacy content, sitemap
+
+**Review:** ✅ Barnacle — REQUEST_CHANGES (1 MUST, 3 SHOULD, 2 nice-to-have) → ALL FIXED
+- 🔴 #1 X-Forwarded-For spoofable without trusted proxy: **FIXED** — getClientIp() uses proxy headers
+- 🟠 #2 "unknown" IP shared bucket DoS: **FIXED** — "no-ip" skips rate limiting
+- 🟠 #3 Duplicate rate limiting in dashboard.ts: **FIXED** — unified to shared module
+- 🟠 #4 `as const` removal: Accepted — minimal type safety impact, getter pattern requires it
+- 🟡 #5 startCleanup first-caller windowMs: **FIXED** — fixed 2h threshold
+- 🟡 #6 Fixed window burst: Acceptable for MVP
+
+**Commits:**
+- 382f347 — "Session 7: IP rate limiting, structured logging, E2E test, test isolation fixes"
+- fdd0481 — "Fix Barnacle review + legal pages + sitemap"
+
+### Session 7 Stats
+- **Total tests:** 180 (all passing)
+- **Total assertions:** 493
+- **Test files:** 11
+- **Source files:** ~38
+- **Total commits:** 24
+
+### What Works (End of Session 7)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet + JSON-LD structured data
+- ✅ Interactive Playground — try tools without signup, SSRF-hardened
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Full documentation page (8 sections)
+- ✅ Admin API (stats, users, plan management, usage analytics, error listing)
+- ✅ Tool catalog page (/tools) with 35 tools, categories, params, examples
+- ✅ OpenAPI 3.1 spec at /openapi.json
+- ✅ MCP discovery at /.well-known/mcp
+- ✅ Setup script at /setup (curl | bash installer)
+- ✅ **Terms of Service** at /terms
+- ✅ **Privacy Policy** at /privacy (Google compliance)
+- ✅ **IP rate limiting** on signup/login (proxy-aware, not spoofable)
+- ✅ **Unified rate limiting** module (removed dashboard duplicate)
+- ✅ **Structured JSON logging** with request timing
+- ✅ **E2E integration test** (complete user journey)
+- ✅ robots.txt + sitemap.xml (6 pages)
+- ✅ Binary auto-retry on crash
+- ✅ Graceful shutdown (cleanup timers, demo binary, all pool instances)
+- ✅ Dockerfile + docker-compose + Fly.io deploy config
+- ✅ Security headers + CSRF + rate limit headers + request IDs
+- ✅ 180 tests, 493 assertions, ALL PASSING
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
+- [ ] Deploy to Fly.io (`./deploy/deploy.sh --first-run`)
+- [ ] DNS + SSL (`fly certs add seomcp.dev`)
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Set TRUSTED_PROXY=true in production env
+- [ ] Production smoke test
+- [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)

@@ -1,7 +1,7 @@
 import type { JsonRpcRequest, JsonRpcResponse, AuthContext } from "../types";
 import { binaryPool, type BinaryInstance } from "./binary";
 import { sessionManager } from "./session";
-import { checkAndIncrementRateLimit } from "../ratelimit/middleware";
+import { checkAndIncrementRateLimit, getTeamRateContext } from "../ratelimit/middleware";
 import { logUsage } from "../usage/tracker";
 import { config, VERSION } from "../config";
 import { existsSync, statSync } from "fs";
@@ -148,6 +148,30 @@ export async function handleRequest(
           data: { tool: toolName, allowedScopes: auth.scopes },
         },
       };
+    }
+
+    // Check team-level rate limit first (if user is in a team)
+    const teamContext = getTeamRateContext(auth.userId);
+    if (teamContext.isTeamMember && teamContext.teamLimit !== Infinity) {
+      const teamUsed = teamContext.teamUsed ?? 0;
+      const teamLimit = teamContext.teamLimit ?? 0;
+      if (teamUsed >= teamLimit) {
+        logUsage(auth, toolName || request.method, "rate_limited", 0);
+        return {
+          jsonrpc: "2.0",
+          id: request.id ?? null,
+          error: {
+            code: -32000,
+            message: `Team rate limit exceeded. ${teamUsed}/${teamLimit} calls used this month. Contact your team admin.`,
+            data: {
+              used: teamUsed,
+              limit: teamLimit,
+              plan: teamContext.teamPlan,
+              team: true,
+            },
+          },
+        };
+      }
     }
 
     const rateCheck = checkAndIncrementRateLimit(auth);

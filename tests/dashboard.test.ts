@@ -327,6 +327,68 @@ describe("Dashboard Key Management", () => {
   });
 });
 
+// ── Key Rotation ──
+describe("Dashboard Key Rotation", () => {
+  let sessionId: string;
+
+  beforeAll(async () => {
+    sessionId = await createTestUser("rotate@example.com", "testpass123");
+  });
+
+  it("rotates an active key", async () => {
+    // Get current key
+    const overviewRes = await req("/dashboard/api/overview", {
+      headers: withCookie(sessionId),
+    });
+    const overview = await overviewRes.json();
+    const oldKeyId = overview.keys[0].id;
+    const oldPrefix = overview.keys[0].prefix;
+
+    // Rotate
+    const rotateRes = await app.fetch(
+      new Request(`http://localhost/dashboard/api/keys/${oldKeyId}/rotate`, {
+        method: "POST",
+        headers: {
+          ...withCookie(sessionId),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }),
+    );
+    expect(rotateRes.status).toBe(200);
+    const data = await rotateRes.json();
+    expect(data.success).toBe(true);
+    expect(data.key.raw).toStartWith("sk_live_");
+    expect(data.key.prefix).not.toBe(oldPrefix);
+    expect(data.message).toContain("rotated");
+  });
+
+  it("rejects rotation of non-existent key", async () => {
+    const res = await app.fetch(
+      new Request("http://localhost/dashboard/api/keys/nonexistent/rotate", {
+        method: "POST",
+        headers: {
+          ...withCookie(sessionId),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({}),
+      }),
+    );
+    expect(res.status).toBe(404);
+  });
+
+  it("rejects rotation without auth", async () => {
+    const res = await app.fetch(
+      new Request("http://localhost/dashboard/api/keys/someid/rotate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      }),
+    );
+    expect(res.status).toBe(401);
+  });
+});
+
 // ── Password Change ──
 describe("Dashboard Password Change", () => {
   let sessionId: string;

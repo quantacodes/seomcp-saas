@@ -192,6 +192,19 @@ export function acceptInvite(
     return { success: false, error: "Invalid invite token" };
   }
 
+  // Verify the accepting user's email matches the invite
+  const acceptingUser = sqlite
+    .query("SELECT email FROM users WHERE id = ?")
+    .get(userId) as { email: string } | null;
+
+  if (!acceptingUser) {
+    return { success: false, error: "User not found" };
+  }
+
+  if (acceptingUser.email.toLowerCase() !== invite.email.toLowerCase()) {
+    return { success: false, error: "This invite was sent to a different email address" };
+  }
+
   // Check user isn't already in a team
   const existingTeam = sqlite
     .query("SELECT team_id FROM team_members WHERE user_id = ? LIMIT 1")

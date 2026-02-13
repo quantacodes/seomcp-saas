@@ -26,66 +26,68 @@ export interface TeamMemberInfo {
  * Create a new team. Only agency plan users can create teams.
  */
 export function createTeam(userId: string, name: string): { team: TeamInfo; error?: string } {
-  // Check if user already owns or is in a team
-  const existingMember = sqlite
-    .query("SELECT team_id FROM team_members WHERE user_id = ? LIMIT 1")
-    .get(userId) as { team_id: string } | null;
+  // Atomic: check membership + create team in one transaction to prevent TOCTOU
+  return sqlite.transaction(() => {
+    const existingMember = sqlite
+      .query("SELECT team_id FROM team_members WHERE user_id = ? LIMIT 1")
+      .get(userId) as { team_id: string } | null;
 
-  if (existingMember) {
-    return { team: null as any, error: "You are already in a team" };
-  }
+    if (existingMember) {
+      return { team: null as any, error: "You are already in a team" };
+    }
 
-  const teamId = ulid();
-  const now = new Date();
-  const memberId = ulid();
+    const teamId = ulid();
+    const now = new Date();
+    const memberId = ulid();
 
-  db.insert(schema.teams)
-    .values({
-      id: teamId,
-      name: name.trim(),
-      ownerId: userId,
-      maxMembers: 5,
-      createdAt: now,
-      updatedAt: now,
-    })
-    .run();
+    db.insert(schema.teams)
+      .values({
+        id: teamId,
+        name: name.trim(),
+        ownerId: userId,
+        maxMembers: 5,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .run();
 
-  // Get user's email
-  const user = sqlite
-    .query("SELECT email FROM users WHERE id = ?")
-    .get(userId) as { email: string };
+    // Get user's email
+    const user = sqlite
+      .query("SELECT email FROM users WHERE id = ?")
+      .get(userId) as { email: string };
 
-  db.insert(schema.teamMembers)
-    .values({
-      id: memberId,
-      teamId,
-      userId,
-      email: user.email,
-      role: "owner",
-      joinedAt: now,
-      createdAt: now,
-    })
-    .run();
+    db.insert(schema.teamMembers)
+      .values({
+        id: memberId,
+        teamId,
+        userId,
+        email: user.email,
+        role: "owner",
+        joinedAt: now,
+        createdAt: now,
+      })
+      .run();
 
-  return {
-    team: {
-      id: teamId,
-      name: name.trim(),
-      ownerId: userId,
-      maxMembers: 5,
-      createdAt: now,
-      members: [
-        {
-          id: memberId,
-          email: user.email,
-          role: "owner",
-          userId,
-          joinedAt: now,
-          pending: false,
-        },
-      ],
-    },
-  };
+    return {
+      team: {
+        id: teamId,
+        name: name.trim(),
+        ownerId: userId,
+        maxMembers: 5,
+        createdAt: now,
+        members: [
+          {
+            id: memberId,
+            email: user.email,
+            role: "owner",
+            userId,
+            joinedAt: now,
+            pending: false,
+          },
+        ],
+      },
+    };
+  })();
 }
 
 /**

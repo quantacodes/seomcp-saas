@@ -467,6 +467,81 @@ function revokeKeyHandler(c: any) {
 }
 
 /**
+ * POST /dashboard/api/keys/:id/rotate — Rotate an API key (revoke old + create new atomically)
+ * Returns the new key (only shown once). Old key is immediately revoked.
+ */
+dashboardRoutes.post("/dashboard/api/keys/:id/rotate", async (c) => {
+  const csrfCheck = requireJson(c);
+  if (csrfCheck) return csrfCheck;
+
+  const session = getSession(c);
+  if (!session) {
+    return c.json({ error: "Not authenticated" }, 401);
+  }
+
+  const keyId = c.req.param("id");
+
+  // Verify ownership
+  const oldKey = db
+    .select()
+    .from(schema.apiKeys)
+    .where(
+      and(
+        eq(schema.apiKeys.id, keyId),
+        eq(schema.apiKeys.userId, session.userId),
+        eq(schema.apiKeys.isActive, true),
+      ),
+    )
+    .limit(1)
+    .all()[0];
+
+  if (!oldKey) {
+    return c.json({ error: "API key not found or already revoked" }, 404);
+  }
+
+  // Atomic: revoke old + create new in transaction
+  const { sqlite } = await import("../db/index");
+  const result = sqlite.transaction(() => {
+    // Revoke old key
+    db.update(schema.apiKeys)
+      .set({ isActive: false })
+      .where(eq(schema.apiKeys.id, keyId))
+      .run();
+
+    // Create new key with same name and scopes
+    const { raw, hash, prefix } = generateApiKey();
+    const newKeyId = ulid();
+
+    db.insert(schema.apiKeys)
+      .values({
+        id: newKeyId,
+        userId: session.userId,
+        keyHash: hash,
+        keyPrefix: prefix,
+        name: oldKey.name,
+        isActive: true,
+        scopes: oldKey.scopes,
+        createdAt: new Date(),
+      })
+      .run();
+
+    return { newKeyId, raw, prefix };
+  })();
+
+  return c.json({
+    success: true,
+    message: "API key rotated. Old key is immediately revoked.",
+    key: {
+      id: result.newKeyId,
+      prefix: result.prefix,
+      raw: result.raw,
+      name: oldKey.name,
+      scopes: oldKey.scopes ? JSON.parse(oldKey.scopes) : null,
+    },
+  });
+});
+
+/**
  * POST /dashboard/api/password — Change password
  */
 dashboardRoutes.post("/dashboard/api/password", async (c) => {

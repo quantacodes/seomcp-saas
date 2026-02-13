@@ -55,18 +55,69 @@ Server starts at http://localhost:3456
 
 ## Endpoints
 
+### Public
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Landing page |
+| `/health` | GET | Health check (DB liveness + memory) |
+| `/docs` | GET | API documentation (8 sections) |
+| `/tools` | GET | Tool catalog (35 tools, categories, examples) |
+| `/playground` | GET | Try tools without signup (SSRF-hardened) |
+| `/changelog` | GET | Release changelog |
+| `/terms` | GET | Terms of Service |
+| `/privacy` | GET | Privacy Policy |
+| `/openapi.json` | GET | OpenAPI 3.1 specification |
+| `/.well-known/mcp` | GET | MCP server discovery |
+| `/setup` | GET | curl \| bash installer script |
+| `/robots.txt` | GET | Robots directives |
+| `/sitemap.xml` | GET | XML sitemap |
+
+### Auth
 | Endpoint | Method | Auth | Description |
 |----------|--------|------|-------------|
-| `/health` | GET | — | Health check |
+| `/api/auth/signup` | POST | — | Create account + get API key |
+| `/api/auth/login` | POST | — | Login (returns API key) |
+| `/verify` | GET | Token | Email verification magic link |
+| `/api/auth/resend-verification` | POST | Session | Resend verification email |
+| `/forgot-password` | GET/POST | — | Password reset request |
+| `/reset-password` | GET/POST | Token | Password reset form |
+
+### MCP
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
 | `/mcp` | POST | API key | MCP Streamable HTTP (JSON-RPC) |
-| `/api/auth/signup` | POST | — | Create account |
-| `/api/auth/login` | POST | — | Login (get API key) |
-| `/api/keys` | GET/POST | API key | Manage API keys |
-| `/api/usage` | GET | API key | Usage stats |
+
+### Dashboard
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/dashboard` | GET | Session | Web dashboard |
+| `/dashboard/api/keys` | GET/POST | Session | API key management |
+| `/dashboard/api/keys/:id/revoke` | POST | Session | Revoke key |
+| `/dashboard/api/keys/:id/rotate` | POST | Session | Rotate key (atomic) |
+| `/dashboard/api/overview` | GET | Session | Usage stats + onboarding |
+| `/dashboard/api/audits` | GET | Session | Audit history |
+| `/dashboard/api/webhooks` | GET/POST | Session | Webhook management |
+| `/dashboard/api/schedules` | GET/POST | Session | Scheduled audits |
+| `/dashboard/api/teams` | GET/POST | Session | Team management |
+| `/dashboard/api/billing/*` | GET/POST | Session | Billing (checkout, cancel, resume) |
+
+### Google OAuth
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
 | `/api/auth/google/start` | GET | Session | Start Google OAuth |
 | `/api/auth/google/callback` | GET | — | OAuth callback |
-| `/dashboard` | GET | Session | Web dashboard |
-| `/docs` | GET | — | API documentation |
+| `/api/auth/google/status` | GET | API key | Check connection status |
+| `/api/auth/google/disconnect` | POST | API key | Disconnect Google |
+
+### Admin
+| Endpoint | Method | Auth | Description |
+|----------|--------|------|-------------|
+| `/api/admin/stats` | GET | Admin secret | System stats |
+| `/api/admin/users` | GET | Admin secret | User list (paginated, filterable) |
+| `/api/admin/users/:id` | GET | Admin secret | User detail |
+| `/api/admin/users/:id/plan` | POST | Admin secret | Manual plan override |
+| `/api/admin/usage/hourly` | GET | Admin secret | 24h usage breakdown |
+| `/api/admin/errors` | GET | Admin secret | Recent errors |
 
 ## Pricing
 
@@ -117,7 +168,7 @@ docker compose up -d
 ## Tests
 
 ```bash
-bun run test       # 319+ tests (serial, isolated DBs)
+bun run test       # 383 tests, 879 assertions (serial, isolated DBs)
 bun test --watch   # Watch mode
 ```
 
@@ -125,63 +176,83 @@ bun test --watch   # Watch mode
 
 ```
 src/
-├── index.ts              # Hono app + middleware
+├── index.ts              # Hono app + middleware + graceful shutdown
 ├── config.ts             # Environment config + plan limits
 ├── types.ts              # Shared TypeScript types
+├── tools-catalog.ts      # 35 tools metadata (categories, params, examples)
 ├── auth/
 │   ├── google.ts         # Google OAuth (consent, exchange, refresh, revoke)
-│   ├── keys.ts           # API key generation (sk_live_* format)
+│   ├── keys.ts           # API key generation (sk_live_* format, SHA-256 hashed)
 │   ├── middleware.ts      # Bearer token auth middleware
-│   ├── scopes.ts         # API key tool category scoping
-│   ├── session.ts        # Dashboard session management
+│   ├── password-reset.ts # HMAC-SHA256 reset tokens (1h expiry)
+│   ├── scopes.ts         # API key tool category scoping (9 categories)
+│   ├── session.ts        # Dashboard session management (cookie-based)
 │   └── verification.ts   # Email verification (HMAC tokens, Resend API)
+├── audit/
+│   └── history.ts        # Audit result capture + plan-based retention
 ├── billing/
 │   ├── lemonsqueezy.ts   # Lemon Squeezy API client
-│   └── webhooks.ts       # Webhook verification + event processing
+│   └── webhooks.ts       # Webhook verification + event processing (11 types)
 ├── config/
-│   └── user-config.ts    # Per-user config.toml generation
+│   └── user-config.ts    # Per-user config.toml + google-creds.json generation
 ├── crypto/
-│   └── tokens.ts         # AES-256-GCM encrypt/decrypt
+│   └── tokens.ts         # AES-256-GCM encrypt/decrypt with unique IVs
 ├── db/
 │   ├── index.ts          # SQLite connection (WAL mode)
-│   ├── migrate.ts        # Schema migrations (31 statements)
-│   └── schema.ts         # Drizzle ORM schema (10 tables)
+│   ├── migrate.ts        # Schema migrations
+│   └── schema.ts         # Database schema (12 tables)
 ├── mcp/
-│   ├── binary.ts         # Rust binary process pool
-│   ├── session.ts        # MCP session manager
-│   └── transport.ts      # MCP Streamable HTTP transport
+│   ├── binary.ts         # Rust binary process pool (idle timeout, auto-retry)
+│   ├── session.ts        # MCP session manager (30min timeout)
+│   └── transport.ts      # MCP Streamable HTTP transport + rate limit + scopes
+├── middleware/
+│   └── rate-limit-ip.ts  # Per-IP rate limiting (proxy-aware)
 ├── ratelimit/
-│   └── middleware.ts      # Monthly rate limit enforcement
-├── routes/
+│   └── middleware.ts      # Monthly plan rate limit enforcement
+├── routes/               # 22 route modules
+│   ├── admin.ts          # Admin API (6 endpoints, stats/users/plan/usage/errors)
+│   ├── audits.ts         # Audit history API
 │   ├── auth.ts           # Signup/login endpoints
 │   ├── billing.ts        # Billing API (checkout, webhooks, portal)
+│   ├── changelog.ts      # Changelog page
 │   ├── dashboard.ts      # Dashboard pages + API
-│   ├── docs.ts           # Documentation page
+│   ├── docs.ts           # Documentation page (8 sections)
 │   ├── google-auth.ts    # Google OAuth endpoints
-│   ├── health.ts         # Health check
-│   ├── keys.ts           # API key CRUD
-│   ├── landing.ts        # Landing page
+│   ├── health.ts         # Health check (DB + memory)
+│   ├── keys.ts           # API key CRUD + rotation
+│   ├── landing.ts        # Landing page (JSON-LD, OG tags)
+│   ├── legal.ts          # Terms + Privacy pages
 │   ├── mcp.ts            # MCP endpoint handler
-│   └── usage.ts          # Usage stats
+│   ├── openapi.ts        # OpenAPI 3.1 spec
+│   ├── password-reset.ts # Forgot/reset password flow
+│   ├── playground.ts     # Interactive playground (SSRF-hardened)
+│   ├── schedules.ts      # Scheduled audit management
+│   ├── teams.ts          # Team/org management (9 endpoints)
+│   ├── tools.ts          # Tool catalog page + JSON API
+│   ├── usage.ts          # Usage stats
+│   ├── verify.ts         # Email verification magic link
+│   └── webhook-settings.ts # User webhook CRUD
+├── scheduler/
+│   └── engine.ts         # Scheduled audit execution engine
+├── teams/
+│   ├── invites.ts        # HMAC-SHA256 invite tokens (48h expiry)
+│   └── teams.ts          # Team CRUD + role management
 ├── usage/
-│   └── tracker.ts        # Usage logging
+│   └── tracker.ts        # Usage logging + alert emails (80%/100%)
 ├── utils/
+│   ├── logger.ts         # Structured JSON logger
 │   └── ulid.ts           # ULID generation
-├── landing/
-│   └── index.html        # Landing page (52KB, dark mode)
-├── dashboard/
-│   ├── login.html        # Dashboard login
-│   └── app.html          # Dashboard app
-└── docs/
-    └── index.html        # Full API docs
+└── webhooks/
+    └── user-webhooks.ts  # HMAC-SHA256 signed webhook delivery
 
-tests/
-├── api.test.ts           # Core API tests
-├── auth.test.ts          # Auth key generation
-├── billing.test.ts       # Billing + webhook tests
-├── dashboard.test.ts     # Dashboard tests
-├── google-auth.test.ts   # Google OAuth tests
-└── landing.test.ts       # Landing page tests
+tests/                    # 19 test files, 383 tests, 879 assertions
+scripts/
+├── smoke-test.sh         # E2E smoke test (16 checks)
+├── setup-mcp.sh          # MCP client auto-setup (Claude/Cursor/Windsurf)
+└── test.sh               # Sequential test runner (isolated DBs)
+deploy/
+├── fly.toml              # Fly.io production config
+└── deploy.sh             # Automated deploy script
 ```
 
 ## License

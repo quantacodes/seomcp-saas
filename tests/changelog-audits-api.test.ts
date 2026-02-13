@@ -86,7 +86,7 @@ describe("Changelog page", () => {
     const html = await res.text();
     expect(html).toContain("Changelog");
     expect(html).toContain("v0.1.0");
-    expect(html).toContain("Initial Launch");
+    expect(html).toContain("Initial Release");
   });
 
   it("has OG tags", async () => {

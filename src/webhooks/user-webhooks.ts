@@ -218,8 +218,12 @@ export function notifyAuditComplete(
   }).catch(() => {}); // Suppress unhandled rejection
 }
 
+// Track which alerts have been sent this month (prevents duplicate emails)
+const sentAlerts = new Map<string, Set<number>>(); // userId -> Set<threshold*100>
+
 /**
- * Send usage alert webhook.
+ * Send usage alert webhook + email notification.
+ * Webhook fires every time. Email fires once per threshold per month.
  */
 export function notifyUsageAlert(
   userId: string,
@@ -227,12 +231,32 @@ export function notifyUsageAlert(
   limit: number,
   threshold: number, // 0.8 or 1.0
 ): void {
+  // Webhook (if configured) — always fires
   sendWebhook(userId, "usage.alert", {
     used,
     limit,
     percentage: Math.round(threshold * 100),
     message: threshold >= 1 ? "Monthly usage limit reached" : `Usage at ${Math.round(threshold * 100)}% of monthly limit`,
   }).catch(() => {});
+
+  // Email — once per threshold per month
+  const pctKey = Math.round(threshold * 100);
+  const monthKey = `${userId}:${new Date().getFullYear()}-${new Date().getMonth()}`;
+  if (!sentAlerts.has(monthKey)) sentAlerts.set(monthKey, new Set());
+  const userAlerts = sentAlerts.get(monthKey)!;
+  if (userAlerts.has(pctKey)) return; // Already sent this alert this month
+  userAlerts.add(pctKey);
+
+  sendUsageAlertEmail(userId, used, limit, threshold).catch((err) => {
+    console.error("Failed to send usage alert email:", err);
+  });
+}
+
+/**
+ * Clear sent alerts (called monthly or on test).
+ */
+export function clearSentAlerts(): void {
+  sentAlerts.clear();
 }
 
 /**
@@ -286,4 +310,106 @@ export function sendTestWebhook(userId: string): void {
     message: "This is a test webhook from seomcp.dev",
     timestamp: new Date().toISOString(),
   }).catch(() => {});
+}
+
+/**
+ * Send usage alert email to user.
+ * Only sends if RESEND_API_KEY is configured.
+ */
+async function sendUsageAlertEmail(
+  userId: string,
+  used: number,
+  limit: number,
+  threshold: number,
+): Promise<void> {
+  // Get user's email
+  const user = sqlite.prepare("SELECT email, plan FROM users WHERE id = ?").get(userId) as
+    | { email: string; plan: string }
+    | undefined;
+
+  if (!user) return;
+
+  if (!config.resendApiKey) {
+    console.log(`📧 Usage alert for ${user.email}: ${Math.round(threshold * 100)}% (${used}/${limit})`);
+    return;
+  }
+
+  const percentage = Math.round(threshold * 100);
+  const isAtLimit = threshold >= 1;
+  const subject = isAtLimit
+    ? "⚠️ Monthly usage limit reached — SEO MCP"
+    : `📊 You've used ${percentage}% of your monthly quota — SEO MCP`;
+
+  try {
+    await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${config.resendApiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: config.resendFromEmail,
+        to: user.email,
+        subject,
+        html: usageAlertEmailHtml(used, limit, percentage, user.plan, isAtLimit),
+      }),
+    });
+  } catch (err) {
+    console.error("Usage alert email error:", err);
+  }
+}
+
+function usageAlertEmailHtml(
+  used: number,
+  limit: number,
+  percentage: number,
+  plan: string,
+  isAtLimit: boolean,
+): string {
+  const base = config.baseUrl;
+  const barWidth = Math.min(percentage, 100);
+  const barColor = isAtLimit ? "#ef4444" : "#eab308";
+  const remaining = Math.max(0, limit - used);
+
+  return `<!DOCTYPE html>
+<html>
+<head><meta charset="UTF-8"></head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;padding:40px 20px;margin:0;">
+  <div style="max-width:480px;margin:0 auto;background:#1e293b;border-radius:12px;padding:32px;border:1px solid #334155;">
+    <h1 style="color:#38bdf8;font-size:24px;margin:0 0 8px;">🔍 SEO MCP</h1>
+    <h2 style="color:#f1f5f9;font-size:18px;margin:0 0 24px;">
+      ${isAtLimit ? "⚠️ Monthly limit reached" : `📊 ${percentage}% of your quota used`}
+    </h2>
+
+    <!-- Usage bar -->
+    <div style="background:#0f172a;border-radius:8px;height:12px;overflow:hidden;margin:0 0 12px;">
+      <div style="background:${barColor};height:100%;width:${barWidth}%;border-radius:8px;"></div>
+    </div>
+    <p style="color:#94a3b8;font-size:14px;margin:0 0 24px;">
+      <strong>${used.toLocaleString()}</strong> / ${limit.toLocaleString()} calls used
+      ${isAtLimit ? "" : ` — <strong>${remaining.toLocaleString()}</strong> remaining`}
+    </p>
+
+    ${isAtLimit
+      ? `<p style="color:#fbbf24;line-height:1.6;margin:0 0 24px;">
+          Tool calls will be rejected until your quota resets at the start of next month.
+          Upgrade your plan to continue using SEO tools without interruption.
+        </p>`
+      : `<p style="color:#94a3b8;line-height:1.6;margin:0 0 24px;">
+          You're approaching your monthly limit on the <strong>${plan}</strong> plan.
+          Consider upgrading to avoid hitting the cap.
+        </p>`
+    }
+
+    <a href="${base}/#pricing" style="display:inline-block;background:#38bdf8;color:#0f172a;font-weight:600;padding:12px 32px;border-radius:8px;text-decoration:none;font-size:16px;">
+      ${plan === "free" ? "Upgrade to Pro — $29/mo" : "Upgrade Plan"}
+    </a>
+
+    <p style="color:#64748b;font-size:13px;margin:24px 0 0;">
+      Current plan: ${plan} (${limit.toLocaleString()} calls/month).
+      <a href="${base}/dashboard" style="color:#38bdf8;">View usage →</a>
+    </p>
+  </div>
+</body>
+</html>`;
 }

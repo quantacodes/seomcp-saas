@@ -1192,6 +1192,16 @@
     // ═══ Billing ═══
     function renderBilling(billing, currentPlan) {
       const el = document.getElementById('billing-status');
+      if (!billing && currentPlan !== 'free') {
+        // Manually upgraded (no subscription record)
+        const limits = { pro: '2,000', agency: '10,000', enterprise: 'Unlimited' };
+        el.innerHTML = '<div style="padding:20px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:var(--radius);">' +
+          '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">' +
+            '<span style="font-size:15px; font-weight:600; text-transform:capitalize;">' + escHtml(currentPlan) + ' Plan</span>' +
+            '<span class="badge badge-active">Active</span></div>' +
+          '<p style="font-size:13px; color:var(--text-secondary);">' + (limits[currentPlan] || '2,000') + ' API calls/month · All tools unlocked</p></div>';
+        return;
+      }
       if (!billing && currentPlan === 'free') {
         el.innerHTML = '<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You\'re on the <strong>Free</strong> plan (50 calls/mo).</p>' +
           '<div class="grid-2">' +

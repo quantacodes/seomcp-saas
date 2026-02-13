@@ -116,6 +116,9 @@ const pruneExcessStmt = sqlite.prepare(`
   )
 `);
 
+// Max full_result size: 512KB (prevents DB bloat from massive crawl results)
+const MAX_RESULT_BYTES = 512 * 1024;
+
 /**
  * Capture a tool result into audit history.
  * Fire-and-forget — errors are logged but don't affect the response.
@@ -135,7 +138,11 @@ export function captureAudit(
 
     const healthScore = extractHealthScore(result);
     const summary = extractSummary(toolName, result);
-    const fullResult = JSON.stringify(result);
+    let fullResult = JSON.stringify(result);
+    // Truncate oversized results to prevent DB bloat
+    if (fullResult.length > MAX_RESULT_BYTES) {
+      fullResult = JSON.stringify({ _truncated: true, _originalSize: fullResult.length, summary: summary || "Result too large to store" });
+    }
     const now = new Date();
 
     insertStmt.run(
@@ -202,12 +209,16 @@ export function getAuditById(userId: string, auditId: number): any | null {
 
 /**
  * Get unique sites with their latest health scores.
+ * Uses subquery to get the score from the most recent audit, not the highest.
  */
 export function getAuditSites(userId: string): any[] {
   return sqlite
     .prepare(
       `SELECT site_url, 
-              MAX(health_score) as latest_score,
+              (SELECT health_score FROM audit_history ah2 
+               WHERE ah2.user_id = audit_history.user_id 
+               AND ah2.site_url = audit_history.site_url 
+               ORDER BY created_at DESC LIMIT 1) as latest_score,
               COUNT(*) as audit_count,
               MAX(created_at) as last_audit_at
        FROM audit_history 

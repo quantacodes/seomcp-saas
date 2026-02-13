@@ -1,3 +1,8 @@
-# Redirect dashboard/auth routes to API domain
-/dashboard/* https://api.seomcp.dev/dashboard/:splat 302
+# Clean URLs for static pages
+/dashboard /dashboard.html 200
+/login /login.html 200
+/signup /signup.html 200
+
+# API routes proxy to api.seomcp.dev
 /api/* https://api.seomcp.dev/api/:splat 302
+/mcp/* https://api.seomcp.dev/mcp/:splat 302

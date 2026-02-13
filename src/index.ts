@@ -41,7 +41,8 @@ app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
 
 app.use("*", cors({
   origin: ["https://seomcp.dev", "https://www.seomcp.dev", "https://api.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
-  allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
+  credentials: true, // Allow cookies for Clerk session
+  allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
   exposeHeaders: ["Mcp-Session-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Used", "X-RateLimit-Reset", "X-Request-Id", "X-Min-Version", "X-Force-Update"],
 }));

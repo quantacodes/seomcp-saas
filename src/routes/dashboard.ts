@@ -4,8 +4,6 @@ import { db, schema } from "../db/index";
 import { config } from "../config";
 import {
   getClerkSession,
-  getSignInUrl,
-  getSignOutUrl,
   getUserProfileUrl,
   type ClerkSessionData,
 } from "../auth/clerk";
@@ -13,8 +11,7 @@ import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { validateScopes, describeScopeAccess, parseScopes } from "../auth/scopes";
 import { getUserWebhookUrl, setUserWebhookUrl, validateWebhookUrl } from "../webhooks/user-webhooks";
-import { readFileSync } from "fs";
-import { join, dirname } from "path";
+// Note: HTML serving removed - now on Cloudflare Pages
 
 export const dashboardRoutes = new Hono();
 
@@ -29,88 +26,34 @@ function requireJson(c: any): Response | null {
   return null;
 }
 
-// ── HTML cache ──
-let cachedLoginHtml: string | null = null;
-let cachedDashboardHtml: string | null = null;
-const isDev = process.env.NODE_ENV !== "production";
-
-function loadHtml(name: string): string {
-  const htmlPath = join(dirname(new URL(import.meta.url).pathname), "..", "dashboard", `${name}.html`);
-  try {
-    return readFileSync(htmlPath, "utf-8");
-  } catch (e) {
-    return `<!DOCTYPE html><html><body><h1>${name} not found</h1><p>Expected at: ${htmlPath}</p></body></html>`;
-  }
-}
-
-function getLoginHtml(): string {
-  if (isDev) return loadHtml("login");
-  if (!cachedLoginHtml) cachedLoginHtml = loadHtml("login");
-  return cachedLoginHtml;
-}
-
-function getDashboardHtml(): string {
-  if (isDev) return loadHtml("app");
-  if (!cachedDashboardHtml) cachedDashboardHtml = loadHtml("app");
-  return cachedDashboardHtml;
-}
+// Note: HTML pages are now served from seomcp.dev (Cloudflare Pages)
+// This file only serves API routes for the dashboard
 
 // ── Routes ──
 
+// Note: /dashboard, /dashboard/login, /dashboard/signup, /dashboard/logout
+// are now served from seomcp.dev (Cloudflare Pages) with Clerk auth
+// Legacy redirects for backwards compatibility:
+
 /**
- * GET /dashboard/login — Redirect to Clerk sign-in
+ * GET /dashboard — Redirect to main domain
  */
-dashboardRoutes.get("/dashboard/login", async (c) => {
-  // If already logged in, redirect to dashboard
-  const session = await getClerkSession(c);
-  if (session) {
-    return c.redirect("/dashboard");
-  }
-  
-  // Redirect to Clerk's hosted sign-in page
-  const redirectUrl = `${config.baseUrl}/dashboard`;
-  return c.redirect(getSignInUrl(redirectUrl));
+dashboardRoutes.get("/dashboard", (c) => {
+  return c.redirect("https://seomcp.dev/dashboard", 302);
 });
 
 /**
- * GET /dashboard/signup — Redirect to Clerk sign-up
+ * GET /dashboard/login — Redirect to main domain
  */
-dashboardRoutes.get("/dashboard/signup", async (c) => {
-  const session = await getClerkSession(c);
-  if (session) {
-    return c.redirect("/dashboard");
-  }
-  
-  // We use the sign-in URL — Clerk's UI has sign-up option
-  const redirectUrl = `${config.baseUrl}/dashboard`;
-  return c.redirect(getSignInUrl(redirectUrl));
+dashboardRoutes.get("/dashboard/login", (c) => {
+  return c.redirect("https://seomcp.dev/login", 302);
 });
 
 /**
- * POST /dashboard/logout — Redirect to Clerk sign-out
+ * GET /dashboard/signup — Redirect to main domain
  */
-dashboardRoutes.post("/dashboard/logout", (c) => {
-  const redirectUrl = `${config.baseUrl}/dashboard/login`;
-  return c.json({ success: true, redirect: getSignOutUrl(redirectUrl) });
-});
-
-/**
- * GET /dashboard/logout — Also support GET for simple links
- */
-dashboardRoutes.get("/dashboard/logout", (c) => {
-  const redirectUrl = `${config.baseUrl}/dashboard/login`;
-  return c.redirect(getSignOutUrl(redirectUrl));
-});
-
-/**
- * GET /dashboard — Main dashboard (requires auth)
- */
-dashboardRoutes.get("/dashboard", async (c) => {
-  const session = await getClerkSession(c);
-  if (!session) {
-    return c.redirect("/dashboard/login");
-  }
-  return c.html(getDashboardHtml());
+dashboardRoutes.get("/dashboard/signup", (c) => {
+  return c.redirect("https://seomcp.dev/signup", 302);
 });
 
 /**

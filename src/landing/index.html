@@ -893,8 +893,8 @@
         <a href="#tools">Tools</a>
         <a href="#pricing">Pricing</a>
         <a href="https://api.seomcp.dev/docs">Docs</a>
-        <a href="https://api.seomcp.dev/dashboard" class="nav-login">Dashboard</a>
-        <a href="#" onclick="openSignup()" class="nav-cta">Get Free Key</a>
+        <a href="/dashboard" class="nav-login">Dashboard</a>
+        <a href="/signup" class="nav-cta">Get Free Key</a>
       </div>
       <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -910,8 +910,8 @@
     <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
     <a href="https://api.seomcp.dev/docs" onclick="closeMobileNav()">Docs</a>
     <a href="#faq" onclick="closeMobileNav()">FAQ</a>
-    <a href="https://api.seomcp.dev/dashboard" onclick="closeMobileNav()">Dashboard</a>
-    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Start Free — 100 API Calls</a>
+    <a href="/dashboard" onclick="closeMobileNav()">Dashboard</a>
+    <a href="/signup" class="nav-cta-mobile" onclick="closeMobileNav();">Start Free — 100 API Calls</a>
   </div>
 
   <!-- ═══ HERO ═══ -->
@@ -960,7 +960,7 @@
 
       <div class="hero-ctas">
         <div class="btn-glow-wrap">
-          <button class="btn-primary" onclick="openSignup()">Start Free — 100 API Calls</button>
+          <a href="/signup" class="btn-primary">Start Free — 100 API Calls</a>
         </div>
         <a href="#demo" class="btn-text">See Live Demo →</a>
       </div>
@@ -1365,7 +1365,7 @@
             <li><span class="dim">—</span> <span class="dim">Audit history & scheduling</span></li>
             <li><span class="dim">—</span> <span class="dim">Priority support</span></li>
           </ul>
-          <button class="btn-primary" onclick="openSignup()" style="width:100%; justify-content:center; background:var(--bg-raised); border:1px solid var(--border-active); color:var(--text-primary);">Get Free API Key</button>
+          <a href="/signup" class="btn-primary" style="width:100%; justify-content:center; background:var(--bg-raised); border:1px solid var(--border-active); color:var(--text-primary);">Get Free API Key</a>
           <p style="margin-top:16px; font-size:13px; color:var(--text-tertiary);">
             No credit card required
           </p>
@@ -1390,7 +1390,7 @@
             <li><span class="check">✓</span> Rate limit handling built-in</li>
             <li><span class="check">✓</span> Priority support</li>
           </ul>
-          <button class="btn-primary" onclick="openSignup()" style="width:100%; justify-content:center;">Start Free — Upgrade Anytime</button>
+          <a href="/signup" class="btn-primary" style="width:100%; justify-content:center;">Start Free — Upgrade Anytime</a>
           <p style="margin-top:16px; font-size:13px; color:var(--text-tertiary);">
             $0.83/day · less than your morning coffee
           </p>
@@ -1526,7 +1526,7 @@
   <section class="footer-cta">
     <div class="container">
       <h2 class="h2" style="margin-bottom:24px;">Your agent is one config line away<br>from 37 SEO tools.</h2>
-      <button class="btn-primary" onclick="openSignup()" style="font-size:18px; padding:16px 36px;">Start Free — Get API Key →</button>
+      <a href="/signup" class="btn-primary" style="font-size:18px; padding:16px 36px;">Start Free — Get API Key →</a>
     </div>
   </section>
 
@@ -1548,80 +1548,12 @@
     </div>
   </footer>
 
-  <!-- ═══ SIGNUP MODAL ═══ -->
-  <div id="signup-modal" class="modal-overlay">
-    <div class="modal-card">
-      <!-- Step 1: Form -->
-      <div id="signup-step-1">
-        <div style="text-align:center; margin-bottom:24px;">
-          <div style="font-size:24px; font-weight:600; margin-bottom:4px;">Get your API key</div>
-          <div class="small text-secondary">Free tier — 100 calls/month, no credit card</div>
-        </div>
-        
-        <!-- Trust signals -->
-        <div style="background: var(--bg-raised); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
-          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text-secondary);">
-            <div>✓ All 37 tools</div>
-            <div>✓ Works with Claude, Cursor, Windsurf</div>
-            <div>✓ 30-second setup</div>
-          </div>
-        </div>
-        
-        <form id="signup-form" onsubmit="handleSignup(event)">
-          <div style="display:flex; flex-direction:column; gap:12px;">
-            <div>
-              <label style="display:block; font-size:14px; color:var(--text-secondary); margin-bottom:6px;">Email</label>
-              <input type="email" id="signup-email" required placeholder="you@example.com" class="modal-input">
-            </div>
-            <div id="signup-error" class="modal-error"></div>
-            <button type="submit" id="signup-btn" class="modal-btn">Get Free API Key</button>
-            <div style="text-align: center; font-size: 13px; color: var(--text-tertiary); margin-top: 8px;">
-              We'll email your API key instantly. No credit card needed.
-            </div>
-          </div>
-        </form>
-        <button onclick="closeSignup()" style="width:100%; padding:12px; margin-top:8px; font-size:14px; color:var(--text-tertiary);">Cancel</button>
-      </div>
-
-      <!-- Step 2: Show Key -->
-      <div id="signup-step-2" style="display:none;">
-        <div style="text-align:center; margin-bottom:24px;">
-          <div style="font-size:32px; color:var(--sage);">✓</div>
-          <div style="font-size:24px; font-weight:600; margin-top:8px;">You're in!</div>
-          <div class="small text-secondary" style="margin-top:4px;">Here's your API key — save it somewhere safe</div>
-        </div>
-        <div style="margin-bottom:20px;">
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">
-            Your API Key <span style="color:var(--amber);">(shown once)</span>
-          </label>
-          <div style="display:flex; gap:8px;">
-            <input type="text" id="api-key-display" readonly class="modal-input" style="font-family:var(--font-mono); font-size:13px; color:var(--sage);">
-            <button onclick="copyApiKey()" style="padding:12px 20px; background:var(--amber); color:var(--bg-deep); border-radius:8px; font-weight:600; font-size:14px; flex-shrink:0;">Copy</button>
-          </div>
-        </div>
-        <div>
-          <label style="display:block; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">Add to your MCP config</label>
-          <div class="code-block">
-            <div class="code-header">
-              <span class="code-filename">mcp.json</span>
-              <button class="code-copy" onclick="copyCode('signup-config')">Copy</button>
-            </div>
-            <div class="code-body" style="padding:14px 18px;">
-              <pre id="signup-config" style="font-size:13px; line-height:20px;"></pre>
-            </div>
-          </div>
-        </div>
-        <button onclick="closeSignup()" class="modal-btn" style="margin-top:20px;">Done — Start Building</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied to clipboard</div>
 
   <!-- Mobile Sticky CTA -->
   <div class="mobile-sticky-cta" id="mobile-sticky-cta">
-    <button onclick="openSignup()">Start Free — 100 API Calls</button>
+    <a href="/signup" style="display:block; width:100%; padding:14px; border-radius:10px; background:var(--amber); color:var(--bg-deep); font-weight:600; font-size:16px; text-align:center; text-decoration:none;">Start Free — 100 API Calls</a>
   </div>
 
   <script>
@@ -1698,79 +1630,6 @@
       document.querySelectorAll('.demo-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       document.getElementById('demo-panel-' + idx).classList.add('active');
-    }
-
-    // ── Signup Modal ──
-    function openSignup() {
-      const modal = document.getElementById('signup-modal');
-      modal.classList.add('active');
-      document.getElementById('signup-step-1').style.display = '';
-      document.getElementById('signup-step-2').style.display = 'none';
-      document.getElementById('signup-error').style.display = 'none';
-      document.getElementById('signup-email').value = '';
-      setTimeout(() => document.getElementById('signup-email').focus(), 100);
-    }
-
-    function closeSignup() {
-      document.getElementById('signup-modal').classList.remove('active');
-    }
-
-    document.getElementById('signup-modal').addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) closeSignup();
-    });
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeSignup();
-    });
-
-    async function handleSignup(e) {
-      e.preventDefault();
-      const btn = document.getElementById('signup-btn');
-      const errEl = document.getElementById('signup-error');
-      const email = document.getElementById('signup-email').value.trim();
-      
-      // Generate a random temporary password client-side
-      const password = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
-
-      btn.textContent = 'Creating account...';
-      btn.disabled = true;
-      errEl.style.display = 'none';
-
-      try {
-        const res = await fetch('https://api.seomcp.dev/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-
-        if (!res.ok) throw new Error(data.error || 'Signup failed');
-        if (!data.apiKey || !data.apiKey.startsWith('sk_live_'))
-          throw new Error('Unexpected response. Please try again.');
-
-        document.getElementById('api-key-display').value = data.apiKey;
-        document.getElementById('signup-config').textContent = JSON.stringify({
-          mcpServers: {
-            seo: {
-              url: 'https://api.seomcp.dev/mcp',
-              headers: { Authorization: 'Bearer ' + data.apiKey }
-            }
-          }
-        }, null, 2);
-
-        document.getElementById('signup-step-1').style.display = 'none';
-        document.getElementById('signup-step-2').style.display = '';
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
-      } finally {
-        btn.textContent = 'Get Free API Key';
-        btn.disabled = false;
-      }
-    }
-
-    function copyApiKey() {
-      const key = document.getElementById('api-key-display').value;
-      navigator.clipboard.writeText(key).then(showToast);
     }
 
     // ── Copy Code ──

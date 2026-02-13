@@ -40,7 +40,7 @@ const app = new Hono();
 app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
 
 app.use("*", cors({
-  origin: ["https://seomcp.dev", "https://www.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
+  origin: ["https://seomcp.dev", "https://www.seomcp.dev", "https://api.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
   allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
   exposeHeaders: ["Mcp-Session-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Used", "X-RateLimit-Reset", "X-Request-Id", "X-Min-Version", "X-Force-Update"],
@@ -147,6 +147,14 @@ app.route("/", verifyRoutes);
 app.route("/", teamRoutes);
 app.route("/", passwordResetRoutes);
 app.route("/", proxyRoutes);
+// Static SEO files
+app.get("/robots.txt", (c) => {
+  return c.text(`User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: https://seomcp.dev/sitemap.xml\n`);
+});
+app.get("/sitemap.xml", (c) => {
+  c.header("Content-Type", "application/xml");
+  return c.body(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url><loc>https://seomcp.dev/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>\n  <url><loc>https://seomcp.dev/docs</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>\n  <url><loc>https://seomcp.dev/tools</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>\n</urlset>`);
+});
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler — HTML for browsers, JSON for API clients

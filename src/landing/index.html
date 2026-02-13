@@ -76,7 +76,7 @@
           {
             "@type": "Question",
             "name": "Is there a free tier?",
-            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Free tier includes 50 tool calls per month with access to all 35 tools. No credit card required." }
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Free tier includes 100 tool calls per month with access to all 35 tools. No credit card required." }
           }
         ]
       }
@@ -770,7 +770,7 @@
       <div class="nav-links">
         <a href="#tools">Tools</a>
         <a href="#pricing">Pricing</a>
-        <a href="/docs">Docs</a>
+        <a href="https://api.seomcp.dev/docs">Docs</a>
         <a href="#" onclick="openSignup()" class="nav-cta">Get Free Key</a>
       </div>
       <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
@@ -785,9 +785,9 @@
   <div class="mobile-nav" id="mobile-nav">
     <a href="#tools" onclick="closeMobileNav()">Tools</a>
     <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
-    <a href="/docs" onclick="closeMobileNav()">Docs</a>
+    <a href="https://api.seomcp.dev/docs" onclick="closeMobileNav()">Docs</a>
     <a href="#faq" onclick="closeMobileNav()">FAQ</a>
-    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Start Free — 50 API Calls</a>
+    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Start Free — 100 API Calls</a>
   </div>
 
   <!-- ═══ HERO ═══ -->
@@ -824,7 +824,8 @@
             <pre id="hero-code"><span class="punct">{</span>
   <span class="key">"mcpServers"</span><span class="punct">:</span> <span class="punct">{</span>
     <span class="key">"seo"</span><span class="punct">:</span> <span class="punct">{</span>
-      <span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://seomcp.dev/sse?key=YOUR_KEY"</span>
+      <span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://api.seomcp.dev/mcp"</span><span class="punct">,</span>
+      <span class="key">"headers"</span><span class="punct">:</span> <span class="punct">{</span> <span class="key">"Authorization"</span><span class="punct">:</span> <span class="str">"Bearer YOUR_KEY"</span> <span class="punct">}</span>
     <span class="punct">}</span>
   <span class="punct">}</span>
 <span class="punct">}</span></pre>
@@ -833,7 +834,7 @@
       </div>
 
       <div class="hero-ctas">
-        <button class="btn-primary" onclick="openSignup()">Start Free — 50 API Calls</button>
+        <button class="btn-primary" onclick="openSignup()">Start Free — 100 API Calls</button>
         <a href="#demo" class="btn-text">See Live Demo →</a>
       </div>
       
@@ -950,7 +951,7 @@
           <div class="step-code">
             <div class="code-block">
               <div class="code-body" style="padding:14px 18px;">
-                <pre style="font-size:13px; line-height:20px;"><span class="key">"url"</span><span class="punct">:</span> <span class="str">"seomcp.dev/sse?key=sk_..."</span></pre>
+                <pre style="font-size:13px; line-height:20px;"><span class="key">"url"</span><span class="punct">:</span> <span class="str">"api.seomcp.dev/mcp"</span></pre>
               </div>
             </div>
           </div>
@@ -1068,7 +1069,7 @@
       </div>
 
       <p style="text-align:center; margin-top:32px;">
-        <a href="/tools" class="btn-text" style="color:var(--amber);">View all 35 tools with parameters →</a>
+        <a href="https://api.seomcp.dev/tools" class="btn-text" style="color:var(--amber);">View all 35 tools with parameters →</a>
       </p>
     </div>
   </section>
@@ -1284,7 +1285,7 @@
           <div class="pricing-reframe">Perfect for trying it out. No strings attached.</div>
           <ul class="pricing-features">
             <li><span class="check">✓</span> All 35 SEO tools</li>
-            <li><span class="check">✓</span> 50 tool calls per month</li>
+            <li><span class="check">✓</span> 100 tool calls per month</li>
             <li><span class="check">✓</span> All MCP clients supported</li>
             <li><span class="check">✓</span> 1 API key</li>
             <li><span class="check">✓</span> Google Search Console</li>
@@ -1404,7 +1405,7 @@
             <span class="faq-arrow">▾</span>
           </button>
           <div class="faq-answer">
-            <p>35 tools across 6 categories: Site crawling & audits, Google Search Console (8 tools), Google Analytics 4 (9 tools), Core Web Vitals, Schema validation, and IndexNow instant indexing. <a href="/tools" style="color:var(--amber);">See the full catalog →</a></p>
+            <p>35 tools across 6 categories: Site crawling & audits, Google Search Console (8 tools), Google Analytics 4 (9 tools), Core Web Vitals, Schema validation, and IndexNow instant indexing. <a href="https://api.seomcp.dev/tools" style="color:var(--amber);">See the full catalog →</a></p>
           </div>
         </div>
 
@@ -1414,7 +1415,7 @@
             <span class="faq-arrow">▾</span>
           </button>
           <div class="faq-answer">
-            <p>Yes. Free tier includes 50 tool calls per month with access to all 35 tools. No credit card required. The free tier is enough for a couple of full site audits per month.</p>
+            <p>Yes. Free tier includes 100 tool calls per month with access to all 35 tools. No credit card required. The free tier is enough for a couple of full site audits per month.</p>
           </div>
         </div>
 
@@ -1468,7 +1469,7 @@
           <span style="margin-left:16px;">© 2026 Built by <a href="https://quantacodes.ai" target="_blank" rel="noopener noreferrer" style="color:var(--text-secondary);">QuantaCodes</a></span>
         </div>
         <div class="footer-links">
-          <a href="/docs">Docs</a>
+          <a href="https://api.seomcp.dev/docs">Docs</a>
           <a href="#pricing">Pricing</a>
           <a href="/terms">Terms</a>
           <a href="/privacy">Privacy</a>
@@ -1484,7 +1485,7 @@
       <div id="signup-step-1">
         <div style="text-align:center; margin-bottom:24px;">
           <div style="font-size:24px; font-weight:600; margin-bottom:4px;">Get your API key</div>
-          <div class="small text-secondary">Free tier — 50 calls/month, no credit card</div>
+          <div class="small text-secondary">Free tier — 100 calls/month, no credit card</div>
         </div>
         
         <!-- Trust signals -->
@@ -1550,7 +1551,7 @@
 
   <!-- Mobile Sticky CTA -->
   <div class="mobile-sticky-cta" id="mobile-sticky-cta">
-    <button onclick="openSignup()">Start Free — 50 API Calls</button>
+    <button onclick="openSignup()">Start Free — 100 API Calls</button>
   </div>
 
   <script>
@@ -1665,7 +1666,7 @@
       errEl.style.display = 'none';
 
       try {
-        const res = await fetch('/api/auth/signup', {
+        const res = await fetch('https://api.seomcp.dev/api/auth/signup', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -1680,7 +1681,8 @@
         document.getElementById('signup-config').textContent = JSON.stringify({
           mcpServers: {
             seo: {
-              url: 'https://seomcp.dev/sse?key=' + data.apiKey
+              url: 'https://api.seomcp.dev/mcp',
+              headers: { Authorization: 'Bearer ' + data.apiKey }
             }
           }
         }, null, 2);

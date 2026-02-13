@@ -62,7 +62,7 @@ echo ""
 MCP_CONFIG=$(cat <<EOF
 {
   "seomcp": {
-    "url": "https://seomcp.dev/mcp",
+    "url": "https://api.seomcp.dev/mcp",
     "transport": "streamable-http",
     "headers": {
       "Authorization": "Bearer $API_KEY"
@@ -93,7 +93,7 @@ add_to_config() {
     if command -v jq &>/dev/null; then
       local tmp=$(mktemp)
       jq --arg key "$API_KEY" '.mcpServers.seomcp = {
-        "url": "https://seomcp.dev/mcp",
+        "url": "https://api.seomcp.dev/mcp",
         "transport": "streamable-http",
         "headers": { "Authorization": ("Bearer " + $key) }
       }' "$config_file" > "$tmp" && mv "$tmp" "$config_file"
@@ -137,7 +137,7 @@ echo ""
 echo '  {' 
 echo '    "mcpServers": {'
 echo '      "seomcp": {'
-echo '        "url": "https://seomcp.dev/mcp",'
+echo '        "url": "https://api.seomcp.dev/mcp",'
 echo '        "transport": "streamable-http",'
 echo '        "headers": {'
 echo "          \"Authorization\": \"Bearer $API_KEY\""
@@ -149,7 +149,7 @@ echo ""
 
 # Verify connection
 echo -e "${BLUE}Verifying connection...${NC}"
-VERIFY=$(curl -s -w "\n%{http_code}" -X POST "https://seomcp.dev/mcp" \
+VERIFY=$(curl -s -w "\n%{http_code}" -X POST "https://api.seomcp.dev/mcp" \
   -H "Authorization: Bearer $API_KEY" \
   -H "Content-Type: application/json" \
   -H "Accept: application/json" \

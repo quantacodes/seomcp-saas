@@ -145,20 +145,50 @@
     .h1 { font-size: 72px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }
     .h2 { font-size: 42px; line-height: 1.1; letter-spacing: -0.025em; font-weight: 700; }
     .h1-shimmer {
-      background: linear-gradient(to bottom right, #EDEDF0, #FFFFFF, #E5A430);
-      background-size: 200% 200%;
+      background: linear-gradient(
+        105deg,
+        #EDEDF0 0%,
+        #FFFFFF 25%,
+        #E5A430 50%,
+        #FFFFFF 75%,
+        #EDEDF0 100%
+      );
+      background-size: 300% 100%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      animation: text-shimmer 4s ease-in-out infinite;
+      animation: text-shimmer 3s ease-in-out infinite;
     }
     @keyframes text-shimmer {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
+      0% { background-position: 100% 50%; }
+      50% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
     }
     @keyframes ping {
       75%, 100% { transform: scale(2.5); opacity: 0; }
+    }
+    @keyframes spin-glow {
+      to { transform: rotate(360deg); }
+    }
+    /* Spinning border wrapper for hero CTA */
+    .btn-glow-wrap {
+      position: relative;
+      display: inline-flex;
+      border-radius: 11px;
+      padding: 2px;
+      overflow: hidden;
+    }
+    .btn-glow-wrap::before {
+      content: '';
+      position: absolute;
+      inset: -200%;
+      background: conic-gradient(from 0deg, transparent 0%, #E5A430 25%, transparent 50%, #E5A430 75%, transparent 100%);
+      animation: spin-glow 3s linear infinite;
+    }
+    .btn-glow-wrap .btn-primary {
+      position: relative;
+      z-index: 1;
+      border-radius: 10px;
     }
     .h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; }
     .body-lg { font-size: 20px; line-height: 30px; }
@@ -327,7 +357,7 @@
       transform: translateX(-50%);
       width: 900px;
       height: 500px;
-      background: rgba(229, 164, 48, 0.07);
+      background: rgba(229, 164, 48, 0.10);
       border-radius: 50%;
       filter: blur(120px);
       pointer-events: none;
@@ -336,7 +366,20 @@
     .hero-content { position: relative; z-index: 2; }
     .hero-headline { margin-bottom: 20px; }
     .hero-subhead { max-width: 640px; margin: 0 auto 40px; }
-    .hero-code { max-width: 520px; margin: 0 auto 40px; text-align: left; }
+    .hero-code {
+      max-width: 520px; margin: 0 auto 40px; text-align: left;
+      position: relative;
+    }
+    .hero-code::before {
+      content: '';
+      position: absolute;
+      inset: -40px;
+      background: radial-gradient(ellipse at center, rgba(229, 164, 48, 0.08) 0%, transparent 70%);
+      border-radius: 24px;
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: -1;
+    }
     .hero-ctas { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 32px; }
     .hero-trust { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; }
     .hero-trust span { font-size: 14px; color: var(--text-tertiary); }
@@ -810,10 +853,9 @@
 
     /* ── Reduced motion ── */
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        transition-duration: 0.01ms !important;
-      }
+      .tool-dot, .tool-dot::after { animation: none !important; }
+      .protocol-packet { animation: none !important; }
+      /* Keep important UX animations like shimmer & ping even in reduced motion */
     }
   </style>
 </head>
@@ -891,7 +933,9 @@
       </div>
 
       <div class="hero-ctas">
-        <button class="btn-primary" onclick="openSignup()">Start Free — 100 API Calls</button>
+        <div class="btn-glow-wrap">
+          <button class="btn-primary" onclick="openSignup()">Start Free — 100 API Calls</button>
+        </div>
         <a href="#demo" class="btn-text">See Live Demo →</a>
       </div>
       

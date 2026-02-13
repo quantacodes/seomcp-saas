@@ -19,7 +19,7 @@ export const config = {
   port: parseInt(process.env.PORT || "3456"),
   host: process.env.HOST || "0.0.0.0",
   databasePath: process.env.DATABASE_PATH || "./data/seo-mcp-saas.db",
-  seoMcpBinary: process.env.SEO_MCP_BINARY || "/Users/saura/clawd/projects/seo-mcp/target/release/seo-mcp-server",
+  seoMcpBinary: process.env.SEO_MCP_BINARY || (process.env.NODE_ENV === "production" ? "/opt/seomcp/seo-mcp-server" : "/Users/saura/clawd/projects/seo-mcp/target/release/seo-mcp-server"),
   jwtSecret: devSecret("JWT_SECRET", 32),
 
   // Google OAuth

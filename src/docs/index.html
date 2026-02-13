@@ -4,16 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documentation — seomcp.dev</title>
-  <meta name="description" content="API documentation for seomcp.dev — 35 SEO tools as a remote MCP server.">
-  <link rel="canonical" href="https://seomcp.dev/docs">
+  <meta name="description" content="API documentation for seomcp.dev — 37 SEO tools as a remote MCP server.">
+  <link rel="canonical" href="https://api.seomcp.dev/docs">
   <meta property="og:title" content="Documentation — seomcp.dev">
-  <meta property="og:description" content="API documentation for seomcp.dev — 35 SEO tools as a remote MCP server.">
-  <meta property="og:url" content="https://seomcp.dev/docs">
+  <meta property="og:description" content="API documentation for seomcp.dev — 37 SEO tools as a remote MCP server.">
+  <meta property="og:url" content="https://api.seomcp.dev/docs">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="seomcp.dev">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Documentation — seomcp.dev">
-  <meta name="twitter:description" content="API documentation for seomcp.dev — 35 SEO tools as a remote MCP server.">
+  <meta name="twitter:description" content="API documentation for seomcp.dev — 37 SEO tools as a remote MCP server.">
   <meta name="twitter:site" content="@pinchy0x">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -141,7 +141,7 @@
           </div>
         </div>
 
-        <h3 class="doc-subheading">Option B: Proxy (All 37 Tools + Google Data)</h3>
+        <h3 class="doc-subheading" id="proxy-setup">Option B: Proxy (All 37 Tools + Google Data)</h3>
         <p class="text-sm text-slate-400 mb-3">Unlocks GSC and GA4 tools. Your Google credentials <strong class="text-slate-300">never leave your machine</strong> — the proxy reads them locally and forwards requests securely.</p>
         <div class="space-y-4">
           <div class="flex gap-3">
@@ -257,7 +257,7 @@
 
       <!-- Available Tools -->
       <section id="tools" class="doc-section">
-        <h2 class="doc-heading">🧰 Available Tools (35)</h2>
+        <h2 class="doc-heading">🧰 Available Tools (37)</h2>
         <p class="text-slate-400 mb-6">All tools are accessible through the MCP protocol. Your AI agent discovers them automatically via <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">tools/list</code>.</p>
 
         <h3 class="doc-subheading">Crawl & Audit</h3>
@@ -317,7 +317,7 @@
           <div class="tool-card"><span class="text-brand-400 font-mono text-sm">version</span> <span class="text-slate-500 text-sm">— Server version info</span></div>
         </div>
 
-        <p class="text-sm text-slate-500 mt-4">💡 GSC and GA4 tools require <a href="#google-oauth" class="text-brand-400 hover:underline">Google OAuth connection</a>.</p>
+        <p class="text-sm text-slate-500 mt-4">💡 GSC and GA4 tools require <a href="#service-account" class="text-brand-400 hover:underline">Google service account setup</a>.</p>
       </section>
 
       <!-- Google Service Account -->

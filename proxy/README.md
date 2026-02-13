@@ -7,7 +7,7 @@ Reads your Google service account credentials from disk and forwards MCP tool ca
 ## Quick Start
 
 ```bash
-npm i -g @seomcp/proxy
+npm i -g github:quantacodes/seomcp-proxy
 ```
 
 ### Configure Your MCP Client

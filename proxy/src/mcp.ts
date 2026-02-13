@@ -29,7 +29,7 @@ function rpcResult(id: string | number | null, result: unknown): object {
 function handleInitialize(id: string | number | null): void {
   send(
     rpcResult(id, {
-      protocolVersion: "2024-11-05",
+      protocolVersion: "2025-03-26",
       capabilities: {
         tools: {},
       },

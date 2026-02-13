@@ -292,6 +292,7 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
       id: session.userId,
       email: session.email,
       plan: session.plan,
+      emailVerified: session.emailVerified,
     },
     usage: {
       used,

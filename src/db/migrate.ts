@@ -148,6 +148,9 @@ const migrations = [
 const alterMigrations = [
   `ALTER TABLE api_keys ADD COLUMN scopes TEXT DEFAULT NULL`,
   `ALTER TABLE users ADD COLUMN webhook_url TEXT DEFAULT NULL`,
+  `ALTER TABLE users ADD COLUMN email_verified INTEGER NOT NULL DEFAULT 0`,
+  `ALTER TABLE users ADD COLUMN verification_token TEXT`,
+  `ALTER TABLE users ADD COLUMN verification_sent_at INTEGER`,
 ];
 
 export function runMigrations() {

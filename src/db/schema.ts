@@ -5,6 +5,9 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   plan: text("plan").notNull().default("free"), // free | pro | agency | enterprise
+  emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
+  verificationToken: text("verification_token"),
+  verificationSentAt: integer("verification_sent_at", { mode: "timestamp" }),
   webhookUrl: text("webhook_url"), // Webhook notification URL
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),

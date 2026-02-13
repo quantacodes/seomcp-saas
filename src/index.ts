@@ -23,6 +23,7 @@ import { changelogRoutes } from "./routes/changelog";
 import { auditRoutes } from "./routes/audits";
 import { webhookSettingsRoutes } from "./routes/webhook-settings";
 import { scheduleRoutes } from "./routes/schedules";
+import { verifyRoutes } from "./routes/verify";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 import { startScheduler, stopScheduler } from "./scheduler/engine";
@@ -102,6 +103,7 @@ app.route("/", changelogRoutes);
 app.route("/", auditRoutes);
 app.route("/", webhookSettingsRoutes);
 app.route("/", scheduleRoutes);
+app.route("/", verifyRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

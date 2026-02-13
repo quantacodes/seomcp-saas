@@ -11,6 +11,22 @@ function getCurrentWindowStart(): number {
 }
 
 /**
+ * Get the effective call limit for a user.
+ * Unverified free users get 10 calls/month instead of 50.
+ */
+function getEffectiveLimit(auth: AuthContext): number {
+  const planLimits = config.plans[auth.plan];
+  if (!planLimits) return 0;
+
+  // Unverified free users get reduced limits
+  if (auth.plan === "free" && !auth.emailVerified) {
+    return 10;
+  }
+
+  return planLimits.callsPerMonth;
+}
+
+/**
  * Atomic check-and-increment rate limit for a user.
  * Uses a SQLite transaction to prevent TOCTOU race conditions.
  * Rate limits are per-USER (not per-key) to prevent multi-key bypass.
@@ -26,7 +42,7 @@ export function checkAndIncrementRateLimit(auth: AuthContext): {
     return { allowed: false, used: 0, limit: 0, remaining: 0 };
   }
 
-  const limit = planLimits.callsPerMonth;
+  const limit = getEffectiveLimit(auth);
   if (limit === Infinity) {
     return { allowed: true, used: 0, limit: Infinity, remaining: Infinity };
   }

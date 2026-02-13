@@ -117,7 +117,7 @@ docker compose up -d
 ## Tests
 
 ```bash
-bun test           # 102 tests, 262 assertions
+bun run test       # 319+ tests (serial, isolated DBs)
 bun test --watch   # Watch mode
 ```
 
@@ -132,7 +132,9 @@ src/
 │   ├── google.ts         # Google OAuth (consent, exchange, refresh, revoke)
 │   ├── keys.ts           # API key generation (sk_live_* format)
 │   ├── middleware.ts      # Bearer token auth middleware
-│   └── session.ts        # Dashboard session management
+│   ├── scopes.ts         # API key tool category scoping
+│   ├── session.ts        # Dashboard session management
+│   └── verification.ts   # Email verification (HMAC tokens, Resend API)
 ├── billing/
 │   ├── lemonsqueezy.ts   # Lemon Squeezy API client
 │   └── webhooks.ts       # Webhook verification + event processing
@@ -141,9 +143,9 @@ src/
 ├── crypto/
 │   └── tokens.ts         # AES-256-GCM encrypt/decrypt
 ├── db/
-│   ├── index.ts          # SQLite connection
-│   ├── migrate.ts        # Schema migrations
-│   └── schema.ts         # Drizzle ORM schema (7 tables)
+│   ├── index.ts          # SQLite connection (WAL mode)
+│   ├── migrate.ts        # Schema migrations (31 statements)
+│   └── schema.ts         # Drizzle ORM schema (10 tables)
 ├── mcp/
 │   ├── binary.ts         # Rust binary process pool
 │   ├── session.ts        # MCP session manager

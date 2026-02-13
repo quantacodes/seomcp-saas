@@ -12,6 +12,7 @@ export interface SessionData {
   userId: string;
   email: string;
   plan: string;
+  emailVerified: boolean;
 }
 
 /**
@@ -49,6 +50,7 @@ export function validateSession(sessionId: string): SessionData | null {
       expiresAt: schema.sessions.expiresAt,
       email: schema.users.email,
       plan: schema.users.plan,
+      emailVerified: schema.users.emailVerified,
     })
     .from(schema.sessions)
     .innerJoin(schema.users, eq(schema.sessions.userId, schema.users.id))
@@ -68,6 +70,7 @@ export function validateSession(sessionId: string): SessionData | null {
     userId: row.userId,
     email: row.email,
     plan: row.plan,
+    emailVerified: !!row.emailVerified,
   };
 }
 

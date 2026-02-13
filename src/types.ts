@@ -52,6 +52,7 @@ export interface AuthContext {
   plan: string;
   apiKeyId: string;
   scopes: string[] | null; // Tool category restrictions, null = unrestricted
+  emailVerified: boolean;
 }
 
 // SSE event

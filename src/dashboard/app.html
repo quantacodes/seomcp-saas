@@ -87,6 +87,20 @@
       <div class="skeleton h-64 rounded-2xl"></div>
     </div>
 
+    <!-- Email Verification Banner (hidden until needed) -->
+    <div id="verify-banner" class="hidden bg-gradient-to-r from-amber-700/20 to-amber-500/10 border border-amber-500/30 rounded-2xl p-5 sm:p-6 flex items-center justify-between gap-4 mb-6">
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">📧</span>
+        <div>
+          <h3 class="text-sm font-bold text-amber-200">Verify your email to unlock full limits</h3>
+          <p class="text-xs text-slate-400 mt-0.5">Unverified accounts are limited to 10 tool calls/month. Verify to get 50.</p>
+        </div>
+      </div>
+      <button onclick="resendVerification()" id="resend-btn" class="shrink-0 px-4 py-2 bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-sm font-medium rounded-lg border border-amber-500/30 transition">
+        Resend Email
+      </button>
+    </div>
+
     <!-- Quick Start Banner (hidden until loaded) -->
     <div id="quickstart" class="hidden bg-gradient-to-r from-brand-700/20 to-brand-500/10 border border-brand-500/20 rounded-2xl p-6 sm:p-8 relative">
       <button onclick="dismissQuickstart()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-lg">×</button>
@@ -544,6 +558,11 @@
       const badge = document.getElementById('plan-badge');
       badge.textContent = d.user.plan;
       badge.classList.remove('hidden');
+
+      // Email verification banner
+      if (!d.user.emailVerified) {
+        document.getElementById('verify-banner').classList.remove('hidden');
+      }
 
       // Quick Start (show if no usage and not dismissed)
       if (d.usage.used === 0 && !localStorage.getItem('qs-dismissed')) {
@@ -1473,6 +1492,32 @@
     function dismissQuickstart() {
       localStorage.setItem('qs-dismissed', '1');
       document.getElementById('quickstart').classList.add('hidden');
+    }
+
+    async function resendVerification() {
+      const btn = document.getElementById('resend-btn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await fetch('/api/auth/resend-verification', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: dashData.user.email }),
+        });
+        if (res.ok) {
+          btn.textContent = '✓ Sent!';
+          btn.classList.remove('bg-amber-500/20', 'hover:bg-amber-500/30', 'text-amber-200', 'border-amber-500/30');
+          btn.classList.add('bg-green-500/20', 'text-green-200', 'border-green-500/30');
+          setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000);
+        } else {
+          const data = await res.json();
+          btn.textContent = data.error || 'Failed';
+          setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000);
+        }
+      } catch {
+        btn.textContent = 'Error';
+        setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000);
+      }
     }
 
     // ── Helpers ──

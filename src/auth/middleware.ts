@@ -75,6 +75,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
     plan: user.plan,
     apiKeyId: keyRecord.id,
     scopes: parseScopes(keyRecord.scopes),
+    emailVerified: !!user.emailVerified,
   });
 
   await next();

@@ -32,6 +32,10 @@ export const config = {
   // Base URL for redirects
   baseUrl: process.env.BASE_URL || "http://localhost:3456",
 
+  // Email (Resend)
+  resendApiKey: process.env.RESEND_API_KEY || "",
+  resendFromEmail: process.env.RESEND_FROM_EMAIL || "verify@seomcp.dev",
+
   // Plan limits (calls per month)
   plans: {
     free: { callsPerMonth: 50, maxSites: 1, maxKeys: 1, maxSchedules: 0 },

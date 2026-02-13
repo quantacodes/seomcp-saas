@@ -4,12 +4,18 @@ import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
+import {
+  generateVerificationToken,
+  buildVerificationUrl,
+  sendVerificationEmail,
+} from "../auth/verification";
 
 export const authRoutes = new Hono();
 
 /**
  * POST /api/auth/signup
  * Create account + get API key in one step.
+ * Sends verification email — unverified users get reduced rate limits.
  */
 authRoutes.post("/api/auth/signup", async (c) => {
   const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
@@ -54,12 +60,18 @@ authRoutes.post("/api/auth/signup", async (c) => {
   const userId = ulid();
   const now = new Date();
 
+  // Generate verification token
+  const { token: verificationToken } = generateVerificationToken(userId, body.email.toLowerCase());
+
   db.insert(schema.users)
     .values({
       id: userId,
       email: body.email.toLowerCase(),
       passwordHash,
       plan: "free",
+      emailVerified: false,
+      verificationToken,
+      verificationSentAt: now,
       createdAt: now,
       updatedAt: now,
     })
@@ -81,16 +93,23 @@ authRoutes.post("/api/auth/signup", async (c) => {
     })
     .run();
 
+  // Send verification email (async, don't block signup)
+  const verificationUrl = buildVerificationUrl(userId, verificationToken);
+  sendVerificationEmail(body.email.toLowerCase(), verificationUrl).catch((err) => {
+    console.error("Failed to send verification email:", err);
+  });
+
   return c.json(
     {
       user: {
         id: userId,
         email: body.email.toLowerCase(),
         plan: "free",
+        emailVerified: false,
       },
       apiKey: raw, // Only shown once!
       apiKeyPrefix: prefix,
-      message: "Save your API key — it won't be shown again.",
+      message: "Save your API key — it won't be shown again. Check your email to verify your account and unlock full limits.",
     },
     201,
   );
@@ -136,6 +155,7 @@ authRoutes.post("/api/auth/login", async (c) => {
       id: user.id,
       email: user.email,
       plan: user.plan,
+      emailVerified: user.emailVerified,
     },
   });
 });

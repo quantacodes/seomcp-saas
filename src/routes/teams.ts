@@ -227,10 +227,11 @@ teamRoutes.post("/api/teams/invite", async (c) => {
 });
 
 /**
- * GET /teams/invite/:token — Accept an invite (magic link).
+ * GET /dashboard/teams/invite/:token — Accept an invite (magic link).
+ * Under /dashboard/ path so the session cookie (path=/dashboard) is included.
  * Redirects to dashboard after acceptance.
  */
-teamRoutes.get("/teams/invite/:token", async (c) => {
+teamRoutes.get("/dashboard/teams/invite/:token", async (c) => {
   const token = c.req.param("token");
 
   if (!token) {
@@ -242,7 +243,7 @@ teamRoutes.get("/teams/invite/:token", async (c) => {
 
   if (!sessionId) {
     // Not logged in — redirect to login with return URL
-    const returnUrl = encodeURIComponent(`/teams/invite/${token}`);
+    const returnUrl = encodeURIComponent(`/dashboard/teams/invite/${token}`);
     return c.redirect(`/dashboard/login?return=${returnUrl}`);
   }
 
@@ -252,7 +253,7 @@ teamRoutes.get("/teams/invite/:token", async (c) => {
     .get(sessionId, Math.floor(Date.now() / 1000)) as { user_id: string } | null;
 
   if (!session) {
-    const returnUrl = encodeURIComponent(`/teams/invite/${token}`);
+    const returnUrl = encodeURIComponent(`/dashboard/teams/invite/${token}`);
     return c.redirect(`/dashboard/login?return=${returnUrl}`);
   }
 

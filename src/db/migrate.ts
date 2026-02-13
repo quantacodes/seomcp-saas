@@ -160,6 +160,7 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id)`,
   `CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_team_members_unique ON team_members(team_id, email)`,
+  `CREATE INDEX IF NOT EXISTS idx_team_members_invite ON team_members(invite_token)`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,

@@ -237,7 +237,7 @@ export function cancelInvite(memberId: string): boolean {
  * Build an invite URL.
  */
 export function buildInviteUrl(token: string): string {
-  return `${config.baseUrl}/teams/invite/${encodeURIComponent(token)}`;
+  return `${config.baseUrl}/dashboard/teams/invite/${encodeURIComponent(token)}`;
 }
 
 /**

@@ -287,29 +287,37 @@
     .hero-trust .client { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
 
     /* ── How It Works ── */
-    .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px; position: relative; }
+    .steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; position: relative; }
     .step { position: relative; }
     .step-number {
       display: flex; align-items: center; justify-content: center;
       width: 40px; height: 40px; border-radius: 10px;
       background: var(--amber-muted); color: var(--amber);
       font-weight: 700; font-size: 18px; margin-bottom: 20px;
+      position: relative; z-index: 1;
     }
     .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .step-desc { color: var(--text-secondary); font-size: 15px; line-height: 24px; }
     .step-code { margin-top: 16px; }
     .steps-line {
-      position: absolute; top: 20px; left: calc(33.33% - 24px);
-      width: calc(66.66% + 48px); height: 2px;
-      background: linear-gradient(90deg, var(--amber), var(--sage), var(--sage));
+      position: absolute; top: 19px;
+      /* 20px = center of 40px step-number in first column */
+      left: 20px;
+      /* Grid: 3 cols of 1fr + 2 gaps of 48px. Last col starts at 2*(1fr+48px).
+         Step 3 number center = last_col_left + 20px.
+         From right edge: 1fr - 20px. Since 1fr = (100% - 96px)/3:
+         right = (100% - 96px)/3 - 20px */
+      right: calc((100% - 96px) / 3 - 20px);
+      height: 2px;
+      background: linear-gradient(90deg, var(--amber), var(--sage));
       opacity: 0.3; z-index: 0;
     }
     .steps-line::before, .steps-line::after {
       content: ''; position: absolute; top: -3px;
       width: 8px; height: 8px; border-radius: 50%;
     }
-    .steps-line::before { left: 0; background: var(--amber); }
-    .steps-line::after { right: 0; background: var(--sage); }
+    .steps-line::before { left: -4px; background: var(--amber); }
+    .steps-line::after { right: -4px; background: var(--sage); }
 
     /* ── Tool Grid ── */
     .tool-categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }

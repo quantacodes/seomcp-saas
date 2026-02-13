@@ -1,0 +1,45 @@
+{
+  "name": "@seomcp/proxy",
+  "version": "0.1.0",
+  "description": "Local MCP proxy for seo-mcp — forwards tool calls to api.seomcp.dev with Google credentials",
+  "author": "quantacodes",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quantacodes/seomcp-proxy"
+  },
+  "keywords": [
+    "seo",
+    "mcp",
+    "model-context-protocol",
+    "google-search-console",
+    "google-analytics",
+    "proxy"
+  ],
+  "bin": {
+    "seomcp-proxy": "./bin/seomcp-proxy.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./src/index.ts",
+  "files": [
+    "dist/",
+    "bin/",
+    "tools-manifest.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node --format esm --minify",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "bun-types": "^1.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

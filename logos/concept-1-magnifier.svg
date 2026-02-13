@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Concept 1: Magnifying glass with code brackets -->
+  <rect width="512" height="512" fill="#0C0C0F"/>
+  <!-- Magnifying glass circle -->
+  <circle cx="220" cy="220" r="120" fill="none" stroke="#E5A430" stroke-width="24"/>
+  <!-- Handle -->
+  <line x1="310" y1="310" x2="420" y2="420" stroke="#E5A430" stroke-width="28" stroke-linecap="round"/>
+  <!-- Code brackets inside glass -->
+  <path d="M175 180 L150 220 L175 260" fill="none" stroke="#E5A430" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+  <path d="M265 180 L290 220 L265 260" fill="none" stroke="#E5A430" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/>
+</svg>

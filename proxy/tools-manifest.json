@@ -1,0 +1,480 @@
+{
+  "tools": [
+    {
+      "name": "site_audit",
+      "description": "Run a multi-page SEO audit. Crawls pages following internal links and detects issues (missing titles, duplicates, missing H1, broken links, etc.). Max 50 pages.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "start_url": { "type": "string", "description": "URL to start crawling from" },
+          "max_pages": { "type": "number", "description": "Maximum pages to crawl (default 50)" }
+        },
+        "required": ["start_url"]
+      }
+    },
+    {
+      "name": "crawl_page",
+      "description": "Crawl a web page and extract SEO elements (title, meta, H1, canonical, schema.org, links, images).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to crawl" }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "test_robots_txt",
+      "description": "Test if a URL is allowed or blocked by a site's robots.txt rules.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "Site URL to fetch robots.txt from" },
+          "test_url": { "type": "string", "description": "URL to test against robots.txt rules" },
+          "user_agent": { "type": "string", "description": "User agent to test (default: Googlebot)" }
+        },
+        "required": ["site_url", "test_url"]
+      }
+    },
+    {
+      "name": "gsc_performance",
+      "description": "Query Google Search Console performance data (clicks, impressions, CTR, position). Supports filters, period comparison, CSV export, search types, pagination, and aggregation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD)" },
+          "dimensions": { "type": "array", "items": { "type": "string" }, "description": "Dimensions: query, page, device, country, date, searchAppearance" },
+          "row_limit": { "type": "number", "description": "Maximum rows to return (default 1000)" },
+          "data_state": { "type": "string", "description": "Data state: 'all' for fresh data, omit for finalized" },
+          "filter_operator": { "type": "string", "description": "Filter operator: contains, equals, notContains, notEquals, includingRegex, excludingRegex" },
+          "query_filter": { "type": "string", "description": "Filter by query string" },
+          "page_filter": { "type": "string", "description": "Filter by page URL" },
+          "aggregation_type": { "type": "string", "description": "Aggregation: byPage, byProperty" },
+          "start_row": { "type": "number", "description": "Pagination offset (0-based)" },
+          "search_type": { "type": "string", "description": "Search type: web, image, video, discover, googleNews" },
+          "compare_start_date": { "type": "string", "description": "Comparison period start (YYYY-MM-DD)" },
+          "compare_end_date": { "type": "string", "description": "Comparison period end (YYYY-MM-DD)" }
+        },
+        "required": ["site_url"]
+      }
+    },
+    {
+      "name": "gsc_list_sites",
+      "description": "List all verified sites/properties in Google Search Console.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "gsc_list_sitemaps",
+      "description": "List all sitemaps submitted to Google Search Console, or get detailed info for a specific sitemap. Accepts domain or URL (auto-resolved to GSC property).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "sitemap_url": { "type": "string", "description": "Specific sitemap URL for detailed info" }
+        },
+        "required": ["site_url"]
+      }
+    },
+    {
+      "name": "gsc_submit_sitemap",
+      "description": "Submit a sitemap to Google Search Console for indexing. Accepts domain or URL (auto-resolved to GSC property).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "sitemap_url": { "type": "string", "description": "Full URL of the sitemap to submit" }
+        },
+        "required": ["site_url", "sitemap_url"]
+      }
+    },
+    {
+      "name": "gsc_delete_sitemap",
+      "description": "Delete a sitemap from Google Search Console. Accepts domain or URL (auto-resolved to GSC property).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "sitemap_url": { "type": "string", "description": "Full URL of the sitemap to delete" }
+        },
+        "required": ["site_url", "sitemap_url"]
+      }
+    },
+    {
+      "name": "gsc_inspect_url",
+      "description": "Check if a URL is indexed by Google and get detailed indexing status, mobile usability, and rich results info.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "url": { "type": "string", "description": "URL to inspect" }
+        },
+        "required": ["site_url", "url"]
+      }
+    },
+    {
+      "name": "gsc_bulk_inspect",
+      "description": "Bulk inspect up to 100 URLs to check their Google indexing status. Returns indexed/not-indexed for each URL.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "urls": { "type": "array", "items": { "type": "string" }, "description": "URLs to inspect" }
+        },
+        "required": ["site_url", "urls"]
+      }
+    },
+    {
+      "name": "gsc_search_appearances",
+      "description": "Get Google Search Console search appearance breakdown — see which rich results (FAQ, HowTo, Video, Recipe, Review, etc.) are driving traffic.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD)" }
+        },
+        "required": ["site_url"]
+      }
+    },
+    {
+      "name": "ga4_report",
+      "description": "Run a flexible Google Analytics 4 report with ANY dimensions and metrics combination. Supports presets (landing_pages, engagement, conversions, channels, content) or fully custom dim/metric combos. Use ga4_metadata to discover available dimensions and metrics.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative like '7daysAgo')" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" },
+          "preset": { "type": "string", "description": "Report preset: channels, landing_pages, engagement, content, conversions" },
+          "dimensions": { "type": "array", "items": { "type": "string" }, "description": "Custom dimensions (when no preset)" },
+          "metrics": { "type": "array", "items": { "type": "string" }, "description": "Custom metrics (when no preset)" },
+          "limit": { "type": "number", "description": "Maximum rows to return" },
+          "dimension_filter": { "type": "object", "description": "Dimension filter (JSON)" },
+          "metric_filter": { "type": "object", "description": "Metric filter (JSON)" },
+          "order_by": { "type": "string", "description": "Order by field (prefix - for desc)" },
+          "keep_empty_rows": { "type": "boolean", "description": "Include rows with all zero metrics" },
+          "compare_start_date": { "type": "string", "description": "Comparison period start" },
+          "compare_end_date": { "type": "string", "description": "Comparison period end" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_batch_report",
+      "description": "Run multiple GA4 reports in a single API call (max 5). Reduces quota usage and latency vs sequential calls. Each report can have different dimensions, metrics, date ranges, and filters.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "reports": { "type": "array", "description": "Array of report configs (max 5), each with dimensions, metrics, date_range, etc.", "items": { "type": "object" } }
+        },
+        "required": ["property_id", "reports"]
+      }
+    },
+    {
+      "name": "ga4_funnel_report",
+      "description": "Run a GA4 funnel report (v1alpha API). Define funnel steps based on events/dimensions and analyze user drop-off. Supports open/closed funnels and breakdown by dimension.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" },
+          "steps": { "type": "array", "description": "Funnel steps array", "items": { "type": "object" } },
+          "open_funnel": { "type": "boolean", "description": "Open funnel (users can enter at any step)" },
+          "breakdown": { "type": "string", "description": "Dimension to break down by" }
+        },
+        "required": ["property_id", "steps"]
+      }
+    },
+    {
+      "name": "ga4_realtime",
+      "description": "Get Google Analytics 4 REALTIME data — active users right now, events in last 30 minutes.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_metadata",
+      "description": "List all available GA4 dimensions and metrics for a property. Use this to discover valid dimension/metric names before running ga4_report.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "category": { "type": "string", "description": "Filter by category" },
+          "name_filter": { "type": "string", "description": "Filter by name substring" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_overview",
+      "description": "Get Google Analytics 4 overview metrics (sessions, users, pageviews, bounce rate). Supports period comparison.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_top_pages",
+      "description": "Get Google Analytics 4 top pages report (page views, users by page). Supports CSV export.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" },
+          "limit": { "type": "number", "description": "Maximum pages to return" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_traffic_sources",
+      "description": "Get Google Analytics 4 traffic sources report (sessions by source/medium). Supports CSV export.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" },
+          "limit": { "type": "number", "description": "Maximum sources to return" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_devices",
+      "description": "Get Google Analytics 4 device breakdown (sessions by device type).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "ga4_geography",
+      "description": "Get Google Analytics 4 geography report (sessions by country). Supports CSV export.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "property_id": { "type": "string", "description": "GA4 property ID, properties/ID format, or domain name" },
+          "start_date": { "type": "string", "description": "Start date (YYYY-MM-DD or relative)" },
+          "end_date": { "type": "string", "description": "End date (YYYY-MM-DD or 'today')" },
+          "limit": { "type": "number", "description": "Maximum rows to return" }
+        },
+        "required": ["property_id"]
+      }
+    },
+    {
+      "name": "core_web_vitals",
+      "description": "Analyze Core Web Vitals (LCP, FID, CLS) for a URL using Google PageSpeed Insights. Free, no API key required.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to analyze" },
+          "strategy": { "type": "string", "description": "Strategy: mobile or desktop (default: mobile)" }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "validate_schema",
+      "description": "Validate JSON-LD structured data (schema.org) on a web page. Checks for required/recommended fields and common issues.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to fetch and validate schema from" },
+          "schema": { "type": "string", "description": "Raw JSON-LD string to validate (alternative to url)" }
+        },
+        "required": []
+      }
+    },
+    {
+      "name": "analyze_robots_txt",
+      "description": "Fetch and analyze a site's robots.txt file. Returns rules, sitemaps, and crawl-delay.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "Site URL to fetch and analyze robots.txt from" }
+        },
+        "required": ["site_url"]
+      }
+    },
+    {
+      "name": "sitemap_index_diff",
+      "description": "Compare sitemap URLs vs Google index. Fetches sitemap, inspects each URL, returns gaps (not-indexed URLs with reasons).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "GSC property (e.g., sc-domain:example.com) or domain (auto-resolved)" },
+          "sitemap_url": { "type": "string", "description": "Sitemap URL to compare against" },
+          "max_urls": { "type": "number", "description": "Maximum URLs to compare" }
+        },
+        "required": ["site_url", "sitemap_url"]
+      }
+    },
+    {
+      "name": "indexnow_submit_url",
+      "description": "Submit a URL to IndexNow (Bing, Yandex) for faster indexing. Per-site keys are auto-resolved.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to submit" },
+          "key": { "type": "string", "description": "IndexNow API key" },
+          "key_location": { "type": "string", "description": "URL where key verification file is hosted" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "indexnow_batch_submit",
+      "description": "Submit multiple URLs to IndexNow (Bing, Yandex) for faster indexing (max 10,000 URLs). Per-site keys auto-resolved.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "urls": { "type": "array", "items": { "type": "string" }, "description": "URLs to submit" },
+          "key": { "type": "string", "description": "IndexNow API key" },
+          "key_location": { "type": "string", "description": "URL where key verification file is hosted" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["urls"]
+      }
+    },
+    {
+      "name": "indexnow_submit_sitemap",
+      "description": "Fetch a sitemap.xml and submit all URLs to IndexNow/Bing (max 10,000 URLs). Use dry_run=true to preview.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sitemap_url": { "type": "string", "description": "Sitemap URL to extract and submit URLs from" },
+          "key": { "type": "string", "description": "IndexNow API key" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["sitemap_url"]
+      }
+    },
+    {
+      "name": "indexnow_submit_file",
+      "description": "Read URLs from a local file (txt/csv) and submit to IndexNow/Bing (max 10,000 URLs). Use dry_run=true to preview.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "file_path": { "type": "string", "description": "Path to file containing URLs (one per line)" },
+          "key": { "type": "string", "description": "IndexNow API key" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["file_path"]
+      }
+    },
+    {
+      "name": "google_indexing_submit_url",
+      "description": "Submit a URL to Google for immediate indexing. The URL must belong to a verified Search Console property.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "url": { "type": "string", "description": "URL to submit for indexing" },
+          "type": { "type": "string", "description": "Notification type: URL_UPDATED or URL_DELETED (default: URL_UPDATED)" }
+        },
+        "required": ["url"]
+      }
+    },
+    {
+      "name": "google_indexing_batch_submit",
+      "description": "Submit multiple URLs to Google for indexing (max 100 URLs per batch). Use dry_run=true to preview.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "urls": { "type": "array", "items": { "type": "string" }, "description": "URLs to submit" },
+          "type": { "type": "string", "description": "Notification type: URL_UPDATED or URL_DELETED" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["urls"]
+      }
+    },
+    {
+      "name": "google_indexing_submit_sitemap",
+      "description": "Fetch a sitemap.xml and submit all URLs to Google for indexing (max 100 URLs).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "sitemap_url": { "type": "string", "description": "Sitemap URL to extract URLs from" },
+          "type": { "type": "string", "description": "Notification type: URL_UPDATED or URL_DELETED" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["sitemap_url"]
+      }
+    },
+    {
+      "name": "google_indexing_submit_file",
+      "description": "Read URLs from a local file (txt/csv) and submit to Google for indexing (max 100 URLs).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "file_path": { "type": "string", "description": "Path to file containing URLs (one per line)" },
+          "type": { "type": "string", "description": "Notification type: URL_UPDATED or URL_DELETED" },
+          "dry_run": { "type": "boolean", "description": "Preview without submitting" }
+        },
+        "required": ["file_path"]
+      }
+    },
+    {
+      "name": "quota_status",
+      "description": "Check API quota status: Google Indexing (200/day per property) and GSC rate limit (1,200/minute).",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "healthcheck",
+      "description": "Check server health, version, uptime, and configuration status.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "generate_report",
+      "description": "Generate a comprehensive SEO report for a site. Runs site audit, GSC performance, GA4 analytics, schema check, and search appearances. Returns a formatted markdown report with health score, tables, and prioritized recommendations.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "site_url": { "type": "string", "description": "Domain to generate report for" }
+        },
+        "required": ["site_url"]
+      }
+    },
+    {
+      "name": "version",
+      "description": "Get seo-mcp server version, build info, and uptime.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    }
+  ]
+}

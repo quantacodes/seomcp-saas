@@ -84,9 +84,10 @@
         <p class="text-xs text-slate-500 uppercase tracking-wider mb-3 font-medium">Documentation</p>
         <a href="#quickstart" class="toc-link">Quick Start</a>
         <a href="#authentication" class="toc-link">Authentication</a>
-        <a href="#mcp-connection" class="toc-link">MCP Connection</a>
+        <a href="#connection-methods" class="toc-link">Connection Methods</a>
+        <a href="#proxy-setup" class="toc-link">Proxy Setup (GSC/GA4)</a>
+        <a href="#service-account" class="toc-link">Google Service Account</a>
         <a href="#tools" class="toc-link">Available Tools</a>
-        <a href="#google-oauth" class="toc-link">Google OAuth</a>
         <a href="#rate-limits" class="toc-link">Rate Limits</a>
         <a href="#errors" class="toc-link">Error Handling</a>
         <a href="#billing" class="toc-link">Billing</a>
@@ -99,24 +100,30 @@
       <!-- Quick Start -->
       <section id="quickstart" class="doc-section">
         <h2 class="doc-heading">🚀 Quick Start</h2>
-        <p class="text-slate-400 mb-6">Get SEO tools running in your AI agent in under 2 minutes.</p>
+        <p class="text-slate-400 mb-6">Two ways to connect — pick what fits your needs.</p>
 
-        <div class="space-y-6">
-          <div class="flex gap-4">
-            <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">1</div>
-            <div>
-              <h3 class="font-semibold text-white mb-1">Sign up & get your API key</h3>
-              <p class="text-sm text-slate-400">Create a free account at <a href="/" class="text-brand-400 hover:underline">seomcp.dev</a>. You'll get an API key starting with <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">sk_live_</code></p>
-            </div>
+        <div class="bg-surface-800 border border-surface-600 rounded-lg p-4 mb-6">
+          <table class="w-full text-sm">
+            <thead><tr class="border-b border-white/10 text-slate-400 text-xs uppercase"><th class="pb-2 text-left">Method</th><th class="pb-2 text-left">Tools</th><th class="pb-2 text-left">Best For</th></tr></thead>
+            <tbody class="text-slate-300">
+              <tr class="border-b border-white/5"><td class="py-2 font-semibold text-brand-400">Direct (Streamable HTTP)</td><td>15 tools (crawl, audit, schema, CWV, IndexNow)</td><td>Quick setup, no Google data needed</td></tr>
+              <tr><td class="py-2 font-semibold text-brand-400">Proxy (seomcp-proxy)</td><td>All 37 tools (+ GSC, GA4)</td><td>Full power — your Google creds stay local</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="doc-subheading">Option A: Direct Connection (30 seconds)</h3>
+        <p class="text-sm text-slate-400 mb-3">Works for site audits, crawling, schema validation, Core Web Vitals, and IndexNow. No Google account needed.</p>
+        <div class="space-y-4 mb-8">
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+            <div><p class="text-sm text-slate-300">Sign up at <a href="https://seomcp.dev" class="text-brand-400 hover:underline">seomcp.dev</a> → get your <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">sk_live_</code> key</p></div>
           </div>
-
-          <div class="flex gap-4">
-            <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">2</div>
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
             <div>
-              <h3 class="font-semibold text-white mb-1">Add to your MCP config</h3>
-              <div class="code-block mt-2">
-                <div class="code-label">mcp_config.json</div>
-                <pre class="font-mono text-slate-300">{
+              <p class="text-sm text-slate-300 mb-2">Add to your MCP config:</p>
+              <div class="code-block"><div class="code-label">Claude Desktop / Cursor / Windsurf</div><pre class="font-mono text-slate-300">{
   "mcpServers": {
     "seo": {
       "url": "https://api.seomcp.dev/mcp",
@@ -125,17 +132,49 @@
       }
     }
   }
-}</pre>
-              </div>
+}</pre></div>
             </div>
           </div>
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
+            <div><p class="text-sm text-slate-300">Ask your agent: <em>"Run a site audit on example.com"</em></p></div>
+          </div>
+        </div>
 
-          <div class="flex gap-4">
-            <div class="w-8 h-8 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm font-bold shrink-0">3</div>
+        <h3 class="doc-subheading">Option B: Proxy (All 37 Tools + Google Data)</h3>
+        <p class="text-sm text-slate-400 mb-3">Unlocks GSC and GA4 tools. Your Google credentials <strong class="text-slate-300">never leave your machine</strong> — the proxy reads them locally and forwards requests securely.</p>
+        <div class="space-y-4">
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
+            <div><p class="text-sm text-slate-300">Sign up + get API key (same as above)</p></div>
+          </div>
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
+            <div><p class="text-sm text-slate-300"><a href="#service-account" class="text-brand-400 hover:underline">Create a Google service account</a> with GSC + GA4 access</p></div>
+          </div>
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
             <div>
-              <h3 class="font-semibold text-white mb-1">Start using SEO tools</h3>
-              <p class="text-sm text-slate-400">Your AI agent now has 35 SEO tools. Try: <em>"Run a site audit on example.com"</em> or <em>"Check my Google Search Console performance"</em></p>
+              <p class="text-sm text-slate-300 mb-2">Add to your MCP config:</p>
+              <div class="code-block"><div class="code-label">Claude Desktop / Cursor / Windsurf</div><pre class="font-mono text-slate-300">{
+  "mcpServers": {
+    "seo": {
+      "command": "npx",
+      "args": ["-y", "github:quantacodes/seomcp-proxy"],
+      "env": {
+        "SEOMCP_API_KEY": "sk_live_REDACTED_key_here",
+        "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
+        "GSC_PROPERTY": "sc-domain:example.com",
+        "GA4_PROPERTY": "properties/123456"
+      }
+    }
+  }
+}</pre></div>
             </div>
+          </div>
+          <div class="flex gap-3">
+            <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">4</div>
+            <div><p class="text-sm text-slate-300">Verify: <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">SEOMCP_API_KEY=sk_live_... GOOGLE_SERVICE_ACCOUNT=./sa.json npx -y github:quantacodes/seomcp-proxy test</code></p></div>
           </div>
         </div>
       </section>
@@ -162,9 +201,9 @@
         </ul>
       </section>
 
-      <!-- MCP Connection -->
-      <section id="mcp-connection" class="doc-section">
-        <h2 class="doc-heading">🔌 MCP Connection</h2>
+      <!-- Connection Methods -->
+      <section id="connection-methods" class="doc-section">
+        <h2 class="doc-heading">🔌 Connection Methods</h2>
         <p class="text-slate-400 mb-4">seomcp.dev speaks the <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Model Context Protocol</a> (MCP) — the standard for AI tool connections.</p>
 
         <h3 class="doc-subheading">Endpoint</h3>
@@ -281,25 +320,57 @@
         <p class="text-sm text-slate-500 mt-4">💡 GSC and GA4 tools require <a href="#google-oauth" class="text-brand-400 hover:underline">Google OAuth connection</a>.</p>
       </section>
 
-      <!-- Google OAuth -->
-      <section id="google-oauth" class="doc-section">
-        <h2 class="doc-heading">🔗 Google OAuth</h2>
-        <p class="text-slate-400 mb-4">To use Google Search Console and Analytics tools, connect your Google account from the <a href="/dashboard" class="text-brand-400 hover:underline">dashboard</a>.</p>
+      <!-- Google Service Account -->
+      <section id="service-account" class="doc-section">
+        <h2 class="doc-heading">🔑 Google Service Account Setup</h2>
+        <p class="text-slate-400 mb-4">Required for GSC and GA4 tools. Takes about 5 minutes. Your credentials <strong class="text-slate-300">stay on your machine</strong> — they're never stored on our servers.</p>
 
-        <h3 class="doc-subheading">How it works</h3>
-        <ol class="text-sm text-slate-400 space-y-2 list-decimal list-inside">
-          <li>Click "Connect Google" in your dashboard</li>
-          <li>Authorize access to Search Console and Analytics data</li>
-          <li>Your tokens are encrypted (AES-256-GCM) and stored securely</li>
-          <li>GSC and GA4 tools now work with your real data</li>
+        <h3 class="doc-subheading">Step 1: Create a Google Cloud project</h3>
+        <ol class="text-sm text-slate-400 space-y-1 list-decimal list-inside mb-4">
+          <li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Cloud Console</a></li>
+          <li>Create a new project (or select an existing one)</li>
         </ol>
 
-        <h3 class="doc-subheading">Scopes requested</h3>
-        <div class="code-block"><pre class="font-mono text-slate-300">webmasters.readonly  — Read Google Search Console data
-analytics.readonly   — Read Google Analytics data</pre></div>
+        <h3 class="doc-subheading">Step 2: Enable APIs</h3>
+        <p class="text-sm text-slate-400 mb-2">Enable these APIs in your project:</p>
+        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside mb-4">
+          <li><a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Search Console API</a></li>
+          <li><a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Analytics Data API</a></li>
+          <li><a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">PageSpeed Insights API</a> (optional, for Core Web Vitals)</li>
+        </ul>
 
-        <h3 class="doc-subheading">Disconnect</h3>
-        <p class="text-sm text-slate-400">You can disconnect your Google account at any time from the dashboard. This revokes access and deletes stored tokens.</p>
+        <h3 class="doc-subheading">Step 3: Create service account</h3>
+        <ol class="text-sm text-slate-400 space-y-1 list-decimal list-inside mb-4">
+          <li>Go to <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener" class="text-brand-400 hover:underline">IAM → Service Accounts</a></li>
+          <li>Click <strong class="text-slate-300">"Create Service Account"</strong></li>
+          <li>Name it (e.g., <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">seo-mcp</code>)</li>
+          <li>Skip the optional role/permission steps</li>
+          <li>Click <strong class="text-slate-300">"Keys" → "Add Key" → "Create new key" → JSON</strong></li>
+          <li>Save the downloaded JSON file (e.g., <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">~/service-account.json</code>)</li>
+        </ol>
+
+        <h3 class="doc-subheading">Step 4: Grant access</h3>
+        <p class="text-sm text-slate-400 mb-2">Share your properties with the service account email (looks like <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">seo-mcp@your-project.iam.gserviceaccount.com</code>):</p>
+        <ul class="text-sm text-slate-400 space-y-2 list-disc list-inside mb-4">
+          <li><strong class="text-slate-300">Google Search Console:</strong> Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Search Console</a> → Settings → Users and permissions → Add user (Full or Restricted)</li>
+          <li><strong class="text-slate-300">Google Analytics:</strong> Go to GA4 → Admin → Property → Property Access Management → Add user (Viewer role)</li>
+        </ul>
+
+        <h3 class="doc-subheading">Step 5: Find your property IDs</h3>
+        <div class="code-block mb-4"><pre class="font-mono text-slate-300"># GSC property (one of these formats):
+GSC_PROPERTY="sc-domain:example.com"          # Domain property
+GSC_PROPERTY="https://www.example.com/"       # URL-prefix property
+
+# GA4 property ID (find in GA4 → Admin → Property Details):
+GA4_PROPERTY="properties/123456789"</pre></div>
+
+        <h3 class="doc-subheading">Security</h3>
+        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside">
+          <li>The JSON file <strong class="text-slate-300">never leaves your machine</strong> — the proxy reads it locally</li>
+          <li>Credentials are sent to our API over HTTPS, used for 1-15 seconds, then the process dies</li>
+          <li>Nothing is logged, stored, or persisted on our servers</li>
+          <li>Credentials are re-read from disk on every request — rotate keys without restarting</li>
+        </ul>
       </section>
 
       <!-- Rate Limits -->

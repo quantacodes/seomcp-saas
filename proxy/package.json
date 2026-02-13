@@ -1,13 +1,14 @@
 {
-  "name": "@seomcp/proxy",
+  "name": "seomcp-proxy",
   "version": "0.1.0",
   "description": "Local MCP proxy for seo-mcp — forwards tool calls to api.seomcp.dev with Google credentials",
   "author": "quantacodes",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/quantacodes/seomcp-proxy"
+    "url": "git+https://github.com/quantacodes/seomcp-proxy.git"
   },
+  "homepage": "https://seomcp.dev",
   "keywords": [
     "seo",
     "mcp",

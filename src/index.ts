@@ -16,6 +16,7 @@ import { billingRoutes } from "./routes/billing";
 import { docsRoutes } from "./routes/docs";
 import { adminRoutes } from "./routes/admin";
 import { openapiRoutes } from "./routes/openapi";
+import { toolsRoutes } from "./routes/tools";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -65,6 +66,7 @@ app.route("/", billingRoutes);
 app.route("/", docsRoutes);
 app.route("/", adminRoutes);
 app.route("/", openapiRoutes);
+app.route("/", toolsRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

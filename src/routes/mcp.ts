@@ -4,6 +4,7 @@ import { authMiddleware } from "../auth/middleware";
 import { handleInitialize, handleRequest, handleBatch } from "../mcp/transport";
 import { sessionManager } from "../mcp/session";
 import { getRateLimitStatus } from "../ratelimit/middleware";
+import { VERSION } from "../config";
 import type { JsonRpcRequest, JsonRpcResponse } from "../types";
 
 export const mcpRoutes = new Hono();
@@ -183,7 +184,7 @@ mcpRoutes.get("/.well-known/mcp", (c) => {
   return c.json({
     name: "SEO MCP",
     description: "35 production SEO tools for AI agents — crawl, audit, GSC, GA4, IndexNow, schema validation",
-    version: "0.1.0",
+    version: VERSION,
     transport: {
       type: "streamable-http",
       url: "https://seomcp.dev/mcp",

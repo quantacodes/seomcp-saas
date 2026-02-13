@@ -5,6 +5,7 @@
  */
 
 import { Hono } from "hono";
+import { timingSafeEqual } from "crypto";
 import { sqlite } from "../db/index";
 import { config } from "../config";
 import { binaryPool } from "../mcp/binary";
@@ -23,7 +24,14 @@ adminRoutes.use("/api/admin/*", async (c, next) => {
   }
 
   const provided = c.req.header("X-Admin-Secret");
-  if (!provided || provided !== adminSecret) {
+  if (!provided) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  // Timing-safe comparison to prevent secret extraction via timing attacks
+  const providedBuf = Buffer.from(provided, "utf-8");
+  const secretBuf = Buffer.from(adminSecret, "utf-8");
+  if (providedBuf.length !== secretBuf.length || !timingSafeEqual(providedBuf, secretBuf)) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
@@ -151,8 +159,8 @@ adminRoutes.get("/api/admin/stats", (c) => {
  * List users with usage summary.
  */
 adminRoutes.get("/api/admin/users", (c) => {
-  const limit = Math.min(parseInt(c.req.query("limit") || "50"), 200);
-  const offset = parseInt(c.req.query("offset") || "0");
+  const limit = Math.min(Math.max(1, parseInt(c.req.query("limit") || "50") || 50), 200);
+  const offset = Math.max(0, parseInt(c.req.query("offset") || "0") || 0);
   const plan = c.req.query("plan");
 
   let query = `
@@ -177,11 +185,13 @@ adminRoutes.get("/api/admin/users", (c) => {
 
   const users = sqlite.query(query).all(...params);
 
-  const total = sqlite.query<{ count: number }, []>(
-    plan
-      ? `SELECT COUNT(*) as count FROM users WHERE plan = '${plan}'`
-      : `SELECT COUNT(*) as count FROM users`
-  ).get()!;
+  const total = plan
+    ? sqlite.query<{ count: number }, [string]>(
+        `SELECT COUNT(*) as count FROM users WHERE plan = ?`
+      ).get(plan)!
+    : sqlite.query<{ count: number }, []>(
+        `SELECT COUNT(*) as count FROM users`
+      ).get()!;
 
   return c.json({
     users,
@@ -196,7 +206,9 @@ adminRoutes.get("/api/admin/users", (c) => {
 adminRoutes.get("/api/admin/users/:id", (c) => {
   const userId = c.req.param("id");
 
-  const user = sqlite.query(`SELECT * FROM users WHERE id = ?`).get(userId);
+  const user = sqlite.query(
+    `SELECT id, email, plan, created_at, updated_at FROM users WHERE id = ?`
+  ).get(userId);
   if (!user) {
     return c.json({ error: "User not found" }, 404);
   }
@@ -267,7 +279,7 @@ adminRoutes.post("/api/admin/users/:id/plan", async (c) => {
 adminRoutes.get("/api/admin/usage/hourly", (c) => {
   const dayStart = Math.floor(Date.now() / 1000) - 86400;
 
-  const hourly = sqlite.query<{ hour: number; count: number }, [number]>(`
+  const hourly = sqlite.query<{ hour: number; count: number }, [number, number]>(`
     SELECT 
       CAST((created_at - ?) / 3600 AS INTEGER) as hour,
       COUNT(*) as count
@@ -285,13 +297,13 @@ adminRoutes.get("/api/admin/usage/hourly", (c) => {
  * Recent errors for debugging.
  */
 adminRoutes.get("/api/admin/errors", (c) => {
-  const limit = Math.min(parseInt(c.req.query("limit") || "50"), 200);
+  const limit = Math.min(Math.max(1, parseInt(c.req.query("limit") || "50") || 50), 200);
 
   const errors = sqlite.query(`
     SELECT ul.*, u.email, ak.key_prefix
     FROM usage_logs ul
-    JOIN users u ON ul.user_id = u.id
-    JOIN api_keys ak ON ul.api_key_id = ak.id
+    LEFT JOIN users u ON ul.user_id = u.id
+    LEFT JOIN api_keys ak ON ul.api_key_id = ak.id
     WHERE ul.status IN ('error', 'rate_limited')
     ORDER BY ul.created_at DESC
     LIMIT ?

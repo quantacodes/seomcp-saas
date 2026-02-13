@@ -343,3 +343,83 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - [ ] Smoke test in production
 - [ ] X announcement thread (draft ready: LAUNCH.md)
 - [ ] Product Hunt prep (copy ready: LAUNCH.md)
+
+---
+
+## Session 6 — 2026-02-13 07:11 IST
+
+### Interactive Playground + SEO Polish + Security Hardening
+
+**Build:** ✅ Complete
+- **Interactive Playground** at `/playground` — try 3 tools (crawl_page, validate_schema, core_web_vitals) without signup
+  - Per-IP rate limiting (5 calls/hour), validation before rate-limit (don't burn quota on bad requests)
+  - Comprehensive SSRF protection: IPv4 private (10.x, 192.168.x, 172.16-31.x), IPv6 (::1, ::), link-local (169.254.x), cloud metadata (.internal suffix)
+  - Shared demo binary instance with auto-cleanup on crash
+  - Beautiful dark UI matching the rest of the site
+- **JSON-LD structured data** on landing page (@graph with SoftwareApplication + Organization + FAQPage)
+- **Canonical URL** added to landing page
+- **Binary auto-retry** — `sendWithRetry()` retries once if binary crashes mid-request
+- **robots.txt** — blocks /dashboard and /api/, includes sitemap reference
+- **sitemap.xml** — 4 marketing pages with startup-time lastmod
+- **Graceful shutdown** — demo binary and cleanup timer properly stopped
+- Fixed "All 29 Tools" → "All 35 Tools" in landing footer
+- Fixed duplicate "Tools" nav links — replaced with Playground link
+- Hero CTA: "Try It Live" button linking to /playground
+- Cross-links: playground added to tools page footer
+
+**Test:** ✅ 19 new tests, 45 assertions
+- Page rendering (HTML structure, SEO meta, CTA)
+- API validation (missing tool, non-demo tool, missing args)
+- SSRF protection (localhost, 127.0.0.1, IPv6 ::1, 192.168.x, 10.x, 172.17-31.x, 169.254.x, cloud metadata)
+- Input validation (invalid URL, non-http protocol, invalid JSON)
+
+**Review:** ✅ Barnacle — REQUEST_CHANGES (1 MUST, 3 SHOULD, 3 nice-to-have) → ALL FIXED
+- 🔴 #1 `demoBinaryReady` undefined variable in crash handler: **FIXED** → `demoBinary = null`
+- 🟠 #2 SSRF bypass via IPv6/link-local/172.17-31: **FIXED** → comprehensive `isPrivateHost()`
+- 🟠 #3 In-memory rate limiting: Acceptable for MVP, documented as known limitation
+- 🟠 #4 `setInterval` never cleared: **FIXED** → exported `stopDemoCleanup()`, wired to shutdown
+- 🟡 #5 Dynamic sitemap lastmod: **FIXED** → uses build date (set once at startup)
+- 🟡 #6 "All 29 Tools" → "All 35 Tools": **FIXED**
+- 🟡 #7 Test cleanup: Deferred (Bun test limitation with parallel runs)
+
+**Commits:**
+- 8b6bda6 — "Session 6: Playground, structured data, binary auto-retry, SEO polish"
+- 6740eeb — "Fix Barnacle review: SSRF IPv6/link-local, crash handler, cleanup, footer"
+
+### Session 6 Stats
+- **Total tests:** 150 (all passing)
+- **Total assertions:** 387
+- **Test files:** 9
+- **Source files:** ~36
+- **Total commits:** 22
+
+### What Works (End of Session 6)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet + JSON-LD structured data
+- ✅ **Interactive Playground** — try tools without signup, SSRF-hardened
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Full documentation page (8 sections)
+- ✅ Admin API (stats, users, plan management, usage analytics, error listing)
+- ✅ Tool catalog page (/tools) with 35 tools, categories, params, examples
+- ✅ OpenAPI 3.1 spec at /openapi.json
+- ✅ MCP discovery at /.well-known/mcp
+- ✅ Setup script at /setup (curl | bash installer)
+- ✅ robots.txt + sitemap.xml
+- ✅ Binary auto-retry on crash
+- ✅ Graceful shutdown (cleanup timers, demo binary, all pool instances)
+- ✅ Dockerfile + docker-compose + Fly.io deploy config
+- ✅ Security headers + CSRF + rate limit headers + request IDs
+- ✅ 150 tests, 387 assertions, ALL PASSING
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
+- [ ] Deploy to Fly.io
+- [ ] DNS + SSL
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Production smoke test
+- [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)

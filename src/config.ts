@@ -38,7 +38,7 @@ export const config = {
 
   // Plan limits (calls per month)
   plans: {
-    free: { callsPerMonth: 50, maxSites: 1, maxKeys: 1, maxSchedules: 0 },
+    free: { callsPerMonth: 100, maxSites: 1, maxKeys: 1, maxSchedules: 0 },
     pro: { callsPerMonth: 2_000, maxSites: 5, maxKeys: 5, maxSchedules: 3 },
     agency: { callsPerMonth: 10_000, maxSites: Infinity, maxKeys: 20, maxSchedules: 20 },
     enterprise: { callsPerMonth: Infinity, maxSites: Infinity, maxKeys: Infinity, maxSchedules: Infinity },

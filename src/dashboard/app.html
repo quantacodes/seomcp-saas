@@ -101,17 +101,69 @@
       </button>
     </div>
 
-    <!-- Quick Start Banner (hidden until loaded) -->
-    <div id="quickstart" class="hidden bg-gradient-to-r from-brand-700/20 to-brand-500/10 border border-brand-500/20 rounded-2xl p-6 sm:p-8 relative">
-      <button onclick="dismissQuickstart()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-lg">×</button>
-      <h2 class="text-lg font-bold mb-1">🚀 Quick Start</h2>
-      <p class="text-sm text-slate-300 mb-4">Add this to your AI tool's MCP config to get started:</p>
-      <div class="code-block rounded-xl overflow-hidden">
-        <div class="flex items-center justify-between px-4 py-2 border-b border-white/5">
-          <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
-          <button onclick="copyText(document.getElementById('qs-config').textContent)" class="text-xs text-slate-400 hover:text-white transition">Copy</button>
+    <!-- Onboarding Checklist (hidden until loaded) -->
+    <div id="onboarding" class="hidden bg-gradient-to-r from-brand-700/20 to-brand-500/10 border border-brand-500/20 rounded-2xl p-6 sm:p-8 relative">
+      <button onclick="dismissOnboarding()" class="absolute top-4 right-4 text-slate-500 hover:text-white text-lg" title="Dismiss">×</button>
+      <div class="flex items-center gap-3 mb-1">
+        <h2 class="text-lg font-bold">🚀 Getting Started</h2>
+        <span id="onb-progress" class="text-xs font-medium text-brand-300 bg-brand-500/10 px-2 py-0.5 rounded-full"></span>
+      </div>
+      <p class="text-sm text-slate-400 mb-5">Complete these steps to get SEO tools in your AI agent.</p>
+
+      <div class="space-y-3" id="onb-steps">
+        <!-- Step 1: Account -->
+        <div id="onb-step-account" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
+          <span class="onb-icon text-lg mt-0.5">✅</span>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-slate-200">Create account</div>
+            <div class="text-xs text-slate-500">You're in! Account created.</div>
+          </div>
         </div>
-        <pre class="p-4 text-xs font-mono overflow-x-auto"><code id="qs-config" class="text-slate-300"></code></pre>
+
+        <!-- Step 2: Verify Email -->
+        <div id="onb-step-verify" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
+          <span class="onb-icon text-lg mt-0.5">⏳</span>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-slate-200">Verify your email</div>
+            <div class="text-xs text-slate-500">Check inbox for the verification link. <button onclick="resendVerification()" class="text-brand-400 hover:underline">Resend</button></div>
+          </div>
+        </div>
+
+        <!-- Step 3: Copy API Key -->
+        <div id="onb-step-key" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
+          <span class="onb-icon text-lg mt-0.5">⏳</span>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-slate-200">Add MCP config to your AI tool</div>
+            <div class="text-xs text-slate-500 mb-2">Copy this into your AI tool's settings:</div>
+            <div class="code-block rounded-lg overflow-hidden">
+              <div class="flex items-center justify-between px-3 py-1.5 border-b border-white/5">
+                <span class="text-xs text-slate-500 font-mono">mcp_config.json</span>
+                <button onclick="copyText(document.getElementById('onb-config').textContent)" class="text-xs text-brand-400 hover:text-brand-300 transition">Copy</button>
+              </div>
+              <pre class="p-3 text-xs font-mono overflow-x-auto"><code id="onb-config" class="text-slate-300"></code></pre>
+            </div>
+            <div class="text-xs text-slate-600 mt-1.5">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="/docs" class="text-brand-400 hover:underline">Full setup guide →</a></div>
+          </div>
+        </div>
+
+        <!-- Step 4: Connect Google -->
+        <div id="onb-step-google" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
+          <span class="onb-icon text-lg mt-0.5">⏳</span>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-slate-200">Connect Google Search Console & Analytics</div>
+            <div class="text-xs text-slate-500">Optional but unlocks GSC + GA4 tools (17 of 35 tools).</div>
+            <button id="onb-google-btn" onclick="scrollTo('#google-section')" class="mt-2 px-3 py-1.5 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-slate-300 transition">Connect Google ↓</button>
+          </div>
+        </div>
+
+        <!-- Step 5: First Tool Call -->
+        <div id="onb-step-usage" class="flex items-start gap-3 p-3 rounded-xl bg-surface-800/50 border border-white/5">
+          <span class="onb-icon text-lg mt-0.5">⏳</span>
+          <div class="flex-1">
+            <div class="text-sm font-medium text-slate-200">Make your first tool call</div>
+            <div class="text-xs text-slate-500">Ask your AI: "Run an SEO audit on example.com" or <a href="/playground" class="text-brand-400 hover:underline">try the playground</a>.</div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -564,21 +616,8 @@
         document.getElementById('verify-banner').classList.remove('hidden');
       }
 
-      // Quick Start (show if no usage and not dismissed)
-      if (d.usage.used === 0 && !localStorage.getItem('qs-dismissed')) {
-        const firstKey = d.keys.find(k => k.isActive);
-        if (firstKey) {
-          document.getElementById('qs-config').textContent = JSON.stringify({
-            mcpServers: {
-              seo: {
-                url: 'https://seomcp.dev/mcp',
-                headers: { Authorization: `Bearer ${firstKey.prefix}...` }
-              }
-            }
-          }, null, 2);
-          document.getElementById('quickstart').classList.remove('hidden');
-        }
-      }
+      // Onboarding Checklist
+      renderOnboarding(d);
 
       // Usage
       renderUsage(d.usage);
@@ -1488,10 +1527,75 @@
       window.location.href = '/dashboard/login';
     }
 
-    // ── Quick Start ──
-    function dismissQuickstart() {
-      localStorage.setItem('qs-dismissed', '1');
-      document.getElementById('quickstart').classList.add('hidden');
+    // ── Onboarding ──
+    function renderOnboarding(d) {
+      // Don't show if dismissed
+      if (localStorage.getItem('onboarding-dismissed')) return;
+
+      // Determine completion of each step
+      const steps = {
+        account: true, // Always done if they're here
+        verify: d.user.emailVerified === true,
+        key: true, // They have at least one key from signup
+        google: d.google.connected === true,
+        usage: d.usage.used > 0,
+      };
+
+      const completed = Object.values(steps).filter(Boolean).length;
+      const total = Object.keys(steps).length;
+
+      // If all complete, don't show (auto-dismiss)
+      if (completed === total) {
+        localStorage.setItem('onboarding-dismissed', '1');
+        return;
+      }
+
+      // Update progress badge
+      document.getElementById('onb-progress').textContent = `${completed}/${total} complete`;
+
+      // Update each step's icon
+      for (const [step, done] of Object.entries(steps)) {
+        const el = document.getElementById(`onb-step-${step}`);
+        if (!el) continue;
+        const icon = el.querySelector('.onb-icon');
+        if (done) {
+          icon.textContent = '✅';
+          el.classList.add('opacity-60');
+        } else {
+          icon.textContent = '⬜';
+        }
+      }
+
+      // Fill in MCP config with user's actual key prefix
+      const firstKey = d.keys.find(k => k.isActive);
+      if (firstKey) {
+        document.getElementById('onb-config').textContent = JSON.stringify({
+          mcpServers: {
+            seo: {
+              url: 'https://seomcp.dev/mcp',
+              headers: { Authorization: `Bearer ${firstKey.prefix}...` }
+            }
+          }
+        }, null, 2);
+      }
+
+      // Update Google button if already connected
+      if (steps.google) {
+        const btn = document.getElementById('onb-google-btn');
+        if (btn) btn.style.display = 'none';
+      }
+
+      document.getElementById('onboarding').classList.remove('hidden');
+    }
+
+    function dismissOnboarding() {
+      localStorage.setItem('onboarding-dismissed', '1');
+      document.getElementById('onboarding').classList.add('hidden');
+    }
+
+    function scrollTo(selector) {
+      const el = document.querySelector(selector);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     async function resendVerification() {

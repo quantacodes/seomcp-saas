@@ -46,8 +46,8 @@
       overflow-x: auto; font-size: 0.8125rem;
     }
     .code-block pre { padding: 1rem; margin: 0; }
-    .code-label { padding: 0.5rem 1rem; border-bottom: 1px solid #2A2A36; font-size: 0.75rem; color: #5C5C6E; }
-    .toc-link { display: block; padding: 0.25rem 0; color: #8E8EA0; font-size: 0.875rem; }
+    .code-label { padding: 0.5rem 1rem; border-bottom: 1px solid #2A2A36; font-size: 0.75rem; color: #9CA3AF; font-weight: 500; }
+    .toc-link { display: block; padding: 0.25rem 0; color: #9CA3AF; font-size: 0.875rem; }
     .toc-link:hover { color: #E5A430; }
     .toc-link.active { color: #E5A430; border-left: 2px solid #E5A430; padding-left: 0.75rem; }
     .doc-section { scroll-margin-top: 5rem; }
@@ -57,6 +57,10 @@
     .method-post { background: rgba(74,222,128,0.12); color: #4ADE80; }
     .method-get { background: rgba(96,165,250,0.12); color: #60A5FA; }
     .tool-card { background: #16161D; border: 1px solid #2A2A36; border-radius: 0.5rem; padding: 0.75rem 1rem; }
+    
+    /* Mobile contrast fixes */
+    .text-readable { color: #CBD5E1; } /* Higher contrast body text */
+    .text-secondary { color: #9CA3AF; } /* Secondary text that's still readable */
 
     /* Mobile responsive */
     @media (max-width: 768px) {
@@ -115,9 +119,9 @@
         <span>seomcp</span><span class="gradient-text">.dev</span>
       </a>
       <div class="flex items-center gap-4 text-sm">
-        <span class="text-surface-600">Docs</span>
-        <a href="/tools" class="text-surface-600 hover:text-white transition">Tools</a>
-        <a href="/dashboard" class="text-surface-600 hover:text-white transition">Dashboard</a>
+        <span class="text-brand-400 font-medium">Docs</span>
+        <a href="/tools" class="text-gray-400 hover:text-white transition">Tools</a>
+        <a href="/dashboard" class="text-gray-400 hover:text-white transition">Dashboard</a>
         <a href="https://seomcp.dev" class="px-3 py-1.5 bg-brand-500 text-surface-900 rounded-lg font-semibold transition text-xs hover:brightness-110">Get API Key</a>
       </div>
     </div>
@@ -128,7 +132,7 @@
     <!-- Sidebar TOC -->
     <aside class="hidden lg:block w-56 shrink-0">
       <nav class="sticky top-20 space-y-0.5">
-        <p class="text-xs text-slate-500 uppercase tracking-wider mb-3 font-medium">Documentation</p>
+        <p class="text-xs text-slate-400 uppercase tracking-wider mb-3 font-medium">Documentation</p>
         <a href="#quickstart" class="toc-link">Quick Start</a>
         <a href="#authentication" class="toc-link">Authentication</a>
         <a href="#connection-methods" class="toc-link">Connection Methods</a>
@@ -147,12 +151,12 @@
       <!-- Quick Start -->
       <section id="quickstart" class="doc-section">
         <h2 class="doc-heading">🚀 Quick Start</h2>
-        <p class="text-slate-400 mb-6">Two ways to connect — pick what fits your needs.</p>
+        <p class="text-slate-300 mb-6">Two ways to connect — pick what fits your needs.</p>
 
         <div class="bg-surface-800 border border-surface-600 rounded-lg p-4 mb-6">
           <table class="w-full text-sm">
-            <thead><tr class="border-b border-white/10 text-slate-400 text-xs uppercase"><th class="pb-2 text-left">Method</th><th class="pb-2 text-left">Tools</th><th class="pb-2 text-left">Best For</th></tr></thead>
-            <tbody class="text-slate-300">
+            <thead><tr class="border-b border-white/10 text-slate-300 text-xs uppercase font-medium"><th class="pb-2 text-left">Method</th><th class="pb-2 text-left">Tools</th><th class="pb-2 text-left">Best For</th></tr></thead>
+            <tbody class="text-slate-200">
               <tr class="border-b border-white/5"><td class="py-2 font-semibold text-brand-400">Direct (Streamable HTTP)</td><td>15 tools (crawl, audit, schema, CWV, IndexNow)</td><td>Quick setup, no Google data needed</td></tr>
               <tr><td class="py-2 font-semibold text-brand-400">Proxy (seomcp-proxy)</td><td>All 37 tools (+ GSC, GA4)</td><td>Full power — your Google creds stay local</td></tr>
             </tbody>
@@ -160,16 +164,16 @@
         </div>
 
         <h3 class="doc-subheading">Option A: Direct Connection (30 seconds)</h3>
-        <p class="text-sm text-slate-400 mb-3">Works for site audits, crawling, schema validation, Core Web Vitals, and IndexNow. No Google account needed.</p>
+        <p class="text-sm text-slate-200 mb-3">Works for site audits, crawling, schema validation, Core Web Vitals, and IndexNow. No Google account needed.</p>
         <div class="space-y-4 mb-8">
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
-            <div><p class="text-sm text-slate-300">Sign up at <a href="https://seomcp.dev" class="text-brand-400 hover:underline">seomcp.dev</a> → get your <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">sk_live_</code> key</p></div>
+            <div><p class="text-sm text-slate-200">Sign up at <a href="https://seomcp.dev" class="text-brand-400 hover:underline">seomcp.dev</a> → get your <code class="text-xs bg-surface-600 border border-surface-600/50 px-1.5 py-0.5 rounded font-mono text-slate-200">sk_live_</code> key</p></div>
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
             <div>
-              <p class="text-sm text-slate-300 mb-2">Add to your MCP config:</p>
+              <p class="text-sm text-slate-200 mb-2">Add to your MCP config:</p>
               <div class="code-block"><div class="code-label">Claude Desktop / Cursor / Windsurf</div><pre class="font-mono text-slate-300">{
   "mcpServers": {
     "seo": {
@@ -184,25 +188,25 @@
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
-            <div><p class="text-sm text-slate-300">Ask your agent: <em>"Run a site audit on example.com"</em></p></div>
+            <div><p class="text-sm text-slate-200">Ask your agent: <em>"Run a site audit on example.com"</em></p></div>
           </div>
         </div>
 
         <h3 class="doc-subheading" id="proxy-setup">Option B: Proxy (All 37 Tools + Google Data)</h3>
-        <p class="text-sm text-slate-400 mb-3">Unlocks GSC and GA4 tools. Your Google credentials <strong class="text-slate-300">never leave your machine</strong> — the proxy reads them locally and forwards requests securely.</p>
+        <p class="text-sm text-slate-300 mb-3">Unlocks GSC and GA4 tools. Your Google credentials <strong class="text-slate-300">never leave your machine</strong> — the proxy reads them locally and forwards requests securely.</p>
         <div class="space-y-4">
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">1</div>
-            <div><p class="text-sm text-slate-300">Sign up + get API key (same as above)</p></div>
+            <div><p class="text-sm text-slate-200">Sign up + get API key (same as above)</p></div>
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">2</div>
-            <div><p class="text-sm text-slate-300"><a href="#service-account" class="text-brand-400 hover:underline">Create a Google service account</a> with GSC + GA4 access</p></div>
+            <div><p class="text-sm text-slate-200"><a href="#service-account" class="text-brand-400 hover:underline">Create a Google service account</a> with GSC + GA4 access</p></div>
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">3</div>
             <div>
-              <p class="text-sm text-slate-300 mb-2">Add to your MCP config:</p>
+              <p class="text-sm text-slate-200 mb-2">Add to your MCP config:</p>
               <div class="code-block"><div class="code-label">Claude Desktop / Cursor / Windsurf</div><pre class="font-mono text-slate-300">{
   "mcpServers": {
     "seo": {
@@ -221,7 +225,7 @@
           </div>
           <div class="flex gap-3">
             <div class="w-6 h-6 rounded-full bg-brand-500/20 text-brand-400 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">4</div>
-            <div><p class="text-sm text-slate-300">Verify: <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">SEOMCP_API_KEY=sk_live_... GOOGLE_SERVICE_ACCOUNT=./sa.json npx -y github:quantacodes/seomcp-proxy test</code></p></div>
+            <div><p class="text-sm text-slate-200">Verify: <code class="text-xs bg-surface-600 border border-white/10 px-1 py-0.5 rounded font-mono text-slate-200">SEOMCP_API_KEY=sk_live_... GOOGLE_SERVICE_ACCOUNT=./sa.json npx -y github:quantacodes/seomcp-proxy test</code></p></div>
           </div>
         </div>
       </section>
@@ -229,18 +233,18 @@
       <!-- Authentication -->
       <section id="authentication" class="doc-section">
         <h2 class="doc-heading">🔑 Authentication</h2>
-        <p class="text-slate-400 mb-4">All MCP requests require an API key passed as a Bearer token.</p>
+        <p class="text-slate-300 mb-4">All MCP requests require an API key passed as a Bearer token.</p>
 
         <h3 class="doc-subheading">API Key Format</h3>
-        <p class="text-sm text-slate-400 mb-2">API keys follow this format:</p>
+        <p class="text-sm text-slate-300 mb-2">API keys follow this format:</p>
         <div class="code-block"><pre class="font-mono text-green-400">sk_live_REDACTED</pre></div>
 
         <h3 class="doc-subheading">Usage</h3>
-        <p class="text-sm text-slate-400 mb-2">Include your key in the <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">Authorization</code> header:</p>
+        <p class="text-sm text-slate-300 mb-2">Include your key in the <code class="text-xs bg-surface-600 border border-white/10 px-1.5 py-0.5 rounded font-mono text-slate-200">Authorization</code> header:</p>
         <div class="code-block"><pre class="font-mono text-slate-300">Authorization: Bearer sk_live_REDACTED_key_here</pre></div>
 
         <h3 class="doc-subheading">Key Management</h3>
-        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside">
+        <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
           <li>Create and revoke keys from your <a href="/dashboard" class="text-brand-400 hover:underline">dashboard</a></li>
           <li>Keys are shown only once at creation — store them securely</li>
           <li>Revoked keys stop working immediately</li>
@@ -251,7 +255,7 @@
       <!-- Connection Methods -->
       <section id="connection-methods" class="doc-section">
         <h2 class="doc-heading">🔌 Connection Methods</h2>
-        <p class="text-slate-400 mb-4">seomcp.dev speaks the <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Model Context Protocol</a> (MCP) — the standard for AI tool connections.</p>
+        <p class="text-slate-300 mb-4">seomcp.dev speaks the <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Model Context Protocol</a> (MCP) — the standard for AI tool connections.</p>
 
         <h3 class="doc-subheading">Endpoint</h3>
         <div class="code-block">
@@ -259,11 +263,11 @@
         </div>
 
         <h3 class="doc-subheading">Transport</h3>
-        <p class="text-sm text-slate-400 mb-2">We use <strong class="text-slate-300">Streamable HTTP</strong> transport (the MCP standard). Your first request must be an <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">initialize</code> call. The server returns a session ID in the <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">Mcp-Session-Id</code> header.</p>
+        <p class="text-sm text-slate-300 mb-2">We use <strong class="text-slate-300">Streamable HTTP</strong> transport (the MCP standard). Your first request must be an <code class="text-xs bg-surface-600 border border-white/10 px-1.5 py-0.5 rounded font-mono text-slate-200">initialize</code> call. The server returns a session ID in the <code class="text-xs bg-surface-600 border border-white/10 px-1.5 py-0.5 rounded font-mono text-slate-200">Mcp-Session-Id</code> header.</p>
 
         <h3 class="doc-subheading">Config Snippets</h3>
 
-        <p class="text-xs text-slate-500 uppercase tracking-wider mt-4 mb-2">Claude Desktop / Claude Code</p>
+        <p class="text-xs text-slate-400 uppercase tracking-wider mt-4 mb-2">Claude Desktop / Claude Code</p>
         <div class="code-block">
           <div class="code-label">claude_desktop_config.json</div>
           <pre class="font-mono text-slate-300">{
@@ -278,7 +282,7 @@
 }</pre>
         </div>
 
-        <p class="text-xs text-slate-500 uppercase tracking-wider mt-4 mb-2">Cursor / Windsurf</p>
+        <p class="text-xs text-slate-400 uppercase tracking-wider mt-4 mb-2">Cursor / Windsurf</p>
         <div class="code-block">
           <div class="code-label">.cursor/mcp.json</div>
           <pre class="font-mono text-slate-300">{
@@ -293,7 +297,7 @@
 }</pre>
         </div>
 
-        <p class="text-xs text-slate-500 uppercase tracking-wider mt-4 mb-2">Any MCP Client (cURL test)</p>
+        <p class="text-xs text-slate-400 uppercase tracking-wider mt-4 mb-2">Any MCP Client (cURL test)</p>
         <div class="code-block">
           <pre class="font-mono text-slate-300">curl -X POST https://api.seomcp.dev/mcp \
   -H "Authorization: Bearer sk_live_..." \
@@ -305,100 +309,100 @@
       <!-- Available Tools -->
       <section id="tools" class="doc-section">
         <h2 class="doc-heading">🧰 Available Tools (37)</h2>
-        <p class="text-slate-400 mb-6">All tools are accessible through the MCP protocol. Your AI agent discovers them automatically via <code class="text-xs bg-surface-700 px-1.5 py-0.5 rounded font-mono">tools/list</code>.</p>
+        <p class="text-slate-300 mb-6">All tools are accessible through the MCP protocol. Your AI agent discovers them automatically via <code class="text-xs bg-surface-600 border border-white/10 px-1.5 py-0.5 rounded font-mono text-slate-200">tools/list</code>.</p>
 
         <h3 class="doc-subheading">Crawl & Audit</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">site_audit</span> <span class="text-slate-500 text-sm">— Full site SEO audit with health score</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">crawl_page</span> <span class="text-slate-500 text-sm">— Crawl a single page for SEO analysis</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">test_robots_txt</span> <span class="text-slate-500 text-sm">— Test URL against robots.txt rules</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">generate_report</span> <span class="text-slate-500 text-sm">— One command → comprehensive SEO report</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">site_audit</span> <span class="text-slate-400 text-sm">— Full site SEO audit with health score</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">crawl_page</span> <span class="text-slate-400 text-sm">— Crawl a single page for SEO analysis</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">test_robots_txt</span> <span class="text-slate-400 text-sm">— Test URL against robots.txt rules</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">generate_report</span> <span class="text-slate-400 text-sm">— One command → comprehensive SEO report</span></div>
         </div>
 
         <h3 class="doc-subheading">Google Search Console (8 tools)</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_performance</span> <span class="text-slate-500 text-sm">— Search performance data (clicks, impressions, CTR, position)</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_list_sites</span> <span class="text-slate-500 text-sm">— List verified sites</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_list_sitemaps</span> <span class="text-slate-500 text-sm">— List submitted sitemaps</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_submit_sitemap</span> <span class="text-slate-500 text-sm">— Submit a sitemap to Google</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_delete_sitemap</span> <span class="text-slate-500 text-sm">— Delete a submitted sitemap</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_inspect_url</span> <span class="text-slate-500 text-sm">— Inspect URL indexing status</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_bulk_inspect</span> <span class="text-slate-500 text-sm">— Bulk URL inspection</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_search_appearances</span> <span class="text-slate-500 text-sm">— Rich result search appearances</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_performance</span> <span class="text-slate-400 text-sm">— Search performance data (clicks, impressions, CTR, position)</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_list_sites</span> <span class="text-slate-400 text-sm">— List verified sites</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_list_sitemaps</span> <span class="text-slate-400 text-sm">— List submitted sitemaps</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_submit_sitemap</span> <span class="text-slate-400 text-sm">— Submit a sitemap to Google</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_delete_sitemap</span> <span class="text-slate-400 text-sm">— Delete a submitted sitemap</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_inspect_url</span> <span class="text-slate-400 text-sm">— Inspect URL indexing status</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_bulk_inspect</span> <span class="text-slate-400 text-sm">— Bulk URL inspection</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">gsc_search_appearances</span> <span class="text-slate-400 text-sm">— Rich result search appearances</span></div>
         </div>
 
         <h3 class="doc-subheading">Google Analytics 4 (9 tools)</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_report</span> <span class="text-slate-500 text-sm">— Custom GA4 report (5 presets: landing_pages, engagement, conversions, channels, content)</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_realtime</span> <span class="text-slate-500 text-sm">— Real-time active users</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_overview</span> <span class="text-slate-500 text-sm">— Traffic overview dashboard</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_top_pages</span> <span class="text-slate-500 text-sm">— Top performing pages</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_traffic_sources</span> <span class="text-slate-500 text-sm">— Traffic source breakdown</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_devices</span> <span class="text-slate-500 text-sm">— Device category analytics</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_geography</span> <span class="text-slate-500 text-sm">— Geographic traffic data</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_metadata</span> <span class="text-slate-500 text-sm">— Available dimensions and metrics</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_report</span> <span class="text-slate-400 text-sm">— Custom GA4 report (5 presets: landing_pages, engagement, conversions, channels, content)</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_realtime</span> <span class="text-slate-400 text-sm">— Real-time active users</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_overview</span> <span class="text-slate-400 text-sm">— Traffic overview dashboard</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_top_pages</span> <span class="text-slate-400 text-sm">— Top performing pages</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_traffic_sources</span> <span class="text-slate-400 text-sm">— Traffic source breakdown</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_devices</span> <span class="text-slate-400 text-sm">— Device category analytics</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_geography</span> <span class="text-slate-400 text-sm">— Geographic traffic data</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">ga4_metadata</span> <span class="text-slate-400 text-sm">— Available dimensions and metrics</span></div>
         </div>
 
         <h3 class="doc-subheading">Schema & Validation (2 tools)</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">validate_schema</span> <span class="text-slate-500 text-sm">— Validate structured data / JSON-LD schema</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">analyze_robots_txt</span> <span class="text-slate-500 text-sm">— Full robots.txt analysis</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">validate_schema</span> <span class="text-slate-400 text-sm">— Validate structured data / JSON-LD schema</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">analyze_robots_txt</span> <span class="text-slate-400 text-sm">— Full robots.txt analysis</span></div>
         </div>
 
         <h3 class="doc-subheading">Core Web Vitals (1 tool)</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">core_web_vitals</span> <span class="text-slate-500 text-sm">— PageSpeed Insights & CWV metrics</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">core_web_vitals</span> <span class="text-slate-400 text-sm">— PageSpeed Insights & CWV metrics</span></div>
         </div>
 
         <h3 class="doc-subheading">IndexNow (4 tools)</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_url</span> <span class="text-slate-500 text-sm">— Submit single URL for instant indexing</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_batch_submit</span> <span class="text-slate-500 text-sm">— Submit multiple URLs at once</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_sitemap</span> <span class="text-slate-500 text-sm">— Submit all URLs from a sitemap</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_file</span> <span class="text-slate-500 text-sm">— Submit URLs from a file</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_url</span> <span class="text-slate-400 text-sm">— Submit single URL for instant indexing</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_batch_submit</span> <span class="text-slate-400 text-sm">— Submit multiple URLs at once</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_sitemap</span> <span class="text-slate-400 text-sm">— Submit all URLs from a sitemap</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">indexnow_submit_file</span> <span class="text-slate-400 text-sm">— Submit URLs from a file</span></div>
         </div>
 
         <h3 class="doc-subheading">Sitemaps & Storage</h3>
         <div class="grid gap-2 mb-6">
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">sitemap_index_diff</span> <span class="text-slate-500 text-sm">— Compare two sitemaps for changes</span></div>
-          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">version</span> <span class="text-slate-500 text-sm">— Server version info</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">sitemap_index_diff</span> <span class="text-slate-400 text-sm">— Compare two sitemaps for changes</span></div>
+          <div class="tool-card"><span class="text-brand-400 font-mono text-sm">version</span> <span class="text-slate-400 text-sm">— Server version info</span></div>
         </div>
 
-        <p class="text-sm text-slate-500 mt-4">💡 GSC and GA4 tools require <a href="#service-account" class="text-brand-400 hover:underline">Google service account setup</a>.</p>
+        <p class="text-sm text-slate-400 mt-4">💡 GSC and GA4 tools require <a href="#service-account" class="text-brand-400 hover:underline">Google service account setup</a>.</p>
       </section>
 
       <!-- Google Service Account -->
       <section id="service-account" class="doc-section">
         <h2 class="doc-heading">🔑 Google Service Account Setup</h2>
-        <p class="text-slate-400 mb-4">Required for GSC and GA4 tools. Takes about 5 minutes. Your credentials <strong class="text-slate-300">stay on your machine</strong> — they're never stored on our servers.</p>
+        <p class="text-slate-300 mb-4">Required for GSC and GA4 tools. Takes about 5 minutes. Your credentials <strong class="text-slate-300">stay on your machine</strong> — they're never stored on our servers.</p>
 
         <h3 class="doc-subheading">Step 1: Create a Google Cloud project</h3>
-        <ol class="text-sm text-slate-400 space-y-1 list-decimal list-inside mb-4">
+        <ol class="text-sm text-slate-300 space-y-1 list-decimal list-inside mb-4">
           <li>Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Cloud Console</a></li>
           <li>Create a new project (or select an existing one)</li>
         </ol>
 
         <h3 class="doc-subheading">Step 2: Enable APIs</h3>
-        <p class="text-sm text-slate-400 mb-2">Enable these APIs in your project:</p>
-        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside mb-4">
+        <p class="text-sm text-slate-300 mb-2">Enable these APIs in your project:</p>
+        <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside mb-4">
           <li><a href="https://console.cloud.google.com/apis/library/searchconsole.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Search Console API</a></li>
           <li><a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Google Analytics Data API</a></li>
           <li><a href="https://console.cloud.google.com/apis/library/pagespeedonline.googleapis.com" target="_blank" rel="noopener" class="text-brand-400 hover:underline">PageSpeed Insights API</a> (optional, for Core Web Vitals)</li>
         </ul>
 
         <h3 class="doc-subheading">Step 3: Create service account</h3>
-        <ol class="text-sm text-slate-400 space-y-1 list-decimal list-inside mb-4">
+        <ol class="text-sm text-slate-300 space-y-1 list-decimal list-inside mb-4">
           <li>Go to <a href="https://console.cloud.google.com/iam-admin/serviceaccounts" target="_blank" rel="noopener" class="text-brand-400 hover:underline">IAM → Service Accounts</a></li>
           <li>Click <strong class="text-slate-300">"Create Service Account"</strong></li>
-          <li>Name it (e.g., <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">seo-mcp</code>)</li>
+          <li>Name it (e.g., <code class="text-xs bg-surface-600 border border-white/10 px-1 py-0.5 rounded font-mono text-slate-200">seo-mcp</code>)</li>
           <li>Skip the optional role/permission steps</li>
           <li>Click <strong class="text-slate-300">"Keys" → "Add Key" → "Create new key" → JSON</strong></li>
-          <li>Save the downloaded JSON file (e.g., <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">~/service-account.json</code>)</li>
+          <li>Save the downloaded JSON file (e.g., <code class="text-xs bg-surface-600 border border-white/10 px-1 py-0.5 rounded font-mono text-slate-200">~/service-account.json</code>)</li>
         </ol>
 
         <h3 class="doc-subheading">Step 4: Grant access</h3>
-        <p class="text-sm text-slate-400 mb-2">Share your properties with the service account email (looks like <code class="text-xs bg-surface-700 px-1 py-0.5 rounded font-mono">seo-mcp@your-project.iam.gserviceaccount.com</code>):</p>
-        <ul class="text-sm text-slate-400 space-y-2 list-disc list-inside mb-4">
+        <p class="text-sm text-slate-300 mb-2">Share your properties with the service account email (looks like <code class="text-xs bg-surface-600 border border-white/10 px-1 py-0.5 rounded font-mono text-slate-200">seo-mcp@your-project.iam.gserviceaccount.com</code>):</p>
+        <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside mb-4">
           <li><strong class="text-slate-300">Google Search Console:</strong> Go to <a href="https://search.google.com/search-console" target="_blank" rel="noopener" class="text-brand-400 hover:underline">Search Console</a> → Settings → Users and permissions → Add user (Full or Restricted)</li>
           <li><strong class="text-slate-300">Google Analytics:</strong> Go to GA4 → Admin → Property → Property Access Management → Add user (Viewer role)</li>
         </ul>
@@ -412,7 +416,7 @@ GSC_PROPERTY="https://www.example.com/"       # URL-prefix property
 GA4_PROPERTY="properties/123456789"</pre></div>
 
         <h3 class="doc-subheading">Security</h3>
-        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside">
+        <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
           <li>The JSON file <strong class="text-slate-300">never leaves your machine</strong> — the proxy reads it locally</li>
           <li>Credentials are sent to our API over HTTPS, used for 1-15 seconds, then the process dies</li>
           <li>Nothing is logged, stored, or persisted on our servers</li>
@@ -423,7 +427,7 @@ GA4_PROPERTY="properties/123456789"</pre></div>
       <!-- Rate Limits -->
       <section id="rate-limits" class="doc-section">
         <h2 class="doc-heading">⏱️ Rate Limits</h2>
-        <p class="text-slate-400 mb-4">Rate limits are enforced per user (not per key) on a monthly rolling window.</p>
+        <p class="text-slate-300 mb-4">Rate limits are enforced per user (not per key) on a monthly rolling window.</p>
         <div class="bg-amber-900/20 border border-amber-500/30 rounded-lg p-4 mb-4">
           <p class="text-sm text-amber-200"><strong>📧 Email verification required for full limits.</strong> Unverified free accounts are limited to 10 calls/month. Verify your email to unlock the full 100 calls/month. Check your inbox after signup.</p>
         </div>
@@ -431,7 +435,7 @@ GA4_PROPERTY="properties/123456789"</pre></div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-white/10 text-slate-400 text-xs uppercase">
+              <tr class="border-b border-white/10 text-slate-300 text-xs uppercase">
                 <th class="pb-3 text-left">Plan</th>
                 <th class="pb-3 text-left">Calls/month</th>
                 <th class="pb-3 text-left">Sites</th>
@@ -448,13 +452,13 @@ GA4_PROPERTY="properties/123456789"</pre></div>
         </div>
 
         <h3 class="doc-subheading">When rate limited</h3>
-        <p class="text-sm text-slate-400">The MCP tool call will return an error with a message indicating you've exceeded your plan limit. The usage counter resets on the 1st of each month.</p>
+        <p class="text-sm text-slate-300">The MCP tool call will return an error with a message indicating you've exceeded your plan limit. The usage counter resets on the 1st of each month.</p>
       </section>
 
       <!-- Error Handling -->
       <section id="errors" class="doc-section">
         <h2 class="doc-heading">❌ Error Handling</h2>
-        <p class="text-slate-400 mb-4">Errors follow MCP JSON-RPC error format.</p>
+        <p class="text-slate-300 mb-4">Errors follow MCP JSON-RPC error format.</p>
 
         <div class="code-block mb-4">
           <div class="code-label">Error Response Example</div>
@@ -472,7 +476,7 @@ GA4_PROPERTY="properties/123456789"</pre></div>
         <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead>
-              <tr class="border-b border-white/10 text-slate-400 text-xs uppercase">
+              <tr class="border-b border-white/10 text-slate-300 text-xs uppercase">
                 <th class="pb-3 text-left">Code</th>
                 <th class="pb-3 text-left">Meaning</th>
               </tr>
@@ -491,27 +495,27 @@ GA4_PROPERTY="properties/123456789"</pre></div>
       <!-- Billing -->
       <section id="billing" class="doc-section">
         <h2 class="doc-heading">💳 Billing</h2>
-        <p class="text-slate-400 mb-4">Billing is handled by <a href="https://lemonsqueezy.com" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Lemon Squeezy</a>. Upgrade, downgrade, or cancel anytime from your <a href="/dashboard" class="text-brand-400 hover:underline">dashboard</a>.</p>
+        <p class="text-slate-300 mb-4">Billing is handled by <a href="https://lemonsqueezy.com" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">Lemon Squeezy</a>. Upgrade, downgrade, or cancel anytime from your <a href="/dashboard" class="text-brand-400 hover:underline">dashboard</a>.</p>
 
         <h3 class="doc-subheading">Plan changes</h3>
-        <ul class="text-sm text-slate-400 space-y-1 list-disc list-inside">
+        <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">
           <li><strong class="text-slate-300">Upgrade:</strong> Takes effect immediately. Your usage limit increases right away.</li>
           <li><strong class="text-slate-300">Downgrade:</strong> Takes effect at end of billing period. You keep your current limits until then.</li>
           <li><strong class="text-slate-300">Cancel:</strong> Access continues until end of billing period. You can resume before it expires.</li>
         </ul>
 
         <h3 class="doc-subheading">Payment methods</h3>
-        <p class="text-sm text-slate-400">Cards (Visa, Mastercard, Amex), PayPal, and Apple Pay via Lemon Squeezy.</p>
+        <p class="text-sm text-slate-300">Cards (Visa, Mastercard, Amex), PayPal, and Apple Pay via Lemon Squeezy.</p>
       </section>
 
       <!-- Footer -->
       <div class="border-t border-white/5 pt-8 mt-12">
-        <p class="text-sm text-slate-500 text-center">
+        <p class="text-sm text-slate-400 text-center">
           Questions? Email <a href="mailto:support@seomcp.dev" class="text-brand-400 hover:underline">support@seomcp.dev</a>
-          · <a href="https://seomcp.dev" class="text-slate-400 hover:text-white transition">Home</a>
-          · <a href="/tools" class="text-slate-400 hover:text-white transition">Tools</a>
-          · <a href="/dashboard" class="text-slate-400 hover:text-white transition">Dashboard</a>
-          · <a href="/openapi.json" class="text-slate-400 hover:text-white transition">OpenAPI</a>
+          · <a href="https://seomcp.dev" class="text-slate-300 hover:text-white transition">Home</a>
+          · <a href="/tools" class="text-slate-300 hover:text-white transition">Tools</a>
+          · <a href="/dashboard" class="text-slate-300 hover:text-white transition">Dashboard</a>
+          · <a href="/openapi.json" class="text-slate-300 hover:text-white transition">OpenAPI</a>
         </p>
       </div>
 

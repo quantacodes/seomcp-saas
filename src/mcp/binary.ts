@@ -125,19 +125,40 @@ export class BinaryInstance {
 
   /**
    * Send a JSON-RPC request and wait for response.
+   * Auto-retries once if the binary crashes mid-request.
    */
   async send(message: JsonRpcMessage & { id: string | number }): Promise<JsonRpcResponse> {
+    return this.sendWithRetry(message, 1);
+  }
+
+  private async sendWithRetry(
+    message: JsonRpcMessage & { id: string | number },
+    retriesLeft: number,
+  ): Promise<JsonRpcResponse> {
     await this.ensureReady();
 
-    return new Promise<JsonRpcResponse>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        this.pending.delete(message.id);
-        reject(new Error(`Request timed out after ${config.binaryRequestTimeoutMs}ms`));
-      }, config.binaryRequestTimeoutMs);
+    try {
+      return await new Promise<JsonRpcResponse>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          this.pending.delete(message.id);
+          reject(new Error(`Request timed out after ${config.binaryRequestTimeoutMs}ms`));
+        }, config.binaryRequestTimeoutMs);
 
-      this.pending.set(message.id, { resolve, reject, timer });
-      this.writeMessage(message);
-    });
+        this.pending.set(message.id, { resolve, reject, timer });
+        this.writeMessage(message);
+      });
+    } catch (err) {
+      // Auto-retry if binary crashed (not on timeout)
+      if (
+        retriesLeft > 0 &&
+        err instanceof Error &&
+        err.message.includes("Binary exited")
+      ) {
+        console.warn(`[binary] Crashed mid-request, auto-retrying (${retriesLeft} left)...`);
+        return this.sendWithRetry(message, retriesLeft - 1);
+      }
+      throw err;
+    }
   }
 
   /**

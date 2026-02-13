@@ -200,7 +200,7 @@ function renderPage(): string {
     </div>
 
     <footer>
-      <a href="/">seomcp.dev</a> · <a href="/docs">Docs</a> · <a href="/openapi.json">OpenAPI Spec</a>
+      <a href="/">seomcp.dev</a> · <a href="/playground">Playground</a> · <a href="/docs">Docs</a> · <a href="/openapi.json">OpenAPI Spec</a>
       <br>© 2026 SEO MCP
     </footer>
   </div>

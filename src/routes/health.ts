@@ -6,6 +6,36 @@ import { sqlite } from "../db/index";
 
 export const healthRoutes = new Hono();
 
+// Robots.txt
+healthRoutes.get("/robots.txt", (c) => {
+  return c.text(
+    `User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /api/
+
+Sitemap: https://seomcp.dev/sitemap.xml
+`,
+    200,
+    { "Content-Type": "text/plain; charset=utf-8" },
+  );
+});
+
+// Sitemap
+healthRoutes.get("/sitemap.xml", (c) => {
+  const now = new Date().toISOString().split("T")[0];
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://seomcp.dev/</loc><changefreq>weekly</changefreq><priority>1.0</priority><lastmod>${now}</lastmod></url>
+  <url><loc>https://seomcp.dev/tools</loc><changefreq>monthly</changefreq><priority>0.9</priority><lastmod>${now}</lastmod></url>
+  <url><loc>https://seomcp.dev/docs</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${now}</lastmod></url>
+  <url><loc>https://seomcp.dev/playground</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>${now}</lastmod></url>
+</urlset>`;
+  return new Response(xml, {
+    headers: { "Content-Type": "application/xml; charset=utf-8" },
+  });
+});
+
 healthRoutes.get("/health", (c) => {
   // Quick DB check
   let dbOk = false;

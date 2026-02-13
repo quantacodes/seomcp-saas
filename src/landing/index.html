@@ -12,7 +12,63 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="seomcp.dev — SEO Tools for AI Agents">
   <meta name="twitter:description" content="35 SEO tools. One MCP endpoint. Your real Google data.">
+  <link rel="canonical" href="https://seomcp.dev">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "SEO MCP",
+        "url": "https://seomcp.dev",
+        "description": "35 SEO tools for AI agents via MCP protocol. Google Search Console, Analytics, site audits, Core Web Vitals, IndexNow, schema validation.",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "offers": [
+          { "@type": "Offer", "name": "Free", "price": "0", "priceCurrency": "USD", "description": "50 tool calls/month" },
+          { "@type": "Offer", "name": "Pro", "price": "29", "priceCurrency": "USD", "description": "2,000 tool calls/month" },
+          { "@type": "Offer", "name": "Agency", "price": "79", "priceCurrency": "USD", "description": "10,000 tool calls/month" }
+        ],
+        "featureList": [
+          "35 SEO tools",
+          "MCP protocol compatible",
+          "Google Search Console integration",
+          "Google Analytics 4 integration",
+          "Site audits and crawling",
+          "Core Web Vitals testing",
+          "IndexNow URL submission",
+          "Schema validation"
+        ]
+      },
+      {
+        "@type": "Organization",
+        "name": "SEO MCP",
+        "url": "https://seomcp.dev"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is SEO MCP?",
+            "acceptedAnswer": { "@type": "Answer", "text": "SEO MCP is a hosted MCP server that gives any AI agent 35 SEO tools including Google Search Console, GA4 analytics, site audits, Core Web Vitals, IndexNow, and schema validation." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much does it cost?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Free tier includes 50 tool calls per month. Pro is $29/month for 2,000 calls. Agency is $79/month for 10,000 calls." }
+          },
+          {
+            "@type": "Question",
+            "name": "Which AI agents work with SEO MCP?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Any MCP-compatible AI agent including Claude Desktop, Cursor, Windsurf, and any tool supporting the Model Context Protocol." }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -116,10 +172,10 @@
       </a>
       <div class="hidden md:flex items-center gap-8 text-sm text-slate-300">
         <a href="#tools" class="hover:text-white transition">Tools</a>
+        <a href="/playground" class="hover:text-white transition">Playground</a>
         <a href="#pricing" class="hover:text-white transition">Pricing</a>
-        <a href="#faq" class="hover:text-white transition">FAQ</a>
         <a href="/docs" class="hover:text-white transition">Docs</a>
-        <a href="/tools" class="hover:text-white transition">Tools</a>
+        <a href="#faq" class="hover:text-white transition">FAQ</a>
       </div>
       <div class="flex items-center gap-3">
         <button onclick="openSignup()" class="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-white bg-brand-500 hover:bg-brand-600 rounded-lg transition">
@@ -155,8 +211,8 @@
         <button onclick="openSignup()" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-white bg-brand-500 hover:bg-brand-600 rounded-xl shadow-lg shadow-brand-500/25 transition animate-pulse-glow">
           Get Free API Key →
         </button>
-        <a href="#how-it-works" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-slate-200 bg-surface-800 hover:bg-surface-700 rounded-xl border border-white/10 transition">
-          See How It Works
+        <a href="/playground" class="w-full sm:w-auto px-8 py-3.5 text-base font-semibold text-slate-200 bg-surface-800 hover:bg-surface-700 rounded-xl border border-white/10 transition">
+          🧪 Try It Live
         </a>
       </div>
 

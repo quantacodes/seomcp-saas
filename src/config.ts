@@ -37,6 +37,10 @@ export const config = {
   resendApiKey: process.env.RESEND_API_KEY || "",
   resendFromEmail: process.env.RESEND_FROM_EMAIL || "verify@seomcp.dev",
 
+  // Clerk authentication
+  clerkPublishableKey: process.env.CLERK_PUBLISHABLE_KEY || "",
+  clerkSecretKey: process.env.CLERK_SECRET_KEY || "",
+
   // Plan limits (calls per month)
   plans: {
     free: { callsPerMonth: 100, maxSites: 1, maxKeys: 1, maxSchedules: 0 },

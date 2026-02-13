@@ -11,10 +11,11 @@
     "test": "bash scripts/test.sh"
   },
   "dependencies": {
-    "hono": "^4.7.0",
-    "drizzle-orm": "^0.39.0",
+    "@clerk/backend": "^2.30.1",
+    "@types/better-sqlite3": "^7.6.0",
     "better-sqlite3": "^11.8.0",
-    "@types/better-sqlite3": "^7.6.0"
+    "drizzle-orm": "^0.39.0",
+    "hono": "^4.7.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

@@ -1,6 +1,3 @@
-# Clean URLs for static pages
-/dashboard /dashboard.html 200
-/login /login.html 200
-
-# API routes proxy to API domain (for signup modal on landing page)
-/api/* https://api.seomcp.dev/api/:splat 200
+# Clean URLs — CF Pages serves .html files automatically
+# No rewrites needed — /dashboard.html is auto-accessible at /dashboard
+# /login.html is auto-accessible at /login

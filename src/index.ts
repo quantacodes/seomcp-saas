@@ -25,6 +25,7 @@ import { webhookSettingsRoutes } from "./routes/webhook-settings";
 import { scheduleRoutes } from "./routes/schedules";
 import { verifyRoutes } from "./routes/verify";
 import { teamRoutes } from "./routes/teams";
+import { passwordResetRoutes } from "./routes/password-reset";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 import { startScheduler, stopScheduler } from "./scheduler/engine";
@@ -85,6 +86,43 @@ app.use("*", async (c, next) => {
   }
 });
 
+// ── Error page HTML (shared by 404 + 500) ──
+function errorPageHtml(status: number, title: string, message: string): string {
+  const emoji = status === 404 ? "🔍" : "⚠️";
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${status} ${title} — seomcp.dev</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    body{margin:0;background:#0f172a;color:#f8fafc;font-family:Inter,system-ui,sans-serif;display:flex;align-items:center;justify-content:center;min-height:100vh;text-align:center;padding:2rem;}
+    .code{font-size:8rem;font-weight:800;background:linear-gradient(135deg,#0ea5e9,#38bdf8,#7dd3fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;}
+    h2{font-size:1.25rem;margin:0.5rem 0;color:#e2e8f0;}
+    p{color:#64748b;font-size:0.875rem;max-width:28rem;margin:1rem auto;}
+    .links{margin-top:1.5rem;display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+    a{color:#38bdf8;text-decoration:none;font-size:0.875rem;font-weight:500;}
+    a:hover{text-decoration:underline;}
+  </style>
+</head>
+<body>
+  <div>
+    <div class="code">${status}</div>
+    <h2>${emoji} ${title}</h2>
+    <p>${message}</p>
+    <div class="links">
+      <a href="/">Home</a>
+      <a href="/docs">Documentation</a>
+      <a href="/tools">Tool Catalog</a>
+      <a href="/playground">Playground</a>
+    </div>
+  </div>
+</body>
+</html>`;
+}
+
 // Routes
 app.route("/", healthRoutes);
 app.route("/", authRoutes);
@@ -106,14 +144,19 @@ app.route("/", webhookSettingsRoutes);
 app.route("/", scheduleRoutes);
 app.route("/", verifyRoutes);
 app.route("/", teamRoutes);
+app.route("/", passwordResetRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
-// 404 handler
+// 404 handler — HTML for browsers, JSON for API clients
 app.notFound((c) => {
+  const accept = c.req.header("Accept") || "";
+  if (accept.includes("text/html") && !c.req.path.startsWith("/api/") && !c.req.path.startsWith("/mcp")) {
+    return c.html(errorPageHtml(404, "Page Not Found", "The page you're looking for doesn't exist or has been moved."), 404);
+  }
   return c.json({ error: "Not found", docs: "https://seomcp.dev/docs" }, 404);
 });
 
-// Error handler
+// Error handler — HTML for browsers, JSON for API clients
 app.onError((err, c) => {
   const reqId = c.res.headers.get("X-Request-Id") || "unknown";
   console.error(JSON.stringify({
@@ -126,6 +169,10 @@ app.onError((err, c) => {
     error: err.message,
     stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
   }));
+  const accept = c.req.header("Accept") || "";
+  if (accept.includes("text/html") && !c.req.path.startsWith("/api/") && !c.req.path.startsWith("/mcp")) {
+    return c.html(errorPageHtml(500, "Something Went Wrong", "An unexpected error occurred. Please try again."), 500);
+  }
   return c.json({ error: "Internal server error" }, 500);
 });
 

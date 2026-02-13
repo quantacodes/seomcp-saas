@@ -8,6 +8,8 @@ export const users = sqliteTable("users", {
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
   verificationToken: text("verification_token"),
   verificationSentAt: integer("verification_sent_at", { mode: "timestamp" }),
+  resetToken: text("reset_token"), // SHA-256 hash of password reset token
+  resetSentAt: integer("reset_sent_at", { mode: "timestamp" }),
   webhookUrl: text("webhook_url"), // Webhook notification URL
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),

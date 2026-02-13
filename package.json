@@ -15,7 +15,8 @@
     "@types/better-sqlite3": "^7.6.0",
     "better-sqlite3": "^11.8.0",
     "drizzle-orm": "^0.39.0",
-    "hono": "^4.7.0"
+    "hono": "^4.7.0",
+    "svix": "^1.85.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",

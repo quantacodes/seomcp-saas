@@ -1,0 +1,3 @@
+# Redirect dashboard/auth routes to API domain
+/dashboard/* https://api.seomcp.dev/dashboard/:splat 302
+/api/* https://api.seomcp.dev/api/:splat 302

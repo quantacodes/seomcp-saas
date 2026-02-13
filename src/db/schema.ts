@@ -3,7 +3,8 @@ import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(), // ULID
   email: text("email").notNull().unique(),
-  passwordHash: text("password_hash").notNull(),
+  passwordHash: text("password_hash").notNull().default(""), // Empty for Clerk users
+  clerkUserId: text("clerk_user_id"), // Clerk's user ID (user_xxx) for future mapping
   plan: text("plan").notNull().default("free"), // free | pro | agency | enterprise
   emailVerified: integer("email_verified", { mode: "boolean" }).notNull().default(false),
   verificationToken: text("verification_token"),

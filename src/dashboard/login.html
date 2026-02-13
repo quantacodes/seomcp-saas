@@ -36,139 +36,89 @@
     }
     a { color: inherit; text-decoration: none; }
 
-    .login-container { width: 100%; max-width: 400px; }
+    .login-container { width: 100%; max-width: 400px; text-align: center; }
 
     .logo {
       display: flex; align-items: center; justify-content: center;
       gap: 0; margin-bottom: 8px;
-      font-size: 22px; font-weight: 600;
+      font-size: 28px; font-weight: 600;
     }
     .logo .dot { color: var(--amber); }
+    
     .login-sub {
-      text-align: center; font-size: 14px;
-      color: var(--text-tertiary); margin-bottom: 32px;
+      font-size: 16px;
+      color: var(--text-secondary); margin-bottom: 32px;
     }
 
     .login-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-subtle);
-      border-radius: 16px; padding: 36px;
+      border-radius: 16px; padding: 40px;
     }
-    .field { margin-bottom: 16px; }
-    .field label {
-      display: block; font-size: 14px; font-weight: 500;
-      color: var(--text-secondary); margin-bottom: 6px;
-    }
-    .field input {
-      width: 100%; padding: 12px 16px;
-      background: var(--bg-deep); border: 1px solid var(--border-subtle);
-      border-radius: 8px; color: var(--text-primary);
-      font-size: 15px; font-family: var(--font-sans);
-      outline: none; transition: border-color 0.2s;
-    }
-    .field input::placeholder { color: var(--text-tertiary); }
-    .field input:focus { border-color: var(--amber); }
 
-    .forgot-row {
-      display: flex; justify-content: flex-end; margin-bottom: 16px;
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border-subtle);
+      border-top-color: var(--amber);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
     }
-    .forgot-row a {
-      font-size: 13px; color: var(--amber); transition: opacity 0.2s;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
-    .forgot-row a:hover { opacity: 0.8; }
 
-    .error-box {
-      display: none; padding: 12px;
-      background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2);
-      border-radius: 8px; font-size: 14px; color: var(--coral);
+    .redirect-text {
+      font-size: 15px;
+      color: var(--text-secondary);
       margin-bottom: 16px;
     }
 
-    .submit-btn {
-      width: 100%; padding: 14px; border: none;
-      background: var(--amber); color: var(--bg-deep);
-      border-radius: 10px; font-weight: 600; font-size: 15px;
-      font-family: var(--font-sans); cursor: pointer;
+    .manual-link {
+      display: inline-block;
+      padding: 12px 24px;
+      background: var(--amber);
+      color: var(--bg-deep);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
       transition: background 0.2s;
     }
-    .submit-btn:hover { background: var(--amber-hover); }
-    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .manual-link:hover {
+      background: var(--amber-hover);
+    }
 
     .links {
-      text-align: center; margin-top: 24px;
+      margin-top: 32px;
     }
-    .links p {
-      font-size: 14px; color: var(--text-tertiary); margin-bottom: 8px;
-    }
-    .links a.signup { color: var(--amber); font-weight: 500; }
     .links a.back {
       font-size: 13px; color: var(--text-tertiary);
       transition: color 0.2s;
     }
     .links a.back:hover { color: var(--text-secondary); }
   </style>
+  <script>
+    // Redirect to /dashboard/login which will redirect to Clerk
+    window.location.href = '/dashboard/login';
+  </script>
 </head>
 <body>
   <div class="login-container">
     <div class="logo">
       <a href="/">seomcp<span class="dot">.dev</span></a>
     </div>
-    <p class="login-sub">Sign in to your dashboard</p>
+    <p class="login-sub">Redirecting to sign in...</p>
 
     <div class="login-card">
-      <form id="login-form" onsubmit="handleLogin(event)">
-        <div class="field">
-          <label>Email</label>
-          <input type="email" id="email" required autocomplete="email" placeholder="you@example.com">
-        </div>
-        <div class="field">
-          <label>Password</label>
-          <input type="password" id="password" required autocomplete="current-password" placeholder="••••••••">
-        </div>
-        <div class="forgot-row">
-          <a href="/forgot-password">Forgot password?</a>
-        </div>
-        <div id="error" class="error-box"></div>
-        <button type="submit" id="submit-btn" class="submit-btn">Sign In</button>
-      </form>
+      <div class="loading-spinner"></div>
+      <p class="redirect-text">Taking you to secure login</p>
+      <a href="/dashboard/login" class="manual-link">Click here if not redirected</a>
     </div>
 
     <div class="links">
-      <p>Don't have an account? <a href="/" class="signup">Sign up free →</a></p>
       <p><a href="/" class="back">← Back to home</a></p>
     </div>
   </div>
-
-  <script>
-    async function handleLogin(e) {
-      e.preventDefault();
-      const btn = document.getElementById('submit-btn');
-      const errEl = document.getElementById('error');
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      btn.textContent = 'Signing in...';
-      btn.disabled = true;
-      errEl.style.display = 'none';
-
-      try {
-        const res = await fetch('/dashboard/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Login failed');
-        window.location.href = data.redirect || '/dashboard';
-      } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
-      } finally {
-        btn.textContent = 'Sign In';
-        btn.disabled = false;
-      }
-    }
-    document.getElementById('email').focus();
-  </script>
 </body>
 </html>

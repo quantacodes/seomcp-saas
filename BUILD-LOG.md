@@ -252,19 +252,69 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - Removed dead /docs placeholder from landing.ts (real docs served by docsRoutes)
 - Updated .gitignore (binary, logs)
 
-**Review:** ✅ Spawned Barnacle — pending
-**Test:** ✅ 102 tests, 261 assertions, ALL PASSING
+**Review:** ✅ Barnacle — REQUEST_CHANGES → FIXED
+- Fixed: Rate limit headers only on tool calls (not all MCP requests)
+- Fixed: Dead fly.toml v1 tcp_checks config
 
 **Commits:**
 - 5f3d2d7 — "Session 4: Production polish"
+- 1d68126 — "Fix Barnacle S1 + dead fly.toml config"
 
 ### Session 4 Stats
 - **Total tests:** 102 (all passing)
 - **Total assertions:** 261
 - **Source files:** ~30
-- **Total commits:** 15
+- **Total commits:** 16
 
-### What Works (End of Session 4)
+---
+
+## Session 5 — 2026-02-13 05:40 IST
+
+### Admin API + Tools Catalog + Barnacle Fixes
+
+**Build:**
+- Admin API: 6 endpoints with X-Admin-Secret auth
+  - GET /api/admin/stats — User counts, usage, billing, runtime, top tools
+  - GET /api/admin/users — Paginated user list with filters
+  - GET /api/admin/users/:id — Detailed user view (keys, usage, subscription)
+  - POST /api/admin/users/:id/plan — Manual plan override
+  - GET /api/admin/usage/hourly — 24h hourly breakdown
+  - GET /api/admin/errors — Recent errors with user context
+- OpenAPI 3.1 spec at /openapi.json (Swagger/Postman compatible)
+- /.well-known/mcp discovery endpoint per MCP spec
+- /tools — Full SEO tool catalog page (29 tools, 9 categories, params, examples, badges)
+- /api/tools — JSON endpoint for programmatic tool discovery
+- /setup — Serves installer script (`curl -fsSL https://seomcp.dev/setup | bash`)
+- Structured JSON logger (src/utils/logger.ts) for production observability
+- E2E smoke test script (scripts/smoke-test.sh) — 16 checks
+- MCP client auto-setup script (scripts/setup-mcp.sh) — detects Claude/Cursor/Windsurf
+- Improved error handler with structured JSON + request ID correlation
+
+**Review:** ✅ Barnacle — REQUEST_CHANGES (3 MUST, 7 SHOULD, 6 nice-to-have) → ALL MUST FIXED
+- 🔴 #1 SQL injection in admin users count: **FIXED** — parameterized query
+- 🔴 #2 Password hash leak via SELECT *: **FIXED** — explicit column list
+- 🔴 #3 Timing-unsafe admin secret comparison: **FIXED** — timingSafeEqual()
+- 🟠 #4 parseInt NaN guard: **FIXED** — `parseInt(x) || default` + Math.max
+- 🟠 #5 Hourly query type annotation: **FIXED** — [number] → [number, number]
+- 🟠 #7 LEFT JOIN for errors: **FIXED** — preserves errors with deleted users
+- 🟠 #12 VERSION in MCP discovery: **FIXED** — uses config.VERSION
+
+**Test:** ✅ 131 tests, 349 assertions, ALL PASSING
+- 18 new admin tests (auth, stats, users, plan changes, usage, errors)
+- 11 new tools/OpenAPI tests (catalog HTML, JSON API, spec structure)
+
+**Commits:**
+- 19f0fb5 — "Session 5: Admin API, smoke test, OpenAPI spec, MCP discovery, structured logging"
+- 38a52da — "Fix Barnacle MUST items + tools catalog page"
+
+### Session 5 Stats
+- **Total tests:** 131 (all passing)
+- **Total assertions:** 349
+- **Test files:** 8
+- **Source files:** ~35
+- **Total commits:** 18
+
+### What Works (End of Session 5)
 - ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
 - ✅ All 35 seo-mcp tools accessible through HTTP gateway
 - ✅ Landing page with signup flow + MCP config snippet
@@ -272,8 +322,24 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
 - ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
 - ✅ Full documentation page (8 sections)
+- ✅ **Admin API** (stats, users, plan management, usage analytics, error listing)
+- ✅ **Tool catalog page** (/tools) with 29 tools, categories, params, examples
+- ✅ **OpenAPI 3.1 spec** at /openapi.json
+- ✅ **MCP discovery** at /.well-known/mcp
+- ✅ **Setup script** at /setup (curl | bash installer)
 - ✅ Dockerfile + docker-compose + Fly.io deploy config
-- ✅ Security headers + CSRF protection + rate limit headers + request IDs
-- ✅ Health endpoint with DB liveness + memory stats
-- ✅ README + launch copy (X, PH, Reddit, HN) ready
-- ✅ 102 tests, 261 assertions, ALL PASSING
+- ✅ Security headers + CSRF + rate limit headers + request IDs
+- ✅ Timing-safe admin auth + parameterized SQL everywhere
+- ✅ E2E smoke test + MCP client setup scripts
+- ✅ 131 tests, 349 assertions, ALL PASSING
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup (create products/variants, set webhook URL)
+- [ ] Deploy to Fly.io (deploy script ready: `./deploy/deploy.sh --first-run`)
+- [ ] DNS + SSL setup (`fly certs add seomcp.dev`)
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Smoke test in production
+- [ ] X announcement thread (draft ready: LAUNCH.md)
+- [ ] Product Hunt prep (copy ready: LAUNCH.md)

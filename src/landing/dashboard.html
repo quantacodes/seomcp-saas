@@ -63,7 +63,6 @@
     }
     .logout-btn { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
     .logout-btn:hover { color: var(--text-primary); }
-    #clerk-user-button { margin-left: 8px; }
 
     /* Content */
     .dash-content { max-width: 1120px; margin: 0 auto; padding: 32px 24px; }
@@ -235,10 +234,10 @@
       <a href="/" class="dash-logo">seomcp<span class="dot">.dev</span></a>
       <div class="dash-right">
         <a href="https://api.seomcp.dev/docs" class="hide-mobile">Docs</a>
-        <a href="https://api.seomcp.dev/tools" class="hide-mobile">Tools</a>
+        <a href="/#tools" class="hide-mobile">Tools</a>
         <span id="plan-badge" class="plan-badge"></span>
         <span id="user-email" class="hide-mobile" style="color:var(--text-tertiary);"></span>
-        <div id="clerk-user-button"></div>
+        <button onclick="handleLogout()" class="logout-btn">Logout</button>
       </div>
     </div>
   </nav>
@@ -250,12 +249,6 @@
       <div class="skeleton" style="height:120px;"></div>
       <div class="skeleton" style="height:200px;"></div>
       <div class="skeleton" style="height:250px;"></div>
-    </div>
-
-    <!-- Auth Loading State -->
-    <div id="auth-loading" class="hidden" style="text-align:center; padding:60px;">
-      <div style="font-size:32px; margin-bottom:16px;">🔐</div>
-      <p style="font-size:15px; color:var(--text-secondary);">Checking authentication...</p>
     </div>
 
     <!-- Email Verification Banner -->
@@ -306,7 +299,7 @@
                   <pre id="onb-config"></pre>
                 </div>
               </div>
-              <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="https://api.seomcp.dev/docs" style="color:var(--amber);">Full setup guide →</a></div>
+              <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="/docs" style="color:var(--amber);">Full setup guide →</a></div>
             </div>
           </div>
           <div id="onb-step-google" class="onb-step">
@@ -321,7 +314,7 @@
             <span class="onb-icon" style="font-size:16px;">⏳</span>
             <div>
               <div style="font-size:13px; font-weight:500;">Make your first tool call</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Ask your AI: "Run an SEO audit on example.com" or <a href="https://api.seomcp.dev/playground" style="color:var(--amber);">try the playground</a>.</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Ask your AI: "Run an SEO audit on example.com" or <a href="/playground" style="color:var(--amber);">try the playground</a>.</div>
             </div>
           </div>
         </div>
@@ -566,9 +559,14 @@
             </div>
           </div>
           <div>
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Manage Account</div>
-            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Update your profile, password, and security settings through Clerk.</p>
-            <button onclick="openClerkProfile()" class="btn-ghost">Manage Account →</button>
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Change Password</div>
+            <form id="password-form" onsubmit="handlePasswordChange(event)" style="display:flex; flex-direction:column; gap:10px;">
+              <input type="password" id="current-password" required placeholder="Current password" autocomplete="current-password" class="input" style="font-size:13px;">
+              <input type="password" id="new-password" required minlength="8" placeholder="New password (min 8)" autocomplete="new-password" class="input" style="font-size:13px;">
+              <div id="password-error" class="hidden" style="font-size:12px; color:var(--coral);"></div>
+              <div id="password-success" class="hidden" style="font-size:12px; color:var(--sage);"></div>
+              <button type="submit" class="btn-ghost" style="width:fit-content;">Update Password</button>
+            </form>
           </div>
         </div>
       </div>
@@ -705,118 +703,35 @@
 
   <!-- Lemon Squeezy checkout overlay -->
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
-  
-  <!-- Clerk JS SDK -->
+
   <script>
-    // Clerk configuration
-    const CLERK_PUBLISHABLE_KEY = 'pk_test_REDACTED'; // Replace with your actual key
+    // ── API Base URL ──
     const API_BASE = 'https://api.seomcp.dev';
-    
-    let clerk = null;
+
+    // ── Cross-origin fetch wrapper (always send cookies) ──
+    const _origFetch = window.fetch;
+    window.fetch = function(url, opts = {}) {
+      if (typeof url === 'string' && url.startsWith(API_BASE)) {
+        opts.credentials = 'include';
+      }
+      return _origFetch.call(this, url, opts);
+    };
+
+    // ── State ──
     let dashData = null;
     let revokeKeyId = null;
 
-    // Load Clerk SDK
-    async function loadClerk() {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-        script.crossOrigin = 'anonymous';
-        script.onload = resolve;
-        script.onerror = reject;
-        document.head.appendChild(script);
-      });
-    }
-
-    // Initialize app
-    async function initApp() {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('auth-loading').classList.remove('hidden');
-
-      try {
-        await loadClerk();
-        clerk = new window.Clerk(CLERK_PUBLISHABLE_KEY);
-        await clerk.load();
-
-        if (!clerk.user) {
-          // Not signed in — redirect to login
-          window.location.href = '/login';
-          return;
-        }
-
-        // User is signed in — mount user button and load dashboard
-        document.getElementById('auth-loading').classList.add('hidden');
-        document.getElementById('loading').style.display = 'flex';
-
-        clerk.mountUserButton(document.getElementById('clerk-user-button'), {
-          afterSignOutUrl: '/login'
-        });
-
-        await loadDashboard();
-      } catch (err) {
-        console.error('Failed to initialize Clerk:', err);
-        document.getElementById('auth-loading').innerHTML = `
-          <div style="font-size:32px; margin-bottom:16px;">⚠️</div>
-          <p style="font-size:15px; color:var(--coral);">Failed to load authentication</p>
-          <p style="font-size:13px; color:var(--text-tertiary); margin-top:8px;">Please refresh the page or <a href="/login" style="color:var(--amber);">try logging in again</a>.</p>
-        `;
-      }
-    }
-
-    // Get auth token for API calls
-    async function getAuthToken() {
-      if (!clerk || !clerk.session) return null;
-      return await clerk.session.getToken();
-    }
-
-    // Make authenticated API call
-    async function apiFetch(path, options = {}) {
-      const token = await getAuthToken();
-      if (!token) {
-        window.location.href = '/login';
-        throw new Error('Not authenticated');
-      }
-      
-      const headers = {
-        ...options.headers,
-        'Authorization': `Bearer ${token}`,
-      };
-      
-      if (options.body && typeof options.body === 'object' && !(options.body instanceof FormData)) {
-        headers['Content-Type'] = 'application/json';
-        options.body = JSON.stringify(options.body);
-      }
-      
-      const res = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' });
-      
-      if (res.status === 401) {
-        window.location.href = '/login';
-        throw new Error('Not authenticated');
-      }
-      
-      return res;
-    }
-
-    // Load Dashboard
+    // ── Load Dashboard ──
     async function loadDashboard() {
       try {
-        const res = await apiFetch('/dashboard/api/overview');
-        if (!res.ok) throw new Error('Failed to load dashboard');
+        const res = await fetch(API_BASE + '/dashboard/api/overview');
+        if (res.status === 401) { window.location.href = '/login'; return; }
         dashData = await res.json();
         render();
-      } catch (err) {
-        console.error('Failed to load dashboard:', err);
-      }
+      } catch (err) { console.error('Failed to load dashboard:', err); }
     }
 
-    // Open Clerk profile management
-    function openClerkProfile() {
-      if (clerk) {
-        clerk.openUserProfile();
-      }
-    }
-
-    // Render
+    // ── Render ──
     function render() {
       const d = dashData;
       document.getElementById('loading').style.display = 'none';
@@ -843,7 +758,7 @@
       document.getElementById('account-section').classList.remove('hidden');
     }
 
-    // Usage
+    // ── Usage ──
     function renderUsage(usage) {
       document.getElementById('usage-section').classList.remove('hidden');
       document.getElementById('usage-used').textContent = usage.used;
@@ -888,7 +803,7 @@
       });
     }
 
-    // Top Tools
+    // ── Top Tools ──
     function renderTopTools(tools) {
       document.getElementById('tools-section').classList.remove('hidden');
       const list = document.getElementById('top-tools-list');
@@ -906,11 +821,11 @@
       }).join('');
     }
 
-    // Audit History
+    // ── Audit History ──
     async function loadAudits() {
       document.getElementById('audit-section').classList.remove('hidden');
       try {
-        const sitesRes = await apiFetch('/dashboard/api/audits/sites');
+        const sitesRes = await fetch(API_BASE + '/dashboard/api/audits/sites');
         if (sitesRes.ok) {
           const sitesData = await sitesRes.json();
           const sel = document.getElementById('audit-site-filter');
@@ -925,7 +840,7 @@
         }
         const siteFilter = document.getElementById('audit-site-filter').value;
         const url = siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20';
-        const res = await apiFetch(url);
+        const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('audit-retention').textContent = data.retention.retentionDays + 'd retention (' + data.retention.plan + ')';
@@ -958,7 +873,7 @@
 
     async function loadHealthTrend(siteUrl) {
       try {
-        const res = await apiFetch('/dashboard/api/audits/trend?site_url=' + encodeURIComponent(siteUrl) + '&days=30');
+        const res = await fetch(API_BASE + '/dashboard/api/audits/trend?site_url=' + encodeURIComponent(siteUrl) + '&days=30');
         if (!res.ok) return;
         const data = await res.json();
         const c = document.getElementById('trend-chart');
@@ -978,7 +893,7 @@
 
     async function viewAudit(auditId) {
       try {
-        const res = await apiFetch('/dashboard/api/audits/' + auditId);
+        const res = await fetch(API_BASE + '/dashboard/api/audits/' + auditId);
         if (!res.ok) return;
         const data = await res.json();
         const resultText = typeof data.fullResult === 'object' && data.fullResult.content?.[0]?.text
@@ -1005,7 +920,7 @@
       } catch (err) { console.error('Failed to load audit:', err); }
     }
 
-    // API Keys
+    // ── API Keys ──
     function renderKeys(keys) {
       document.getElementById('keys-section').classList.remove('hidden');
       const activeCount = keys.filter(k => k.isActive).length;
@@ -1031,7 +946,7 @@
       }).join('');
     }
 
-    // Google
+    // ── Google ──
     function renderGoogle(google) {
       document.getElementById('google-section').classList.remove('hidden');
       const el = document.getElementById('google-status');
@@ -1044,7 +959,7 @@
               <div style="font-size:12px; color:var(--text-tertiary);">${escHtml(google.scopes || 'GSC + GA4')}</div>
             </div>
           </div>
-          <a href="${API_BASE}/api/auth/google/disconnect" style="font-size:12px; color:var(--coral);">Disconnect</a>
+          <a href="/api/auth/google/disconnect" style="font-size:12px; color:var(--coral);">Disconnect</a>
         </div>`;
       } else {
         el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
@@ -1055,12 +970,12 @@
               <div style="font-size:12px; color:var(--text-tertiary);">Required for Search Console and Analytics tools</div>
             </div>
           </div>
-          <a href="${API_BASE}/api/auth/google/start" style="padding:8px 16px; font-size:13px; font-weight:500; background:var(--text-primary); color:var(--bg-deep); border-radius:8px;">Connect Google</a>
+          <a href="/api/auth/google/start" style="padding:8px 16px; font-size:13px; font-weight:500; background:var(--text-primary); color:var(--bg-deep); border-radius:8px;">Connect Google</a>
         </div>`;
       }
     }
 
-    // Activity
+    // ── Activity ──
     function renderActivity(calls) {
       document.getElementById('activity-section').classList.remove('hidden');
       const tbody = document.getElementById('activity-table');
@@ -1079,10 +994,10 @@
       }).join('');
     }
 
-    // Scheduled Audits
+    // ── Scheduled Audits ──
     async function loadSchedules() {
       try {
-        const res = await apiFetch('/dashboard/api/schedules');
+        const res = await fetch(API_BASE + '/dashboard/api/schedules', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('schedules-section').classList.remove('hidden');
@@ -1146,7 +1061,7 @@
       const body = { siteUrl: document.getElementById('sched-site').value, toolName: document.getElementById('sched-tool').value, schedule: freq, hour: parseInt(document.getElementById('sched-hour').value) };
       if (freq !== 'daily') body.day = parseInt(document.getElementById('sched-day').value);
       try {
-        const res = await apiFetch('/dashboard/api/schedules', { method: 'POST', body });
+        const res = await fetch(API_BASE + '/dashboard/api/schedules', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
         closeScheduleModal(); document.getElementById('schedule-form').reset(); loadSchedules();
@@ -1154,12 +1069,12 @@
     }
 
     async function toggleSchedule(id, isActive) {
-      await apiFetch('/dashboard/api/schedules/' + id + '/update', { method: 'POST', body: { isActive } });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) });
       loadSchedules();
     }
 
     async function runScheduleNow(id) {
-      await apiFetch('/dashboard/api/schedules/' + id + '/run', { method: 'POST', body: {} });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const toast = document.getElementById('copy-toast');
       toast.textContent = '🚀 Audit triggered!'; toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 2500);
@@ -1167,22 +1082,22 @@
 
     async function deleteSchedule(id) {
       if (!confirm('Delete this scheduled audit?')) return;
-      await apiFetch('/dashboard/api/schedules/' + id + '/delete', { method: 'POST', body: {} });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       loadSchedules();
     }
 
-    // Webhooks
+    // ── Webhooks ──
     async function loadWebhooks() {
       try {
-        const res = await apiFetch('/dashboard/api/webhook');
+        const res = await fetch(API_BASE + '/dashboard/api/webhook', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('webhooks-section').classList.remove('hidden');
-        if (data.webhook && data.webhook.url) document.getElementById('webhook-url').value = data.webhook.url;
+        if (data.webhook.url) document.getElementById('webhook-url').value = data.webhook.url;
         const tbody = document.getElementById('deliveries-body');
         const noD = document.getElementById('no-deliveries');
         const tbl = document.getElementById('deliveries-table');
-        if (!data.deliveries || data.deliveries.length === 0) { noD.classList.remove('hidden'); tbl.classList.add('hidden'); }
+        if (data.deliveries.length === 0) { noD.classList.remove('hidden'); tbl.classList.add('hidden'); }
         else {
           noD.classList.add('hidden'); tbl.classList.remove('hidden');
           tbody.innerHTML = data.deliveries.map(d => {
@@ -1199,7 +1114,7 @@
       const errEl = document.getElementById('webhook-error'); const sucEl = document.getElementById('webhook-success');
       errEl.classList.add('hidden'); sucEl.classList.add('hidden');
       try {
-        const res = await apiFetch('/dashboard/api/webhook', { method: 'POST', body: { url: document.getElementById('webhook-url').value } });
+        const res = await fetch(API_BASE + '/dashboard/api/webhook', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: document.getElementById('webhook-url').value }) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
         sucEl.textContent = 'Webhook URL saved ✓'; sucEl.classList.remove('hidden');
@@ -1208,21 +1123,21 @@
     }
 
     async function removeWebhook() {
-      await apiFetch('/dashboard/api/webhook/remove', { method: 'POST', body: {} });
+      await fetch(API_BASE + '/dashboard/api/webhook/remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       document.getElementById('webhook-url').value = '';
       const s = document.getElementById('webhook-success'); s.textContent = 'Webhook removed'; s.classList.remove('hidden');
       setTimeout(() => s.classList.add('hidden'), 3000);
     }
 
     async function testWebhook() {
-      const res = await apiFetch('/dashboard/api/webhook/test', { method: 'POST', body: {} });
+      const res = await fetch(API_BASE + '/dashboard/api/webhook/test', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const data = await res.json();
       if (!res.ok) { document.getElementById('webhook-error').textContent = data.error; document.getElementById('webhook-error').classList.remove('hidden'); return; }
       const s = document.getElementById('webhook-success'); s.textContent = 'Test webhook sent!'; s.classList.remove('hidden');
       setTimeout(() => { s.classList.add('hidden'); loadWebhooks(); }, 2000);
     }
 
-    // Billing
+    // ── Billing ──
     function renderBilling(billing, currentPlan) {
       document.getElementById('billing-section').classList.remove('hidden');
       const el = document.getElementById('billing-status');
@@ -1284,7 +1199,7 @@
 
     async function handleUpgrade(plan) {
       try {
-        const res = await apiFetch('/api/billing/checkout', { method: 'POST', body: { plan } });
+        const res = await fetch(API_BASE + '/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
         const data = await res.json();
         if (!res.ok) { alert(data.error || 'Failed to create checkout'); return; }
         if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) LemonSqueezy.Url.Open(data.url);
@@ -1295,19 +1210,19 @@
     async function handleCancel() {
       if (!confirm('Cancel? You\'ll keep access until the end of your billing period.')) return;
       try {
-        const res = await apiFetch('/api/billing/cancel', { method: 'POST', body: {} });
+        const res = await fetch(API_BASE + '/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
       } catch { alert('Failed to cancel'); }
     }
 
     async function handleResume() {
       try {
-        const res = await apiFetch('/api/billing/resume', { method: 'POST', body: {} });
+        const res = await fetch(API_BASE + '/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
       } catch { alert('Failed to resume'); }
     }
 
-    // Key Management
+    // ── Key Management ──
     function toggleScopes() {
       const opts = document.getElementById('scope-options');
       const txt = document.getElementById('scope-toggle-text');
@@ -1344,7 +1259,7 @@
       const scopes = checkedScopes.length > 0 ? checkedScopes : undefined;
       btn.textContent = 'Creating...'; btn.disabled = true; errEl.classList.add('hidden');
       try {
-        const res = await apiFetch('/dashboard/api/keys', { method: 'POST', body: { name, scopes } });
+        const res = await fetch(API_BASE + '/dashboard/api/keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, scopes }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         document.getElementById('new-key-display').value = data.key;
@@ -1364,13 +1279,30 @@
     async function confirmRevoke() {
       if (!revokeKeyId) return;
       try {
-        const res = await apiFetch('/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', body: {} });
+        const res = await fetch(API_BASE + '/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (!res.ok) { const data = await res.json(); alert(data.error || 'Failed'); return; }
         closeRevokeModal(); loadDashboard();
       } catch { alert('Failed to revoke key'); }
     }
 
-    // Onboarding
+    // ── Password ──
+    async function handlePasswordChange(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('password-error'); const sucEl = document.getElementById('password-success');
+      errEl.classList.add('hidden'); sucEl.classList.add('hidden');
+      try {
+        const res = await fetch(API_BASE + '/dashboard/api/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: document.getElementById('current-password').value, newPassword: document.getElementById('new-password').value }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Failed');
+        sucEl.textContent = '✓ Password updated'; sucEl.classList.remove('hidden');
+        document.getElementById('current-password').value = ''; document.getElementById('new-password').value = '';
+      } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
+    }
+
+    // ── Logout ──
+    async function handleLogout() { await fetch(API_BASE + '/dashboard/logout', { method: 'POST' }); window.location.href = '/login'; }
+
+    // ── Onboarding ──
     function renderOnboarding(d) {
       if (localStorage.getItem('onboarding-dismissed')) return;
       const steps = { account: true, verify: d.user.emailVerified === true, key: true, google: d.google.connected === true, usage: d.usage.used > 0 };
@@ -1386,7 +1318,7 @@
       }
       const firstKey = d.keys.find(k => k.isActive);
       if (firstKey) {
-        document.getElementById('onb-config').textContent = JSON.stringify({ mcpServers: { seo: { url: 'https://api.seomcp.dev/mcp', headers: { Authorization: 'Bearer ' + firstKey.prefix + '...' } } } }, null, 2);
+        document.getElementById('onb-config').textContent = JSON.stringify({ mcpServers: { seo: { url: 'https://seomcp.dev/mcp', headers: { Authorization: 'Bearer ' + firstKey.prefix + '...' } } } }, null, 2);
       }
       if (steps.google) { const btn = document.getElementById('onb-google-btn'); if (btn) btn.style.display = 'none'; }
       document.getElementById('onboarding').classList.remove('hidden');
@@ -1399,13 +1331,13 @@
       const btn = document.getElementById('resend-btn');
       btn.disabled = true; btn.textContent = 'Sending...';
       try {
-        const res = await apiFetch('/api/auth/resend-verification', { method: 'POST', body: { email: dashData.user.email } });
+        const res = await fetch(API_BASE + '/api/auth/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: dashData.user.email }) });
         if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000); }
         else { const data = await res.json(); btn.textContent = data.error || 'Failed'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
       } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
     }
 
-    // Helpers
+    // ── Helpers ──
     function escHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
     function timeAgo(date) {
       const s = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -1421,7 +1353,7 @@
       });
     }
 
-    // Modal handlers
+    // ── Modal handlers ──
     document.querySelectorAll('.modal-overlay').forEach(modal => {
       modal.addEventListener('click', (e) => { if (e.target === e.currentTarget) modal.classList.remove('active'); });
     });
@@ -1429,7 +1361,7 @@
       if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     });
 
-    // Init
+    // ── Init ──
     if (new URLSearchParams(window.location.search).get('upgraded') === 'true') {
       history.replaceState(null, '', '/dashboard');
       setTimeout(() => {
@@ -1438,9 +1370,7 @@
         setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 3000);
       }, 1000);
     }
-    
-    // Start app initialization
-    initApp();
+    loadDashboard();
   </script>
 </body>
 </html>

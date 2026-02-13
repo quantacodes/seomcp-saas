@@ -1,8 +1,6 @@
 # Clean URLs for static pages
 /dashboard /dashboard.html 200
 /login /login.html 200
-/signup /signup.html 200
 
-# API routes proxy to api.seomcp.dev
-/api/* https://api.seomcp.dev/api/:splat 302
-/mcp/* https://api.seomcp.dev/mcp/:splat 302
+# API routes proxy to API domain (for signup modal on landing page)
+/api/* https://api.seomcp.dev/api/:splat 200

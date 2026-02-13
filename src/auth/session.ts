@@ -101,9 +101,10 @@ export function cleanExpiredSessions(): number {
 export function sessionCookieOptions(isProduction: boolean) {
   return {
     httpOnly: true,
-    secure: isProduction,
-    sameSite: "Lax" as const,
-    path: "/dashboard",
+    secure: true,
+    sameSite: "None" as const,
+    path: "/",
+    domain: isProduction ? ".seomcp.dev" : undefined,
     maxAge: SESSION_MAX_AGE_SECONDS,
   };
 }

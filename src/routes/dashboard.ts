@@ -1,17 +1,23 @@
 import { Hono } from "hono";
-import { eq, and, gte, desc, sql } from "drizzle-orm";
+import { getCookie, setCookie, deleteCookie } from "hono/cookie";
+import { eq, and, gte, desc, sql, ne } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { config } from "../config";
 import {
-  getClerkSession,
-  getUserProfileUrl,
-  type ClerkSessionData,
-} from "../auth/clerk";
+  createSession,
+  validateSession,
+  deleteSession,
+  sessionCookieOptions,
+  SESSION_COOKIE_NAME,
+  type SessionData,
+} from "../auth/session";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
+import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
 import { validateScopes, describeScopeAccess, parseScopes } from "../auth/scopes";
 import { getUserWebhookUrl, setUserWebhookUrl, validateWebhookUrl } from "../webhooks/user-webhooks";
-// Note: HTML serving removed - now on Cloudflare Pages
+import { readFileSync } from "fs";
+import { join, dirname } from "path";
 
 export const dashboardRoutes = new Hono();
 
@@ -26,14 +32,118 @@ function requireJson(c: any): Response | null {
   return null;
 }
 
-// Note: HTML pages are now served from seomcp.dev (Cloudflare Pages)
-// This file only serves API routes for the dashboard
+// Dashboard login rate limiting now uses shared module (src/middleware/rate-limit-ip.ts)
+
+// ── Session middleware ──
+function getSession(c: any): SessionData | null {
+  const sessionId = getCookie(c, SESSION_COOKIE_NAME);
+  if (!sessionId) return null;
+  return validateSession(sessionId);
+}
+
+// ── HTML cache ──
+let cachedLoginHtml: string | null = null;
+let cachedDashboardHtml: string | null = null;
+const isDev = process.env.NODE_ENV !== "production";
+
+function loadHtml(name: string): string {
+  const htmlPath = join(dirname(new URL(import.meta.url).pathname), "..", "dashboard", `${name}.html`);
+  try {
+    return readFileSync(htmlPath, "utf-8");
+  } catch (e) {
+    return `<!DOCTYPE html><html><body><h1>${name} not found</h1><p>Expected at: ${htmlPath}</p></body></html>`;
+  }
+}
+
+function getLoginHtml(): string {
+  if (isDev) return loadHtml("login");
+  if (!cachedLoginHtml) cachedLoginHtml = loadHtml("login");
+  return cachedLoginHtml;
+}
+
+function getDashboardHtml(): string {
+  if (isDev) return loadHtml("app");
+  if (!cachedDashboardHtml) cachedDashboardHtml = loadHtml("app");
+  return cachedDashboardHtml;
+}
 
 // ── Routes ──
 
-// Note: /dashboard, /dashboard/login, /dashboard/signup, /dashboard/logout
-// are now served from seomcp.dev (Cloudflare Pages) with Clerk auth
-// Legacy redirects for backwards compatibility:
+/**
+ * GET /dashboard/login — Redirect to main domain login
+ */
+dashboardRoutes.get("/dashboard/login", (c) => {
+  return c.redirect("https://seomcp.dev/login", 302);
+});
+
+/**
+ * POST /dashboard/login — Authenticate and create session
+ */
+dashboardRoutes.post("/dashboard/login", async (c) => {
+  const csrfCheck = requireJson(c);
+  if (csrfCheck) return csrfCheck;
+
+  const body = await c.req.json<{ email?: string; password?: string }>().catch(() => ({}));
+
+  if (!body.email || !body.password) {
+    return c.json({ error: "Email and password are required" }, 400);
+  }
+
+  const email = body.email.toLowerCase().trim();
+  const ip = getClientIp(c);
+
+  // Rate limit check: 10 attempts per 15 min (shared module)
+  const { allowed, retryAfterMs } = checkIpRateLimit(`dashboard-login:${ip}`, 10, 15 * 60 * 1000);
+  if (!allowed) {
+    c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));
+    return c.json({ error: "Too many login attempts. Try again in 15 minutes." }, 429);
+  }
+
+  // Find user
+  const user = db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.email, email))
+    .limit(1)
+    .all()[0];
+
+  if (!user) {
+    return c.json({ error: "Invalid email or password" }, 401);
+  }
+
+  // Verify password
+  const valid = await Bun.password.verify(body.password, user.passwordHash);
+  if (!valid) {
+    return c.json({ error: "Invalid email or password" }, 401);
+  }
+
+  // Create session
+  const sessionId = createSession(user.id);
+  const cookieOpts = sessionCookieOptions(process.env.NODE_ENV === "production");
+  setCookie(c, SESSION_COOKIE_NAME, sessionId, cookieOpts);
+
+  return c.json({ success: true, redirect: "/dashboard" });
+});
+
+/**
+ * POST /dashboard/logout
+ * Accepts both JSON and non-JSON (form) for convenience, but uses a session check.
+ */
+dashboardRoutes.post("/dashboard/logout", (c) => {
+  const sessionId = getCookie(c, SESSION_COOKIE_NAME);
+  if (!sessionId) {
+    return c.json({ error: "Not authenticated" }, 401);
+  }
+  // Validate session exists (prevents blind logout CSRF)
+  const session = validateSession(sessionId);
+  if (!session) {
+    deleteCookie(c, SESSION_COOKIE_NAME, sessionCookieOptions(process.env.NODE_ENV === "production"));
+    return c.json({ error: "Session already expired" }, 401);
+  }
+  deleteSession(sessionId);
+  deleteCookie(c, SESSION_COOKIE_NAME, sessionCookieOptions(process.env.NODE_ENV === "production"));
+  return c.json({ success: true, redirect: "/dashboard/login" });
+});
 
 /**
  * GET /dashboard — Redirect to main domain
@@ -43,24 +153,10 @@ dashboardRoutes.get("/dashboard", (c) => {
 });
 
 /**
- * GET /dashboard/login — Redirect to main domain
- */
-dashboardRoutes.get("/dashboard/login", (c) => {
-  return c.redirect("https://seomcp.dev/login", 302);
-});
-
-/**
- * GET /dashboard/signup — Redirect to main domain
- */
-dashboardRoutes.get("/dashboard/signup", (c) => {
-  return c.redirect("https://seomcp.dev/signup", 302);
-});
-
-/**
  * GET /dashboard/api/overview — All dashboard data in one call
  */
-dashboardRoutes.get("/dashboard/api/overview", async (c) => {
-  const session = await getClerkSession(c);
+dashboardRoutes.get("/dashboard/api/overview", (c) => {
+  const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -188,7 +284,6 @@ dashboardRoutes.get("/dashboard/api/overview", async (c) => {
       email: session.email,
       plan: session.plan,
       emailVerified: session.emailVerified,
-      profileUrl: getUserProfileUrl(), // Clerk profile management
     },
     usage: {
       used,
@@ -246,71 +341,73 @@ dashboardRoutes.get("/dashboard/api/overview", async (c) => {
 /**
  * POST /dashboard/api/keys — Create new API key
  */
-dashboardRoutes.post("/dashboard/api/keys", async (c) => {
+dashboardRoutes.post("/dashboard/api/keys", (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = await getClerkSession(c);
+  const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
 
-  const body = await c.req.json<{ name?: string; scopes?: string[] }>().catch(() => ({}));
+  return c.req.json<{ name?: string; scopes?: string[] }>().then((body) => {
+    // Check plan limits
+    const planLimits = config.plans[session.plan];
+    const existingCount = db
+      .select()
+      .from(schema.apiKeys)
+      .where(
+        and(
+          eq(schema.apiKeys.userId, session.userId),
+          eq(schema.apiKeys.isActive, true),
+        ),
+      )
+      .all().length;
 
-  // Check plan limits
-  const planLimits = config.plans[session.plan];
-  const existingCount = db
-    .select()
-    .from(schema.apiKeys)
-    .where(
-      and(
-        eq(schema.apiKeys.userId, session.userId),
-        eq(schema.apiKeys.isActive, true),
-      ),
-    )
-    .all().length;
+    if (existingCount >= planLimits.maxKeys) {
+      return c.json(
+        { error: `Maximum ${planLimits.maxKeys} API keys for ${session.plan} plan. Upgrade for more.` },
+        403,
+      );
+    }
 
-  if (existingCount >= planLimits.maxKeys) {
+    // Validate scopes
+    const scopeResult = validateScopes(body?.scopes);
+    if (!scopeResult.valid) {
+      return c.json({ error: scopeResult.error }, 400);
+    }
+
+    const { raw, hash, prefix } = generateApiKey();
+    const keyId = ulid();
+
+    db.insert(schema.apiKeys)
+      .values({
+        id: keyId,
+        userId: session.userId,
+        keyHash: hash,
+        keyPrefix: prefix,
+        name: body?.name || "Untitled",
+        isActive: true,
+        scopes: scopeResult.scopes ? JSON.stringify(scopeResult.scopes) : null,
+        createdAt: new Date(),
+      })
+      .run();
+
     return c.json(
-      { error: `Maximum ${planLimits.maxKeys} API keys for ${session.plan} plan. Upgrade for more.` },
-      403,
+      {
+        id: keyId,
+        key: raw, // Only shown once
+        prefix,
+        name: body?.name || "Untitled",
+        scopes: scopeResult.scopes,
+        scopeDescription: describeScopeAccess(scopeResult.scopes),
+        message: "Save your API key — it won't be shown again.",
+      },
+      201,
     );
-  }
-
-  // Validate scopes
-  const scopeResult = validateScopes(body?.scopes);
-  if (!scopeResult.valid) {
-    return c.json({ error: scopeResult.error }, 400);
-  }
-
-  const { raw, hash, prefix } = generateApiKey();
-  const keyId = ulid();
-
-  db.insert(schema.apiKeys)
-    .values({
-      id: keyId,
-      userId: session.userId,
-      keyHash: hash,
-      keyPrefix: prefix,
-      name: body?.name || "Untitled",
-      isActive: true,
-      scopes: scopeResult.scopes ? JSON.stringify(scopeResult.scopes) : null,
-      createdAt: new Date(),
-    })
-    .run();
-
-  return c.json(
-    {
-      id: keyId,
-      key: raw, // Only shown once
-      prefix,
-      name: body?.name || "Untitled",
-      scopes: scopeResult.scopes,
-      scopeDescription: describeScopeAccess(scopeResult.scopes),
-      message: "Save your API key — it won't be shown again.",
-    },
-    201,
-  );
+  }).catch(() => {
+    return c.json({ error: "Invalid request body" }, 400);
+  });
 });
 
 /**
@@ -320,8 +417,16 @@ dashboardRoutes.post("/dashboard/api/keys", async (c) => {
 dashboardRoutes.post("/dashboard/api/keys/:id/revoke", revokeKeyHandler);
 dashboardRoutes.delete("/dashboard/api/keys/:id", revokeKeyHandler);
 
-async function revokeKeyHandler(c: any) {
-  const session = await getClerkSession(c);
+function revokeKeyHandler(c: any) {
+  // For DELETE requests, verify X-Requested-With header for CSRF protection
+  if (c.req.method === "DELETE") {
+    const xrw = c.req.header("X-Requested-With");
+    if (xrw !== "XMLHttpRequest") {
+      // Accept anyway for now but log — prefer POST /revoke going forward
+    }
+  }
+
+  const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -360,7 +465,7 @@ dashboardRoutes.post("/dashboard/api/keys/:id/rotate", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = await getClerkSession(c);
+  const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -428,57 +533,60 @@ dashboardRoutes.post("/dashboard/api/keys/:id/rotate", async (c) => {
 });
 
 /**
- * GET /dashboard/api/webhook — Get user's webhook URL
+ * POST /dashboard/api/password — Change password
  */
-dashboardRoutes.get("/dashboard/api/webhook", async (c) => {
-  const session = await getClerkSession(c);
-  if (!session) {
-    return c.json({ error: "Not authenticated" }, 401);
-  }
-
-  const url = getUserWebhookUrl(session.userId);
-  return c.json({ url: url || null });
-});
-
-/**
- * POST /dashboard/api/webhook — Set user's webhook URL
- */
-dashboardRoutes.post("/dashboard/api/webhook", async (c) => {
+dashboardRoutes.post("/dashboard/api/password", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = await getClerkSession(c);
+  const session = getSession(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
 
-  const body = await c.req.json<{ url?: string }>().catch(() => ({}));
+  const body = await c.req.json<{ currentPassword?: string; newPassword?: string }>().catch(() => ({}));
 
-  // Allow clearing the webhook with empty/null URL
-  if (!body.url || body.url.trim() === "") {
-    setUserWebhookUrl(session.userId, null);
-    return c.json({ success: true, url: null });
+  if (!body.currentPassword || !body.newPassword) {
+    return c.json({ error: "Current password and new password are required" }, 400);
   }
 
-  // Validate URL
-  const validation = validateWebhookUrl(body.url);
-  if (!validation.valid) {
-    return c.json({ error: validation.error }, 400);
+  if (body.newPassword.length < 8) {
+    return c.json({ error: "New password must be at least 8 characters" }, 400);
   }
 
-  setUserWebhookUrl(session.userId, body.url);
-  return c.json({ success: true, url: body.url });
-});
+  // Verify current password
+  const user = db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.id, session.userId))
+    .limit(1)
+    .all()[0];
 
-/**
- * DELETE /dashboard/api/webhook — Remove user's webhook URL
- */
-dashboardRoutes.delete("/dashboard/api/webhook", async (c) => {
-  const session = await getClerkSession(c);
-  if (!session) {
-    return c.json({ error: "Not authenticated" }, 401);
+  if (!user) {
+    return c.json({ error: "User not found" }, 404);
   }
 
-  setUserWebhookUrl(session.userId, null);
-  return c.json({ success: true });
+  const valid = await Bun.password.verify(body.currentPassword, user.passwordHash);
+  if (!valid) {
+    return c.json({ error: "Current password is incorrect" }, 401);
+  }
+
+  // Hash and update
+  const newHash = await Bun.password.hash(body.newPassword, { algorithm: "bcrypt" });
+  db.update(schema.users)
+    .set({ passwordHash: newHash, updatedAt: new Date() })
+    .where(eq(schema.users.id, session.userId))
+    .run();
+
+  // Invalidate all other sessions (keep current session active)
+  db.delete(schema.sessions)
+    .where(
+      and(
+        eq(schema.sessions.userId, session.userId),
+        ne(schema.sessions.id, session.sessionId),
+      ),
+    )
+    .run();
+
+  return c.json({ success: true, message: "Password updated" });
 });

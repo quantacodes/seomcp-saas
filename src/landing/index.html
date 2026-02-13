@@ -174,21 +174,25 @@
     .btn-glow-wrap {
       position: relative;
       display: inline-flex;
-      border-radius: 11px;
+      border-radius: 12px;
       padding: 2px;
       overflow: hidden;
+      max-width: 100%;
     }
     .btn-glow-wrap::before {
       content: '';
       position: absolute;
-      inset: -200%;
-      background: conic-gradient(from 0deg, transparent 0%, #E5A430 25%, transparent 50%, #E5A430 75%, transparent 100%);
+      top: 50%; left: 50%;
+      width: 200%; height: 200%;
+      margin-left: -100%; margin-top: -100%;
+      background: conic-gradient(from 0deg, transparent 0%, #E5A430 20%, transparent 40%, #E5A430 60%, transparent 80%, #E5A430 100%);
       animation: spin-glow 3s linear infinite;
     }
     .btn-glow-wrap .btn-primary {
       position: relative;
       z-index: 1;
       border-radius: 10px;
+      width: 100%;
     }
     .h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; }
     .body-lg { font-size: 20px; line-height: 30px; }
@@ -816,9 +820,13 @@
       .nav-links { display: none; }
       .nav-hamburger { display: block; }
 
-      .hero { padding: 100px 0 100px; }
-      .hero-ctas { flex-direction: column; }
+      .hero { padding: 100px 0 80px; }
+      .hero::before { width: 400px; height: 300px; } /* smaller glow orb on mobile */
+      .hero-ctas { flex-direction: column; gap: 12px; }
+      .hero-ctas .btn-glow-wrap { width: 100%; }
+      .hero-ctas .btn-glow-wrap .btn-primary { width: 100%; justify-content: center; }
       .hero-ctas .btn-primary, .hero-ctas .btn-text { width: 100%; justify-content: center; }
+      .hero-code::before { display: none; } /* no code glow on mobile — causes overflow */
 
       .steps-grid { grid-template-columns: 1fr; gap: 40px; }
       .steps-line { display: none !important; }

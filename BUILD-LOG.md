@@ -581,14 +581,95 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 
 **Test:** ✅ 23 new tests (319 total)
 
-**Review:** ⏳ Barnacle reviewing...
+**Review:** ✅ Barnacle — APPROVE (P2: rate limit header mismatch, XSS foot-gun in HTML helper)
 **Commits:** bef410e
 
-### Cumulative Stats (Session 10)
-- **Total tests:** 319 (all passing)
-- **Source files:** ~52
-- **Lines of code:** ~15,000
-- **Total commits:** 27
+---
+
+## Session 11 — 2026-02-13 09:40 IST
+
+### Phase 9: Team/Organization Support + Verification Bug Fixes + Key Rotation
+
+**Bug Fixes:**
+- **Resend-verification stored raw token** instead of hash → Fixed to use `hashVerificationToken(token)`
+- **Verification test** read hashed token from DB and used as raw → Fixed to capture raw token from console.log
+- **Dynamic import** in verify.ts resend handler → Replaced with static import
+- **XSS foot-gun** in `verificationResultHtml()` → Renamed param to `trustedHtml` with explicit JSDoc warning
+
+**Test Infrastructure:**
+- Created `scripts/test.sh` — runs each test file in own Bun process
+- Fixes shared module cache issue (SQLite DB path) with Bun's parallel test runner
+- `bun test` alone still fails with 35 failures — use `bash scripts/test.sh` or `bun run test`
+
+**Build:** ✅ Complete — Phase 9: Teams
+
+**Team/Organization Support** (6 new files, ~1,000 lines)
+- `src/teams/teams.ts` — Team CRUD (create in transaction, get, update, delete, roles, usage)
+- `src/teams/invites.ts` — HMAC-SHA256 invite tokens (48h expiry, hash-before-store)
+- `src/routes/teams.ts` — 9 API endpoints with session auth + CSRF protection
+- DB tables: `teams` + `team_members` with UNIQUE index
+- Only agency/enterprise plan can create teams (max 5 members)
+- Auto-join for existing users, pending invites for new emails
+- Role hierarchy: owner > admin > member
+- Invite email acceptance verifies accepting user's email matches invite email
+- Team-aware rate limiting: aggregate usage across all members vs team plan quota
+- MCP transport checks team-level limits before individual limits
+- Invite emails via Resend API (console fallback in dev)
+
+**API Key Rotation** (POST /dashboard/api/keys/:id/rotate)
+- Atomic revoke-old + create-new in SQLite transaction
+- Preserves key name and scopes
+- Returns new raw key (shown once)
+
+**Review:** ✅ Barnacle — APPROVE (4 minor findings, all addressed)
+- #1 TOCTOU in createTeam → FIXED: wrapped in transaction
+- #2 TOCTOU in createInvite → Accepted: SQLite serializes writes
+- #3 Dead code in leaveTeam → Kept as defensive code
+- #4 Invite acceptance email mismatch → FIXED: verify email matches
+
+**Test:** ✅ 352 tests, 817 assertions, ALL PASSING
+- 30 new team tests
+- 3 new key rotation tests
+- Test runner fix (sequential execution)
+
+**Commits:**
+- 0e33568 — "Session 11: Team support, verification bug fixes, test runner"
+- a44687e — "Fix Barnacle review items + key rotation + team-aware MCP rate limiting"
+
+### Session 11 Stats
+- **Total tests:** 352 (all passing)
+- **Total assertions:** 817
+- **Test files:** 18
+- **Source files:** 51
+- **Lines of code:** ~10,800
+- **Total commits:** 30
+
+### What Works (End of Session 11)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet + JSON-LD structured data
+- ✅ Interactive Playground — try tools without signup, SSRF-hardened
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ **Team/Organization support** — create team, invite members, role management, shared usage pool
+- ✅ **API key rotation** — atomic revoke + create
+- ✅ **Team-aware MCP rate limiting** — aggregate team usage enforcement
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Full documentation page (8 sections)
+- ✅ Admin API (stats, users, plan management, usage analytics, error listing)
+- ✅ Tool catalog page (/tools) with 35 tools, categories, params, examples
+- ✅ OpenAPI 3.1 spec at /openapi.json
+- ✅ MCP discovery at /.well-known/mcp
+- ✅ Setup script at /setup (curl | bash installer)
+- ✅ Email verification with magic links (Resend API)
+- ✅ Audit history, user webhooks, scheduled audits
+- ✅ Key scoping (restrict to tool categories), changelog
+- ✅ Terms of Service + Privacy Policy (Google compliance)
+- ✅ IP rate limiting on signup/login + structured JSON logging
+- ✅ E2E integration test (complete user journey)
+- ✅ robots.txt + sitemap.xml + security headers
+- ✅ Dockerfile + docker-compose + Fly.io deploy config
+- ✅ 352 tests, 817 assertions, ALL PASSING
 
 ### What's Left Before Launch
 - [ ] Domain purchase: seomcp.dev

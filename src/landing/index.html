@@ -287,37 +287,63 @@
     .hero-trust .client { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
 
     /* ── How It Works ── */
+    .steps-wrapper { position: relative; }
     .steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; position: relative; }
-    .step { position: relative; }
+    .step { position: relative; min-width: 0; }
     .step-number {
       display: flex; align-items: center; justify-content: center;
       width: 40px; height: 40px; border-radius: 10px;
       background: var(--amber-muted); color: var(--amber);
       font-weight: 700; font-size: 18px; margin-bottom: 20px;
-      position: relative; z-index: 1;
+      position: relative; z-index: 2;
     }
     .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .step-desc { color: var(--text-secondary); font-size: 15px; line-height: 24px; }
-    .step-code { margin-top: 16px; }
+    .step-code { margin-top: 16px; min-width: 0; }
+    .step-code .code-block { min-width: 0; overflow: visible; }
+    .step-code .code-body {
+      min-width: 0;
+      overflow-x: auto; overflow-y: hidden;
+      border-radius: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.12) transparent;
+    }
+    .step-code .code-body::-webkit-scrollbar { height: 4px; }
+    .step-code .code-body::-webkit-scrollbar-track { background: transparent; }
+    .step-code .code-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+    .step-code pre {
+      overflow-x: auto; white-space: pre; word-break: normal;
+      max-width: 100%;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+    .step-code pre::-webkit-scrollbar { height: 4px; }
+    .step-code pre::-webkit-scrollbar-track { background: transparent; }
+    .step-code pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+    /* Connecting line — positioned via JS for pixel-perfect accuracy */
     .steps-line {
-      position: absolute; top: 19px;
-      /* 20px = center of 40px step-number in first column */
-      left: 20px;
-      /* Grid: 3 cols of 1fr + 2 gaps of 48px. Last col starts at 2*(1fr+48px).
-         Step 3 number center = last_col_left + 20px.
-         From right edge: 1fr - 20px. Since 1fr = (100% - 96px)/3:
-         right = (100% - 96px)/3 - 20px */
-      right: calc((100% - 96px) / 3 - 20px);
+      position: absolute;
       height: 2px;
       background: linear-gradient(90deg, var(--amber), var(--sage));
-      opacity: 0.3; z-index: 0;
+      opacity: 0.3;
+      z-index: 1;
+      pointer-events: none;
     }
-    .steps-line::before, .steps-line::after {
-      content: ''; position: absolute; top: -3px;
-      width: 8px; height: 8px; border-radius: 50%;
+    .steps-line-dot {
+      position: absolute;
+      top: -4px;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      z-index: 1;
     }
-    .steps-line::before { left: -4px; background: var(--amber); }
-    .steps-line::after { right: -4px; background: var(--sage); }
+    .steps-line-dot--start { left: -5px; background: var(--amber); }
+    .steps-line-dot--mid {
+      left: 50%; transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--amber), var(--sage));
+      width: 8px; height: 8px; top: -3px;
+      opacity: 0.7;
+    }
+    .steps-line-dot--end { right: -5px; background: var(--sage); }
 
     /* ── Tool Grid ── */
     .tool-categories { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
@@ -676,8 +702,11 @@
       .hero-ctas { flex-direction: column; }
       .hero-ctas .btn-primary, .hero-ctas .btn-text { width: 100%; justify-content: center; }
 
-      .steps-grid { grid-template-columns: 1fr; gap: 32px; }
-      .steps-line { display: none; }
+      .steps-grid { grid-template-columns: 1fr; gap: 40px; }
+      .steps-line { display: none !important; }
+      .step { padding-left: 0; }
+      .step-number { margin-bottom: 16px; }
+      .step-code pre { font-size: 12px !important; line-height: 18px !important; }
 
       .tool-categories { grid-template-columns: 1fr; }
 
@@ -874,8 +903,13 @@
         <p class="body-lg text-secondary">From signup to first query. No Docker, no OAuth dance, no setup scripts.</p>
       </div>
 
-      <div class="steps-grid">
-        <div class="steps-line"></div>
+      <div class="steps-wrapper">
+        <div class="steps-line" id="steps-line">
+          <div class="steps-line-dot steps-line-dot--start"></div>
+          <div class="steps-line-dot steps-line-dot--mid"></div>
+          <div class="steps-line-dot steps-line-dot--end"></div>
+        </div>
+        <div class="steps-grid">
         <div class="step">
           <div class="step-number">1</div>
           <h3 class="step-title">Get your API key</h3>
@@ -896,7 +930,7 @@
           <div class="step-code">
             <div class="code-block">
               <div class="code-body" style="padding:14px 18px;">
-                <pre style="font-size:13px; line-height:20px;"><span class="key">"url"</span><span class="punct">:</span> <span class="str">"https://seomcp.dev/sse?key=sk_live_..."</span></pre>
+                <pre style="font-size:13px; line-height:20px;"><span class="key">"url"</span><span class="punct">:</span> <span class="str">"seomcp.dev/sse?key=sk_..."</span></pre>
               </div>
             </div>
           </div>
@@ -908,12 +942,13 @@
           <div class="step-code">
             <div class="code-block">
               <div class="code-body" style="padding:14px 18px;">
-                <pre style="font-size:13px; line-height:20px;"><span class="str">"Audit my site and find SEO issues"</span>
-<span class="comment">→ Agent calls site_audit + generate_report</span></pre>
+                <pre style="font-size:13px; line-height:20px;"><span class="str">"Audit my site for SEO issues"</span>
+<span class="comment">→ calls site_audit + generate_report</span></pre>
               </div>
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   </section>
@@ -1645,6 +1680,53 @@
         }
       });
     });
+  </script>
+
+  <script>
+    // ── Steps connecting line: pixel-perfect positioning ──
+    (function() {
+      function positionStepsLine() {
+        const wrapper = document.querySelector('.steps-wrapper');
+        const line = document.getElementById('steps-line');
+        const steps = document.querySelectorAll('.steps-grid .step');
+        if (!wrapper || !line || steps.length < 3) return;
+
+        // Hide on mobile (single column)
+        if (window.innerWidth <= 768) {
+          line.style.display = 'none';
+          return;
+        }
+        line.style.display = 'block';
+
+        const wrapperRect = wrapper.getBoundingClientRect();
+        const firstCircle = steps[0].querySelector('.step-number');
+        const lastCircle = steps[2].querySelector('.step-number');
+        if (!firstCircle || !lastCircle) return;
+
+        const firstRect = firstCircle.getBoundingClientRect();
+        const lastRect = lastCircle.getBoundingClientRect();
+
+        // Center X of first and last circles, relative to wrapper
+        const startX = (firstRect.left + firstRect.width / 2) - wrapperRect.left;
+        const endX = (lastRect.left + lastRect.width / 2) - wrapperRect.left;
+        // Center Y of first circle, relative to wrapper
+        const centerY = (firstRect.top + firstRect.height / 2) - wrapperRect.top;
+
+        line.style.left = startX + 'px';
+        line.style.width = (endX - startX) + 'px';
+        line.style.top = (centerY - 1) + 'px'; // -1 for half of 2px line height
+      }
+
+      // Run on load & resize
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', positionStepsLine);
+      } else {
+        positionStepsLine();
+      }
+      window.addEventListener('resize', positionStepsLine);
+      // Also run after fonts load
+      if (document.fonts) document.fonts.ready.then(positionStepsLine);
+    })();
   </script>
 </body>
 </html>

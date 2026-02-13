@@ -10,6 +10,7 @@ import {
   validateSession,
   SESSION_COOKIE_NAME,
 } from "../auth/session";
+import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
 import { getCookie } from "hono/cookie";
 
 export const webhookSettingsRoutes = new Hono();
@@ -22,7 +23,11 @@ function requireJson(c: any): Response | null {
   return null;
 }
 
-function getSession(c: any) {
+async function getSessionHybrid(c: any) {
+  try {
+    const clerkSession = await getClerkSession(c);
+    if (clerkSession) return clerkSession;
+  } catch (e) {}
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
   return validateSession(sessionId);
@@ -31,8 +36,8 @@ function getSession(c: any) {
 /**
  * GET /dashboard/api/webhook — Get webhook config + recent deliveries
  */
-webhookSettingsRoutes.get("/dashboard/api/webhook", (c) => {
-  const session = getSession(c);
+webhookSettingsRoutes.get("/dashboard/api/webhook", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const url = getUserWebhookUrl(session.userId);
@@ -62,7 +67,7 @@ webhookSettingsRoutes.post("/dashboard/api/webhook", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const body = await c.req.json<{ url?: string }>().catch(() => ({}));
@@ -89,11 +94,11 @@ webhookSettingsRoutes.post("/dashboard/api/webhook", async (c) => {
  * DELETE /dashboard/api/webhook — Remove webhook URL
  * Also accepts POST /dashboard/api/webhook/remove for CSRF safety
  */
-webhookSettingsRoutes.post("/dashboard/api/webhook/remove", (c) => {
+webhookSettingsRoutes.post("/dashboard/api/webhook/remove", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   setUserWebhookUrl(session.userId, null);
@@ -103,11 +108,11 @@ webhookSettingsRoutes.post("/dashboard/api/webhook/remove", (c) => {
 /**
  * POST /dashboard/api/webhook/test — Send test webhook
  */
-webhookSettingsRoutes.post("/dashboard/api/webhook/test", (c) => {
+webhookSettingsRoutes.post("/dashboard/api/webhook/test", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const url = getUserWebhookUrl(session.userId);

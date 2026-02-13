@@ -1,11 +1,16 @@
 import { Hono } from "hono";
 import { getCookie } from "hono/cookie";
 import { validateSession, SESSION_COOKIE_NAME, type SessionData } from "../auth/session";
+import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
 import { getAuditHistory, getAuditById, getAuditSites, getHealthTrend, getRetentionLimits } from "../audit/history";
 
 export const auditRoutes = new Hono();
 
-function getSession(c: any): SessionData | null {
+async function getSessionHybrid(c: any): Promise<SessionData | ClerkSessionData | null> {
+  try {
+    const clerkSession = await getClerkSession(c);
+    if (clerkSession) return clerkSession;
+  } catch (e) {}
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
   return validateSession(sessionId);
@@ -15,8 +20,8 @@ function getSession(c: any): SessionData | null {
  * GET /dashboard/api/audits/sites — List unique sites with latest scores
  * (registered before /audits/:id to avoid :id matching "sites")
  */
-auditRoutes.get("/dashboard/api/audits/sites", (c) => {
-  const session = getSession(c);
+auditRoutes.get("/dashboard/api/audits/sites", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const sites = getAuditSites(session.userId);
@@ -36,8 +41,8 @@ auditRoutes.get("/dashboard/api/audits/sites", (c) => {
  * (registered before /audits/:id to avoid :id matching "trend")
  * Query params: site_url (required), days (default 30)
  */
-auditRoutes.get("/dashboard/api/audits/trend", (c) => {
-  const session = getSession(c);
+auditRoutes.get("/dashboard/api/audits/trend", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const siteUrl = c.req.query("site_url");
@@ -60,8 +65,8 @@ auditRoutes.get("/dashboard/api/audits/trend", (c) => {
  * GET /dashboard/api/audits — List audit history
  * Query params: site_url, limit (max 100), offset
  */
-auditRoutes.get("/dashboard/api/audits", (c) => {
-  const session = getSession(c);
+auditRoutes.get("/dashboard/api/audits", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const siteUrl = c.req.query("site_url") || undefined;
@@ -93,8 +98,8 @@ auditRoutes.get("/dashboard/api/audits", (c) => {
 /**
  * GET /dashboard/api/audits/:id — Get full audit result
  */
-auditRoutes.get("/dashboard/api/audits/:id", (c) => {
-  const session = getSession(c);
+auditRoutes.get("/dashboard/api/audits/:id", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const auditId = parseInt(c.req.param("id"));

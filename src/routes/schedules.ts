@@ -4,6 +4,7 @@ import {
   validateSession,
   SESSION_COOKIE_NAME,
 } from "../auth/session";
+import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
 import { config } from "../config";
 import { ulid } from "../utils/ulid";
 import {
@@ -32,7 +33,11 @@ function requireJson(c: any): Response | null {
   return null;
 }
 
-function getSession(c: any) {
+async function getSessionHybrid(c: any) {
+  try {
+    const clerkSession = await getClerkSession(c);
+    if (clerkSession) return clerkSession;
+  } catch (e) {}
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
   return validateSession(sessionId);
@@ -59,8 +64,8 @@ function describeSchedule(schedule: string, hour: number, day: number | null): s
 /**
  * GET /dashboard/api/schedules — List user's scheduled audits
  */
-scheduleRoutes.get("/dashboard/api/schedules", (c) => {
-  const session = getSession(c);
+scheduleRoutes.get("/dashboard/api/schedules", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const schedules = getUserSchedules(session.userId);
@@ -97,7 +102,7 @@ scheduleRoutes.post("/dashboard/api/schedules", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const body = await c.req.json<{
@@ -192,7 +197,7 @@ scheduleRoutes.post("/dashboard/api/schedules/:id/update", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const scheduleId = c.req.param("id");
@@ -230,11 +235,11 @@ scheduleRoutes.post("/dashboard/api/schedules/:id/update", async (c) => {
  * DELETE /dashboard/api/schedules/:id — Delete a scheduled audit
  * Uses POST for CSRF safety
  */
-scheduleRoutes.post("/dashboard/api/schedules/:id/delete", (c) => {
+scheduleRoutes.post("/dashboard/api/schedules/:id/delete", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const scheduleId = c.req.param("id");
@@ -251,7 +256,7 @@ scheduleRoutes.post("/dashboard/api/schedules/:id/run", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) return c.json({ error: "Not authenticated" }, 401);
 
   const scheduleId = c.req.param("id");

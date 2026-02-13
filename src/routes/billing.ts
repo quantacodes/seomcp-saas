@@ -8,13 +8,18 @@ import {
   SESSION_COOKIE_NAME,
   type SessionData,
 } from "../auth/session";
+import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
 import { createCheckout, cancelSubscription, resumeSubscription } from "../billing/lemonsqueezy";
 import { verifyWebhookSignature, processWebhookEvent } from "../billing/webhooks";
 
 export const billingRoutes = new Hono();
 
-// ── Session helper ──
-function getSession(c: any): SessionData | null {
+// ── Session helper (hybrid: Clerk Bearer + cookie fallback) ──
+async function getSessionHybrid(c: any): Promise<SessionData | ClerkSessionData | null> {
+  try {
+    const clerkSession = await getClerkSession(c);
+    if (clerkSession) return clerkSession;
+  } catch (e) {}
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
   return validateSession(sessionId);
@@ -36,7 +41,7 @@ billingRoutes.post("/api/billing/checkout", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -111,8 +116,8 @@ billingRoutes.post("/api/billing/webhooks", async (c) => {
 /**
  * GET /api/billing/portal — Get Lemon Squeezy customer portal URL
  */
-billingRoutes.get("/api/billing/portal", (c) => {
-  const session = getSession(c);
+billingRoutes.get("/api/billing/portal", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -140,7 +145,7 @@ billingRoutes.post("/api/billing/cancel", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -189,7 +194,7 @@ billingRoutes.post("/api/billing/resume", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }

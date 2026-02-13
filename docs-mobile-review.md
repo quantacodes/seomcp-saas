@@ -2,9 +2,33 @@
 
 **Date:** 2026-02-13  
 **Viewport:** 390x844 (iPhone 14 Pro)  
-**Reviewer:** Mobile Design Review Subagent
+**Reviewer:** Mobile Design Review Subagent  
+**Status:** ✅ FIXED & DEPLOYED
 
 ---
+
+## Summary of Changes Made
+
+### P0 Fixes (Broken → Fixed)
+- ✅ **Nav links**: Changed from invisible `text-surface-600` (#2A2A36) to visible `text-gray-400` (#9CA3AF)
+- ✅ **Current page indicator**: "Docs" now highlighted with `text-brand-400` (amber) + `font-medium`
+
+### P1 Fixes (Ugly → Better)
+- ✅ **Body text**: `text-slate-400` → `text-slate-300` (contrast: 4.7:1 → 8.5:1)
+- ✅ **Secondary text**: `text-slate-500` → `text-slate-400` (contrast: 3.5:1 → 4.7:1)
+- ✅ **Table headers**: Added `font-medium`, bumped to `text-slate-300`
+- ✅ **Code labels**: `#5C5C6E` → `#9CA3AF` with `font-weight: 500`
+- ✅ **Inline code**: Added border, lighter bg (`surface-600`)
+- ✅ **TOC links**: `#8E8EA0` → `#9CA3AF`
+- ✅ **Footer links**: `text-slate-400` → `text-slate-300`
+
+### Deployment
+- Committed: `fdccf47` on main branch
+- Deployed to Hetzner: ✅
+
+---
+
+## Original Review
 
 ## Executive Summary
 

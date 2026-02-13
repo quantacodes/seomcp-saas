@@ -19,8 +19,10 @@ const { authRoutes } = await import("../src/routes/auth");
 const { keysRoutes } = await import("../src/routes/keys");
 const { usageRoutes } = await import("../src/routes/usage");
 const { mcpRoutes } = await import("../src/routes/mcp");
+const { resetIpRateLimits } = await import("../src/middleware/rate-limit-ip");
 
 runMigrations();
+resetIpRateLimits();
 
 const app = new Hono();
 app.use("*", cors());

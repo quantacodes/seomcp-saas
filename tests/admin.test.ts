@@ -17,8 +17,10 @@ const { cors } = await import("hono/cors");
 const { runMigrations } = await import("../src/db/migrate");
 const { authRoutes } = await import("../src/routes/auth");
 const { adminRoutes } = await import("../src/routes/admin");
+const { resetIpRateLimits } = await import("../src/middleware/rate-limit-ip");
 
 runMigrations();
+resetIpRateLimits();
 
 const app = new Hono();
 app.use("*", cors());

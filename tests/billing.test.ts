@@ -27,8 +27,10 @@ const { variantToPlan } = await import("../src/billing/lemonsqueezy");
 const { createHmac } = await import("crypto");
 const { eq } = await import("drizzle-orm");
 const { db, schema } = await import("../src/db/index");
+const { resetIpRateLimits } = await import("../src/middleware/rate-limit-ip");
 
 runMigrations();
+resetIpRateLimits();
 
 const app = new Hono();
 app.use("*", cors());

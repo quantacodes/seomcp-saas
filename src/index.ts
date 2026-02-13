@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
-import { logger } from "hono/logger";
+// import { logger } from "hono/logger"; // Replaced with structured logger
 import { bodyLimit } from "hono/body-limit";
 import { config } from "./config";
 import { runMigrations } from "./db/migrate";
@@ -19,6 +19,7 @@ import { openapiRoutes } from "./routes/openapi";
 import { toolsRoutes } from "./routes/tools";
 import { playgroundRoutes, stopDemoCleanup } from "./routes/playground";
 import { binaryPool } from "./mcp/binary";
+import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 
 // Run database migrations
 runMigrations();
@@ -42,7 +43,28 @@ app.use("*", async (c, next) => {
   await next();
 });
 
-app.use("*", logger());
+// Structured request logger with timing
+app.use("*", async (c, next) => {
+  const start = performance.now();
+  await next();
+  const ms = (performance.now() - start).toFixed(1);
+  const status = c.res.status;
+  const method = c.req.method;
+  const path = c.req.path;
+  // Skip noisy health checks in logs
+  if (path === "/health") return;
+  const reqId = c.res.headers.get("X-Request-Id") || "-";
+  console.log(JSON.stringify({
+    level: status >= 500 ? "error" : status >= 400 ? "warn" : "info",
+    msg: "request",
+    ts: new Date().toISOString(),
+    method,
+    path,
+    status,
+    ms: parseFloat(ms),
+    reqId,
+  }));
+});
 
 // Security headers
 app.use("*", async (c, next) => {
@@ -96,12 +118,14 @@ app.onError((err, c) => {
 process.on("SIGINT", () => {
   console.log("\nShutting down...");
   stopDemoCleanup();
+  stopIpRateLimitCleanup();
   binaryPool.killAll();
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
   stopDemoCleanup();
+  stopIpRateLimitCleanup();
   binaryPool.killAll();
   process.exit(0);
 });

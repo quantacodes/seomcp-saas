@@ -22,8 +22,10 @@ const { createSession, validateSession, deleteSession, cleanExpiredSessions } = 
 const { eq } = await import("drizzle-orm");
 const { db, schema } = await import("../src/db/index");
 const { ulid } = await import("../src/utils/ulid");
+const { resetIpRateLimits } = await import("../src/middleware/rate-limit-ip");
 
 runMigrations();
+resetIpRateLimits();
 
 const app = new Hono();
 app.use("*", cors());
@@ -48,6 +50,7 @@ async function jsonReq(path: string, body: unknown, headers: Record<string, stri
 
 // Create a test user and get session cookie
 async function createTestUser(email: string, password: string) {
+  resetIpRateLimits(); // Reset IP rate limits for each test user creation
   const signupRes = await jsonReq("/api/auth/signup", { email, password });
   if (signupRes.status !== 201) {
     throw new Error(`Signup failed for ${email}: ${signupRes.status} ${await signupRes.text()}`);

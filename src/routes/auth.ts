@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
+import { checkIpRateLimit } from "../middleware/rate-limit-ip";
 
 export const authRoutes = new Hono();
 
@@ -24,6 +25,14 @@ authRoutes.post("/api/auth/signup", async (c) => {
 
   if (body.password.length < 8) {
     return c.json({ error: "Password must be at least 8 characters" }, 400);
+  }
+
+  // IP rate limit AFTER validation — don't burn quota on malformed requests
+  const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || c.req.header("x-real-ip") || "unknown";
+  const { allowed, retryAfterMs } = checkIpRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
+  if (!allowed) {
+    c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));
+    return c.json({ error: "Too many signups. Try again later." }, 429);
   }
 
   // Check if email already exists
@@ -96,6 +105,14 @@ authRoutes.post("/api/auth/login", async (c) => {
 
   if (!body.email || !body.password) {
     return c.json({ error: "email and password are required" }, 400);
+  }
+
+  // IP rate limit AFTER validation — don't burn quota on malformed requests
+  const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || c.req.header("x-real-ip") || "unknown";
+  const { allowed, retryAfterMs } = checkIpRateLimit(`login:${ip}`, 10, 15 * 60 * 1000);
+  if (!allowed) {
+    c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));
+    return c.json({ error: "Too many login attempts. Try again later." }, 429);
   }
 
   const user = db

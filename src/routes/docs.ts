@@ -22,3 +22,20 @@ function getDocsHtml(): string {
 docsRoutes.get("/docs", (c) => {
   return c.html(getDocsHtml());
 });
+
+// Serve setup script: curl -fsSL https://seomcp.dev/setup | bash
+let cachedSetupScript: string | null = null;
+
+docsRoutes.get("/setup", (c) => {
+  if (isDev || !cachedSetupScript) {
+    const scriptPath = join(dirname(new URL(import.meta.url).pathname), "..", "..", "scripts", "setup-mcp.sh");
+    try {
+      cachedSetupScript = readFileSync(scriptPath, "utf-8");
+    } catch {
+      return c.text("# Setup script not found. Visit https://seomcp.dev/docs for manual setup.", 404);
+    }
+  }
+  return new Response(cachedSetupScript!, {
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
+  });
+});

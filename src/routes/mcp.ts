@@ -176,6 +176,28 @@ mcpRoutes.get("/mcp", (c) => {
 });
 
 /**
+ * GET /.well-known/mcp — MCP discovery endpoint.
+ * Allows MCP clients to discover available servers and their capabilities.
+ */
+mcpRoutes.get("/.well-known/mcp", (c) => {
+  return c.json({
+    name: "SEO MCP",
+    description: "35 production SEO tools for AI agents — crawl, audit, GSC, GA4, IndexNow, schema validation",
+    version: "0.1.0",
+    transport: {
+      type: "streamable-http",
+      url: "https://seomcp.dev/mcp",
+    },
+    authentication: {
+      type: "bearer",
+      description: "API key from seomcp.dev. Sign up at https://seomcp.dev for a free key (50 calls/mo).",
+    },
+    documentation: "https://seomcp.dev/docs",
+    pricing: "https://seomcp.dev/#pricing",
+  });
+});
+
+/**
  * DELETE /mcp — Terminate session.
  * Verifies session belongs to the authenticated user.
  */

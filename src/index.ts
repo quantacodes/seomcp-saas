@@ -14,6 +14,8 @@ import { landingRoutes } from "./routes/landing";
 import { dashboardRoutes } from "./routes/dashboard";
 import { billingRoutes } from "./routes/billing";
 import { docsRoutes } from "./routes/docs";
+import { adminRoutes } from "./routes/admin";
+import { openapiRoutes } from "./routes/openapi";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -61,6 +63,8 @@ app.route("/", googleAuthRoutes);
 app.route("/", dashboardRoutes);
 app.route("/", billingRoutes);
 app.route("/", docsRoutes);
+app.route("/", adminRoutes);
+app.route("/", openapiRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler
@@ -70,7 +74,17 @@ app.notFound((c) => {
 
 // Error handler
 app.onError((err, c) => {
-  console.error("Unhandled error:", err);
+  const reqId = c.res.headers.get("X-Request-Id") || "unknown";
+  console.error(JSON.stringify({
+    level: "error",
+    msg: "unhandled_error",
+    ts: new Date().toISOString(),
+    reqId,
+    path: c.req.path,
+    method: c.req.method,
+    error: err.message,
+    stack: process.env.NODE_ENV !== "production" ? err.stack : undefined,
+  }));
   return c.json({ error: "Internal server error" }, 500);
 });
 

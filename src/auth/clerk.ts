@@ -104,22 +104,34 @@ async function getOrCreateUser(clerkUser: ClerkUser): Promise<InternalUser | nul
     return null;
   }
 
-  // First, try to find by clerkId (future-proof column we'll add)
-  // For now, match by email
-  const existingUser = db
+  // First, try to find by clerkUserId (most reliable)
+  let existingUser = db
     .select()
     .from(schema.users)
-    .where(eq(schema.users.email, email))
+    .where(eq(schema.users.clerkUserId, clerkUser.id))
     .limit(1)
     .all()[0];
 
+  // Fallback: find by email (for migrated users)
+  if (!existingUser) {
+    existingUser = db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email))
+      .limit(1)
+      .all()[0];
+  }
+
   if (existingUser) {
-    // Update email verification status if Clerk has verified it
+    // Update clerkUserId if not set (migration from email/password)
     const clerkVerified = clerkUser.primaryEmailAddress?.verification?.status === "verified";
-    if (clerkVerified && !existingUser.emailVerified) {
+    const needsUpdate = !existingUser.clerkUserId || (clerkVerified && !existingUser.emailVerified);
+    
+    if (needsUpdate) {
       db.update(schema.users)
         .set({
-          emailVerified: true,
+          clerkUserId: clerkUser.id,
+          emailVerified: clerkVerified || existingUser.emailVerified,
           updatedAt: new Date(),
         })
         .where(eq(schema.users.id, existingUser.id))
@@ -144,6 +156,7 @@ async function getOrCreateUser(clerkUser: ClerkUser): Promise<InternalUser | nul
       id: userId,
       email,
       passwordHash: "", // No password — Clerk handles auth
+      clerkUserId: clerkUser.id,
       plan: "free",
       emailVerified,
       createdAt: now,

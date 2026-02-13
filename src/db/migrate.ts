@@ -178,6 +178,8 @@ const alterMigrations = [
   `ALTER TABLE users ADD COLUMN verification_sent_at INTEGER`,
   `ALTER TABLE users ADD COLUMN reset_token TEXT`,
   `ALTER TABLE users ADD COLUMN reset_sent_at INTEGER`,
+  // Clerk integration
+  `ALTER TABLE users ADD COLUMN clerk_user_id TEXT`,
 ];
 
 export function runMigrations() {

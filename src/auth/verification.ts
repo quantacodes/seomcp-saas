@@ -1,5 +1,23 @@
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, createHash, timingSafeEqual } from "crypto";
 import { config } from "../config";
+
+/**
+ * Domain-separated HMAC key for email verification.
+ * Derived from jwtSecret to prevent single-secret compromise.
+ */
+function getVerificationKey(): Buffer {
+  return createHmac("sha256", config.jwtSecret)
+    .update("email-verification-v1")
+    .digest();
+}
+
+/**
+ * Hash a verification token for storage (same pattern as API key hashing).
+ * Prevents token theft from DB compromise.
+ */
+export function hashVerificationToken(token: string): string {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 /**
  * Generate a verification token for email verification.
@@ -12,7 +30,7 @@ export function generateVerificationToken(
 ): { token: string; expiresAt: number } {
   const timestamp = Date.now();
   const payload = `${userId}:${email}:${timestamp}`;
-  const hmac = createHmac("sha256", config.jwtSecret)
+  const hmac = createHmac("sha256", getVerificationKey())
     .update(payload)
     .digest("hex");
   // Token format: timestamp.hmac (allows extraction without DB lookup)
@@ -37,9 +55,9 @@ export function verifyToken(
   const timestamp = parseInt(timestampStr, 10);
   if (isNaN(timestamp)) return { valid: false, expired: false };
 
-  // Recompute HMAC
+  // Recompute HMAC with domain-separated key
   const payload = `${userId}:${email}:${timestamp}`;
-  const expectedHmac = createHmac("sha256", config.jwtSecret)
+  const expectedHmac = createHmac("sha256", getVerificationKey())
     .update(payload)
     .digest("hex");
 

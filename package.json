@@ -8,7 +8,7 @@
     "start": "bun run src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "bun run src/db/migrate.ts",
-    "test": "for f in tests/*.test.ts; do bun test \"$f\" || exit 1; done"
+    "test": "bash scripts/test.sh"
   },
   "dependencies": {
     "hono": "^4.7.0",

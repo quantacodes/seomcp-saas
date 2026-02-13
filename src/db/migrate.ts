@@ -136,6 +136,30 @@ const migrations = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_scheduled_audits_user ON scheduled_audits(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_scheduled_audits_next ON scheduled_audits(is_active, next_run_at)`,
+  // Teams (Phase 9)
+  `CREATE TABLE IF NOT EXISTS teams (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    owner_id TEXT NOT NULL REFERENCES users(id),
+    max_members INTEGER NOT NULL DEFAULT 5,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_teams_owner ON teams(owner_id)`,
+  `CREATE TABLE IF NOT EXISTS team_members (
+    id TEXT PRIMARY KEY,
+    team_id TEXT NOT NULL REFERENCES teams(id),
+    user_id TEXT REFERENCES users(id),
+    email TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',
+    invite_token TEXT,
+    invite_expires_at INTEGER,
+    joined_at INTEGER,
+    created_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_team_members_team ON team_members(team_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_team_members_user ON team_members(user_id)`,
+  `CREATE UNIQUE INDEX IF NOT EXISTS idx_team_members_unique ON team_members(team_id, email)`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,

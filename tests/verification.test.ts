@@ -127,7 +127,18 @@ describe("GET /verify", () => {
   let verificationToken: string;
 
   beforeAll(async () => {
-    // Create a user manually and get their verification token
+    // Intercept console.log to capture the raw verification token from email fallback
+    const originalLog = console.log;
+    let capturedUrl = "";
+    console.log = (...args: unknown[]) => {
+      const msg = args.join(" ");
+      if (msg.includes("Verification email")) {
+        const match = msg.match(/token=([^\s&]+)/);
+        if (match) capturedUrl = decodeURIComponent(match[1]);
+      }
+      originalLog(...args);
+    };
+
     const res = await app.request("/api/auth/signup", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -136,12 +147,11 @@ describe("GET /verify", () => {
     const data = await res.json();
     userId = data.user.id;
 
-    // Get token from DB
-    const { sqlite } = await import("../src/db/index");
-    const row = sqlite
-      .query("SELECT verification_token FROM users WHERE id = ?")
-      .get(userId) as { verification_token: string };
-    verificationToken = row.verification_token;
+    // Restore console.log
+    console.log = originalLog;
+
+    // The raw token was captured from the console log (email fallback)
+    verificationToken = capturedUrl;
   });
 
   it("rejects missing parameters", async () => {

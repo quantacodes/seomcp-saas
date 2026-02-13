@@ -132,3 +132,60 @@ export function getRateLimitStatus(userId: string, plan: string): {
     remaining: Math.max(0, limit - row.call_count),
   };
 }
+
+/**
+ * Get the team context for a user (if any).
+ * Returns the team's plan and aggregate usage if the user is on a team.
+ */
+export function getTeamRateContext(userId: string): {
+  isTeamMember: boolean;
+  teamId?: string;
+  teamPlan?: string;
+  teamUsed?: number;
+  teamLimit?: number;
+} {
+  // Check if user is in a team
+  const membership = sqlite
+    .query("SELECT tm.team_id, t.owner_id FROM team_members tm JOIN teams t ON t.id = tm.team_id WHERE tm.user_id = ? LIMIT 1")
+    .get(userId) as { team_id: string; owner_id: string } | null;
+
+  if (!membership) return { isTeamMember: false };
+
+  // Get owner's plan (team plan is based on the owner's subscription)
+  const owner = sqlite
+    .query("SELECT plan FROM users WHERE id = ?")
+    .get(membership.owner_id) as { plan: string } | null;
+
+  if (!owner) return { isTeamMember: false };
+
+  const planLimits = config.plans[owner.plan];
+  if (!planLimits) return { isTeamMember: false };
+
+  const limit = planLimits.callsPerMonth;
+
+  // Get aggregate team usage
+  const windowStart = getCurrentWindowStart();
+  const teamMembers = sqlite
+    .query("SELECT user_id FROM team_members WHERE team_id = ? AND user_id IS NOT NULL")
+    .all(membership.team_id) as Array<{ user_id: string }>;
+
+  let totalUsed = 0;
+  for (const m of teamMembers) {
+    const row = sqlite
+      .query<{ call_count: number; window_start: number }, [string]>(
+        "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+      )
+      .get(m.user_id);
+    if (row && row.window_start >= windowStart) {
+      totalUsed += row.call_count;
+    }
+  }
+
+  return {
+    isTeamMember: true,
+    teamId: membership.team_id,
+    teamPlan: owner.plan,
+    teamUsed: totalUsed,
+    teamLimit: limit === Infinity ? Infinity : limit,
+  };
+}

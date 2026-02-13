@@ -2,10 +2,12 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import {
+  generateVerificationToken,
   verifyToken,
   buildVerificationUrl,
   sendVerificationEmail,
   sendWelcomeEmail,
+  hashVerificationToken,
 } from "../auth/verification";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
 import { config } from "../config";
@@ -40,8 +42,9 @@ verifyRoutes.get("/verify", async (c) => {
     return c.html(verificationResultHtml(true, "Your email is already verified!"));
   }
 
-  // Check stored token matches
-  if (user.verificationToken !== token) {
+  // Check stored token hash matches (tokens are stored hashed, like API keys)
+  const tokenHash = hashVerificationToken(token);
+  if (user.verificationToken !== tokenHash) {
     return c.html(verificationResultHtml(false, "Invalid or expired verification link."), 400);
   }
 
@@ -110,14 +113,13 @@ verifyRoutes.post("/api/auth/resend-verification", async (c) => {
   }
 
   // Generate new token
-  const { generateVerificationToken } = await import("../auth/verification");
   const { token } = generateVerificationToken(user.id, user.email);
   const url = buildVerificationUrl(user.id, token);
 
   // Store new token
   db.update(schema.users)
     .set({
-      verificationToken: token,
+      verificationToken: hashVerificationToken(token),
       verificationSentAt: new Date(),
       updatedAt: new Date(),
     })
@@ -130,7 +132,14 @@ verifyRoutes.post("/api/auth/resend-verification", async (c) => {
   return c.json({ message: "If the email exists and is unverified, a new link has been sent." });
 });
 
-function verificationResultHtml(success: boolean, message: string): string {
+/**
+ * Render verification result page.
+ * @param success - Whether verification was successful
+ * @param trustedHtml - TRUSTED HTML content only. All callers use hardcoded strings.
+ *   ⚠️ NEVER pass user input (query params, form data, DB values) into this parameter.
+ *   If you need to include dynamic data, escape it with a dedicated function first.
+ */
+function verificationResultHtml(success: boolean, trustedHtml: string): string {
   const icon = success ? "✅" : "❌";
   const color = success ? "#22c55e" : "#ef4444";
   const base = config.baseUrl;
@@ -156,7 +165,7 @@ function verificationResultHtml(success: boolean, message: string): string {
   <div class="card">
     <div class="icon">${icon}</div>
     <h1>${success ? "Email Verified!" : "Verification Failed"}</h1>
-    <p>${message}</p>
+    <p>${trustedHtml}</p>
     <a class="btn" href="${base}/dashboard">${success ? "Go to Dashboard" : "Try Again"}</a>
   </div>
 </body>

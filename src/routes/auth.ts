@@ -8,6 +8,7 @@ import {
   generateVerificationToken,
   buildVerificationUrl,
   sendVerificationEmail,
+  hashVerificationToken,
 } from "../auth/verification";
 
 export const authRoutes = new Hono();
@@ -41,11 +42,13 @@ authRoutes.post("/api/auth/signup", async (c) => {
     return c.json({ error: "Too many signups. Try again later." }, 429);
   }
 
+  const normalizedEmail = body.email.toLowerCase().trim();
+
   // Check if email already exists
   const existing = db
     .select()
     .from(schema.users)
-    .where(eq(schema.users.email, body.email.toLowerCase()))
+    .where(eq(schema.users.email, normalizedEmail))
     .limit(1)
     .all()[0];
 
@@ -61,16 +64,16 @@ authRoutes.post("/api/auth/signup", async (c) => {
   const now = new Date();
 
   // Generate verification token
-  const { token: verificationToken } = generateVerificationToken(userId, body.email.toLowerCase());
+  const { token: verificationToken } = generateVerificationToken(userId, normalizedEmail);
 
   db.insert(schema.users)
     .values({
       id: userId,
-      email: body.email.toLowerCase(),
+      email: normalizedEmail,
       passwordHash,
       plan: "free",
       emailVerified: false,
-      verificationToken,
+      verificationToken: hashVerificationToken(verificationToken),
       verificationSentAt: now,
       createdAt: now,
       updatedAt: now,
@@ -95,7 +98,7 @@ authRoutes.post("/api/auth/signup", async (c) => {
 
   // Send verification email (async, don't block signup)
   const verificationUrl = buildVerificationUrl(userId, verificationToken);
-  sendVerificationEmail(body.email.toLowerCase(), verificationUrl).catch((err) => {
+  sendVerificationEmail(normalizedEmail, verificationUrl).catch((err) => {
     console.error("Failed to send verification email:", err);
   });
 
@@ -103,7 +106,7 @@ authRoutes.post("/api/auth/signup", async (c) => {
     {
       user: {
         id: userId,
-        email: body.email.toLowerCase(),
+        email: normalizedEmail,
         plan: "free",
         emailVerified: false,
       },
@@ -137,7 +140,7 @@ authRoutes.post("/api/auth/login", async (c) => {
   const user = db
     .select()
     .from(schema.users)
-    .where(eq(schema.users.email, body.email.toLowerCase()))
+    .where(eq(schema.users.email, body.email.toLowerCase().trim()))
     .limit(1)
     .all()[0];
 

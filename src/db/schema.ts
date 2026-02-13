@@ -149,6 +149,31 @@ export const scheduledAudits = sqliteTable("scheduled_audits", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const teams = sqliteTable("teams", {
+  id: text("id").primaryKey(), // ULID
+  name: text("name").notNull(),
+  ownerId: text("owner_id")
+    .notNull()
+    .references(() => users.id),
+  maxMembers: integer("max_members").notNull().default(5),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const teamMembers = sqliteTable("team_members", {
+  id: text("id").primaryKey(), // ULID
+  teamId: text("team_id")
+    .notNull()
+    .references(() => teams.id),
+  userId: text("user_id").references(() => users.id), // NULL if invite pending
+  email: text("email").notNull(),
+  role: text("role").notNull().default("member"), // 'owner' | 'admin' | 'member'
+  inviteToken: text("invite_token"), // HMAC token hash for pending invites
+  inviteExpiresAt: integer("invite_expires_at"), // Unix timestamp
+  joinedAt: integer("joined_at", { mode: "timestamp" }),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
 export const rateLimits = sqliteTable("rate_limits", {
   userId: text("user_id")
     .primaryKey()

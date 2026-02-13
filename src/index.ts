@@ -18,6 +18,7 @@ import { adminRoutes } from "./routes/admin";
 import { openapiRoutes } from "./routes/openapi";
 import { toolsRoutes } from "./routes/tools";
 import { playgroundRoutes, stopDemoCleanup } from "./routes/playground";
+import { legalRoutes } from "./routes/legal";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 
@@ -91,6 +92,7 @@ app.route("/", adminRoutes);
 app.route("/", openapiRoutes);
 app.route("/", toolsRoutes);
 app.route("/", playgroundRoutes);
+app.route("/", legalRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

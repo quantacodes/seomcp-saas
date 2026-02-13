@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
-import { checkIpRateLimit } from "../middleware/rate-limit-ip";
+import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
 
 export const authRoutes = new Hono();
 
@@ -28,7 +28,7 @@ authRoutes.post("/api/auth/signup", async (c) => {
   }
 
   // IP rate limit AFTER validation — don't burn quota on malformed requests
-  const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || c.req.header("x-real-ip") || "unknown";
+  const ip = getClientIp(c);
   const { allowed, retryAfterMs } = checkIpRateLimit(`signup:${ip}`, 5, 60 * 60 * 1000);
   if (!allowed) {
     c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));
@@ -108,7 +108,7 @@ authRoutes.post("/api/auth/login", async (c) => {
   }
 
   // IP rate limit AFTER validation — don't burn quota on malformed requests
-  const ip = c.req.header("x-forwarded-for")?.split(",")[0]?.trim() || c.req.header("x-real-ip") || "unknown";
+  const ip = getClientIp(c);
   const { allowed, retryAfterMs } = checkIpRateLimit(`login:${ip}`, 10, 15 * 60 * 1000);
   if (!allowed) {
     c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));

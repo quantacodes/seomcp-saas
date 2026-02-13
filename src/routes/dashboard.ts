@@ -13,6 +13,7 @@ import {
 } from "../auth/session";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
+import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 
@@ -29,32 +30,7 @@ function requireJson(c: any): Response | null {
   return null;
 }
 
-// ── Login rate limiting (in-memory) ──
-const loginAttempts = new Map<string, { count: number; resetAt: number }>();
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-
-// Rate limit by IP+email combo to prevent account lockout DoS
-function checkLoginRate(ip: string, email: string): boolean {
-  const key = `${ip}:${email}`;
-  const now = Date.now();
-  const record = loginAttempts.get(key);
-  if (!record || now > record.resetAt) {
-    loginAttempts.set(key, { count: 1, resetAt: now + LOGIN_WINDOW_MS });
-    return true;
-  }
-  if (record.count >= MAX_LOGIN_ATTEMPTS) return false;
-  record.count++;
-  return true;
-}
-
-// Periodic cleanup of expired rate limit entries (prevent memory leak)
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, record] of loginAttempts) {
-    if (now > record.resetAt) loginAttempts.delete(key);
-  }
-}, LOGIN_WINDOW_MS);
+// Dashboard login rate limiting now uses shared module (src/middleware/rate-limit-ip.ts)
 
 // ── Session middleware ──
 function getSession(c: any): SessionData | null {
@@ -117,12 +93,12 @@ dashboardRoutes.post("/dashboard/login", async (c) => {
   }
 
   const email = body.email.toLowerCase().trim();
-  const ip = c.req.header("X-Forwarded-For")?.split(",")[0]?.trim()
-    || c.req.header("X-Real-IP")
-    || "unknown";
+  const ip = getClientIp(c);
 
-  // Rate limit check (per IP+email)
-  if (!checkLoginRate(ip, email)) {
+  // Rate limit check: 10 attempts per 15 min (shared module)
+  const { allowed, retryAfterMs } = checkIpRateLimit(`dashboard-login:${ip}`, 10, 15 * 60 * 1000);
+  if (!allowed) {
+    c.header("Retry-After", String(Math.ceil(retryAfterMs / 1000)));
     return c.json({ error: "Too many login attempts. Try again in 15 minutes." }, 429);
   }
 

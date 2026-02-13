@@ -31,6 +31,8 @@ healthRoutes.get("/sitemap.xml", (c) => {
   <url><loc>https://seomcp.dev/tools</loc><changefreq>monthly</changefreq><priority>0.9</priority><lastmod>${now}</lastmod></url>
   <url><loc>https://seomcp.dev/docs</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${now}</lastmod></url>
   <url><loc>https://seomcp.dev/playground</loc><changefreq>monthly</changefreq><priority>0.8</priority><lastmod>${now}</lastmod></url>
+  <url><loc>https://seomcp.dev/terms</loc><changefreq>yearly</changefreq><priority>0.3</priority><lastmod>${now}</lastmod></url>
+  <url><loc>https://seomcp.dev/privacy</loc><changefreq>yearly</changefreq><priority>0.3</priority><lastmod>${now}</lastmod></url>
 </urlset>`;
   return new Response(xml, {
     headers: { "Content-Type": "application/xml; charset=utf-8" },

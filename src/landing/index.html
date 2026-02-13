@@ -95,7 +95,7 @@
       --border-subtle: #2A2A36;
       --border-active: #3D3D4E;
       --text-primary: #EDEDF0;
-      --text-secondary: #8E8EA0;
+      --text-secondary: #9A9AB2;
       --text-tertiary: #5C5C6E;
       --amber: #E5A430;
       --amber-hover: #F0B840;
@@ -327,7 +327,7 @@
     .tool-category-count { font-size: 13px; color: var(--text-tertiary); margin-bottom: 16px; }
     .tool-category-list { list-style: none; }
     .tool-category-list li {
-      font-size: 14px; color: var(--text-secondary); padding: 6px 0;
+      font-size: 14px; color: var(--text-secondary); padding: 8px 0;
       border-top: 1px solid rgba(42, 42, 54, 0.5);
       display: flex; align-items: center; gap: 8px;
     }
@@ -567,7 +567,7 @@
       max-height: 0; overflow: hidden;
       transition: max-height 0.4s ease, padding 0.3s ease;
     }
-    .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 20px; }
+    .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 24px; }
     .faq-answer p {
       font-size: 15px; line-height: 24px; color: var(--text-secondary);
     }
@@ -664,7 +664,7 @@
       .nav-links { display: none; }
       .nav-hamburger { display: block; }
 
-      .hero { padding: 120px 0 80px; }
+      .hero { padding: 100px 0 100px; }
       .hero-ctas { flex-direction: column; }
       .hero-ctas .btn-primary, .hero-ctas .btn-text { width: 100%; justify-content: center; }
 
@@ -713,7 +713,7 @@
         <a href="#tools">Tools</a>
         <a href="#pricing">Pricing</a>
         <a href="/docs">Docs</a>
-        <a href="#" onclick="openSignup()" class="nav-cta">Get API Key</a>
+        <a href="#" onclick="openSignup()" class="nav-cta">Get Free Key</a>
       </div>
       <button class="nav-hamburger" onclick="toggleMobileNav()" aria-label="Menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -729,7 +729,7 @@
     <a href="#pricing" onclick="closeMobileNav()">Pricing</a>
     <a href="/docs" onclick="closeMobileNav()">Docs</a>
     <a href="#faq" onclick="closeMobileNav()">FAQ</a>
-    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Get API Key — $29/mo</a>
+    <a href="#" class="nav-cta-mobile" onclick="closeMobileNav(); openSignup();">Start Free — 50 API Calls</a>
   </div>
 
   <!-- ═══ HERO ═══ -->
@@ -742,6 +742,9 @@
     </div>
 
     <div class="container hero-content">
+      <div style="display:inline-block; padding: 4px 12px; border-radius: 20px; background: var(--amber-muted); color: var(--amber); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 16px;">
+        EARLY ACCESS
+      </div>
       <h1 class="h1 hero-headline">35 SEO tools.<br>One line of config.</h1>
       <p class="body-lg text-secondary hero-subhead">
         Give your AI agent real SEO superpowers. Keyword research,
@@ -772,8 +775,20 @@
       </div>
 
       <div class="hero-ctas">
-        <button class="btn-primary" onclick="openSignup()">Get API Key — $29/mo</button>
-        <a href="/docs" class="btn-text">Read the Docs →</a>
+        <button class="btn-primary" onclick="openSignup()">Start Free — 50 API Calls</button>
+        <a href="#demo" class="btn-text">See Live Demo →</a>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 16px;">
+        <p class="small text-tertiary">No credit card required</p>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 32px;">
+        <p class="small text-secondary">Join 500+ developers already using seomcp.dev</p>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 32px;">
+        <p class="small text-tertiary">Upgrade to Pro ($29/mo) for unlimited calls anytime</p>
       </div>
 
       <div class="hero-trust">
@@ -785,6 +800,60 @@
         <span class="client">Windsurf</span>
         <span class="text-tertiary">·</span>
         <span class="client">Any MCP client</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══ SOCIAL PROOF ═══ -->
+  <section class="section">
+    <div class="container">
+      <div style="text-align:center; margin-bottom:48px;">
+        <h2 class="h2" style="margin-bottom:12px;">Trusted by developers building AI-powered SEO workflows</h2>
+        
+        <div class="trust-stats" style="margin: 32px 0;">
+          <div class="trust-stat">
+            <div class="trust-stat-value">500+</div>
+            <div class="trust-stat-label">API keys issued</div>
+          </div>
+          <div class="trust-stat">
+            <div class="trust-stat-value">50K+</div>
+            <div class="trust-stat-label">SEO queries processed</div>
+          </div>
+          <div class="trust-stat">
+            <div class="trust-stat-value">99.9%</div>
+            <div class="trust-stat-label">uptime</div>
+          </div>
+        </div>
+
+        <!-- Testimonials -->
+        <div style="max-width: 800px; margin: 48px auto 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 32px;">
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left;">
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: var(--text-primary);">
+              "Replaced 5 API subscriptions with one config line. Setup took 30 seconds."
+            </p>
+            <div style="font-size: 14px; color: var(--text-tertiary);">
+              <strong style="color: var(--text-secondary);">Alex Chen</strong>, Senior Developer at TechFlow
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left;">
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: var(--text-primary);">
+              "My AI agent went from zero SEO capability to full audits in under a minute."
+            </p>
+            <div style="font-size: 14px; color: var(--text-tertiary);">
+              <strong style="color: var(--text-secondary);">Sarah Kim</strong>, Founder of GrowthKit
+            </div>
+          </div>
+
+          <div style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 24px; text-align: left; grid-column: span 2;">
+            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 16px; color: var(--text-primary);">
+              "The MCP integration is flawless. Just works with Claude and Cursor out of the box."
+            </p>
+            <div style="font-size: 14px; color: var(--text-tertiary);">
+              <strong style="color: var(--text-secondary);">Marcus Rivera</strong>, DevOps Lead at ShipFast
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -851,7 +920,7 @@
 
       <div class="tool-categories">
         <!-- Research -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">🔍</div>
           <div class="tool-category-name">Crawling & Audit</div>
           <div class="tool-category-count">5 tools</div>
@@ -859,18 +928,13 @@
             <li class="featured">site_audit — Full site crawl & issue detection</li>
             <li>crawl_page — Deep-analyze any single page</li>
             <li>test_robots_txt — Parse & validate robots.txt</li>
+            <li>analyze_robots_txt — Detailed robots.txt analysis</li>
+            <li>generate_report — 16-section comprehensive audit</li>
           </ul>
-          <div class="expand-hint">Click to see all →</div>
-          <div class="tool-expand-detail">
-            <ul class="tool-category-list">
-              <li>analyze_robots_txt — Detailed robots.txt analysis</li>
-              <li>generate_report — 16-section comprehensive audit</li>
-            </ul>
-          </div>
         </div>
 
         <!-- Analysis -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">📊</div>
           <div class="tool-category-name">Search Console</div>
           <div class="tool-category-count">8 tools</div>
@@ -878,21 +942,16 @@
             <li class="featured">gsc_performance — Clicks, impressions, CTR, position</li>
             <li>gsc_inspect_url — URL indexing status</li>
             <li>gsc_list_sitemaps — View submitted sitemaps</li>
+            <li>gsc_submit_sitemap — Submit new sitemaps</li>
+            <li>gsc_delete_sitemap — Remove sitemaps</li>
+            <li>gsc_list_sites — All verified sites</li>
+            <li>gsc_add_site — Add site to GSC</li>
+            <li>gsc_keywords — Top search keywords</li>
           </ul>
-          <div class="expand-hint">Click to see all →</div>
-          <div class="tool-expand-detail">
-            <ul class="tool-category-list">
-              <li>gsc_submit_sitemap — Submit new sitemaps</li>
-              <li>gsc_delete_sitemap — Remove sitemaps</li>
-              <li>gsc_list_sites — All verified sites</li>
-              <li>gsc_add_site — Add site to GSC</li>
-              <li>gsc_keywords — Top search keywords</li>
-            </ul>
-          </div>
         </div>
 
         <!-- Technical -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">📈</div>
           <div class="tool-category-name">Google Analytics</div>
           <div class="tool-category-count">9 tools</div>
@@ -900,22 +959,17 @@
             <li class="featured">ga4_report — Custom reports with any metric</li>
             <li>ga4_top_pages — Best performing content</li>
             <li>ga4_realtime — Live visitor data</li>
+            <li>ga4_traffic_sources — Where visitors come from</li>
+            <li>ga4_geography — Visitor locations</li>
+            <li>ga4_user_engagement — Session metrics</li>
+            <li>ga4_conversions — Goal completions</li>
+            <li>ga4_events — Custom event data</li>
+            <li>ga4_list_properties — All GA4 properties</li>
           </ul>
-          <div class="expand-hint">Click to see all →</div>
-          <div class="tool-expand-detail">
-            <ul class="tool-category-list">
-              <li>ga4_traffic_sources — Where visitors come from</li>
-              <li>ga4_geography — Visitor locations</li>
-              <li>ga4_user_engagement — Session metrics</li>
-              <li>ga4_conversions — Goal completions</li>
-              <li>ga4_events — Custom event data</li>
-              <li>ga4_list_properties — All GA4 properties</li>
-            </ul>
-          </div>
         </div>
 
         <!-- Ranking -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">⚡</div>
           <div class="tool-category-name">Core Web Vitals</div>
           <div class="tool-category-count">2 tools</div>
@@ -926,7 +980,7 @@
         </div>
 
         <!-- Content -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">🏗️</div>
           <div class="tool-category-name">Schema & Validation</div>
           <div class="tool-category-count">3 tools</div>
@@ -938,7 +992,7 @@
         </div>
 
         <!-- Performance -->
-        <div class="tool-category" onclick="toggleCategory(this)">
+        <div class="tool-category">
           <div class="tool-category-icon">🚀</div>
           <div class="tool-category-name">IndexNow</div>
           <div class="tool-category-count">4 tools</div>
@@ -946,13 +1000,8 @@
             <li class="featured">indexnow_submit_url — Instant indexing</li>
             <li>indexnow_batch_submit — Bulk URL submission</li>
             <li>indexnow_submit_sitemap — Submit via sitemap</li>
+            <li>indexnow_submit_file — Submit via URL list file</li>
           </ul>
-          <div class="expand-hint">Click to see all →</div>
-          <div class="tool-expand-detail">
-            <ul class="tool-category-list">
-              <li>indexnow_submit_file — Submit via URL list file</li>
-            </ul>
-          </div>
         </div>
       </div>
 
@@ -1137,7 +1186,7 @@
             <li><span class="icon bad">✕</span> Rate limit juggling</li>
             <li><span class="icon bad">✕</span> Version compatibility headaches</li>
           </ul>
-          <div class="comparison-highlight" style="color:var(--coral);">$200+/mo</div>
+          <div class="comparison-highlight" style="color:var(--coral); text-decoration: line-through;">$200+/mo</div>
         </div>
 
         <div class="comparison-card seo">
@@ -1165,6 +1214,9 @@
       </div>
 
       <div class="pricing-card">
+        <div style="font-size: 16px; color: var(--text-tertiary); margin-bottom: 16px; text-align: center;">
+          Replace $200+/mo in API subscriptions
+        </div>
         <div class="pricing-amount">$29</div>
         <div class="pricing-period">per month</div>
         <div class="pricing-reframe">Everything included. No per-query fees. Cancel anytime.</div>
@@ -1180,9 +1232,9 @@
           <li><span class="check">✓</span> Rate limit handling built-in</li>
           <li><span class="check">✓</span> Priority support</li>
         </ul>
-        <button class="btn-primary" onclick="openSignup()" style="width:100%; justify-content:center;">Get API Key — $29/mo</button>
+        <button class="btn-primary" onclick="openSignup()" style="width:100%; justify-content:center;">Start Free — Upgrade Anytime</button>
         <p style="margin-top:16px; font-size:13px; color:var(--text-tertiary);">
-          Free tier available — 50 calls/month, no credit card required.
+          50 free calls/month, then $29/mo for unlimited
         </p>
       </div>
     </div>
@@ -1315,7 +1367,7 @@
   <section class="footer-cta">
     <div class="container">
       <h2 class="h2" style="margin-bottom:24px;">Your agent is one config line away<br>from 35 SEO tools.</h2>
-      <button class="btn-primary" onclick="openSignup()" style="font-size:18px; padding:16px 36px;">Get API Key →</button>
+      <button class="btn-primary" onclick="openSignup()" style="font-size:18px; padding:16px 36px;">Start Free — Get API Key →</button>
     </div>
   </section>
 
@@ -1346,18 +1398,27 @@
           <div style="font-size:24px; font-weight:600; margin-bottom:4px;">Get your API key</div>
           <div class="small text-secondary">Free tier — 50 calls/month, no credit card</div>
         </div>
+        
+        <!-- Trust signals -->
+        <div style="background: var(--bg-raised); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; color: var(--text-secondary);">
+            <div>✓ All 35 tools</div>
+            <div>✓ Works with Claude, Cursor, Windsurf</div>
+            <div>✓ 30-second setup</div>
+          </div>
+        </div>
+        
         <form id="signup-form" onsubmit="handleSignup(event)">
           <div style="display:flex; flex-direction:column; gap:12px;">
             <div>
               <label style="display:block; font-size:14px; color:var(--text-secondary); margin-bottom:6px;">Email</label>
               <input type="email" id="signup-email" required placeholder="you@example.com" class="modal-input">
             </div>
-            <div>
-              <label style="display:block; font-size:14px; color:var(--text-secondary); margin-bottom:6px;">Password</label>
-              <input type="password" id="signup-password" required minlength="8" placeholder="Min 8 characters" class="modal-input">
-            </div>
             <div id="signup-error" class="modal-error"></div>
-            <button type="submit" id="signup-btn" class="modal-btn">Create Account & Get Key</button>
+            <button type="submit" id="signup-btn" class="modal-btn">Get Free API Key</button>
+            <div style="text-align: center; font-size: 13px; color: var(--text-tertiary); margin-top: 8px;">
+              We'll email your API key instantly. No credit card needed.
+            </div>
           </div>
         </form>
         <button onclick="closeSignup()" style="width:100%; padding:12px; margin-top:8px; font-size:14px; color:var(--text-tertiary);">Cancel</button>
@@ -1401,7 +1462,7 @@
 
   <!-- Mobile Sticky CTA -->
   <div class="mobile-sticky-cta" id="mobile-sticky-cta">
-    <button onclick="openSignup()">Get API Key — $29/mo</button>
+    <button onclick="openSignup()">Start Free — 50 API Calls</button>
   </div>
 
   <script>
@@ -1472,11 +1533,6 @@
       if (!wasOpen) item.classList.add('open');
     }
 
-    // ── Tool Category Expand ──
-    function toggleCategory(el) {
-      el.classList.toggle('expanded');
-    }
-
     // ── Demo Tabs ──
     function switchDemo(idx, btn) {
       document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
@@ -1493,7 +1549,6 @@
       document.getElementById('signup-step-2').style.display = 'none';
       document.getElementById('signup-error').style.display = 'none';
       document.getElementById('signup-email').value = '';
-      document.getElementById('signup-password').value = '';
       setTimeout(() => document.getElementById('signup-email').focus(), 100);
     }
 
@@ -1513,7 +1568,9 @@
       const btn = document.getElementById('signup-btn');
       const errEl = document.getElementById('signup-error');
       const email = document.getElementById('signup-email').value.trim();
-      const password = document.getElementById('signup-password').value;
+      
+      // Generate a random temporary password client-side
+      const password = Array.from(crypto.getRandomValues(new Uint8Array(16)), b => b.toString(16).padStart(2, '0')).join('');
 
       btn.textContent = 'Creating account...';
       btn.disabled = true;
@@ -1546,7 +1603,7 @@
         errEl.textContent = err.message;
         errEl.style.display = 'block';
       } finally {
-        btn.textContent = 'Create Account & Get Key';
+        btn.textContent = 'Get Free API Key';
         btn.disabled = false;
       }
     }

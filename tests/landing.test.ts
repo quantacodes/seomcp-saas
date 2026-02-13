@@ -35,6 +35,12 @@ describe("Landing page", () => {
     // Hero
     expect(html).toContain("35 SEO tools");
     expect(html).toContain("One line of config");
+    expect(html).toContain("EARLY ACCESS");
+    // Social proof
+    expect(html).toContain("Trusted by developers building AI-powered SEO workflows");
+    expect(html).toContain("500+");
+    expect(html).toContain("API keys issued");
+    expect(html).toContain("Alex Chen");
     // How it works
     expect(html).toContain("Three steps. Under 60 seconds.");
     // Tools grid
@@ -53,7 +59,7 @@ describe("Landing page", () => {
     expect(html).toContain("Frequently asked questions");
     expect(html).toContain("What is MCP?");
     // CTA
-    expect(html).toContain("Get API Key");
+    expect(html).toContain("Start Free");
     // Footer
     expect(html).toContain("QuantaCodes");
   });

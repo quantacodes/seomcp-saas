@@ -638,7 +638,7 @@
         <div class="page-header"><h1 class="page-title">Google Account</h1></div>
         <div class="page-body">
           <div class="card">
-            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Connect your Google account to unlock Search Console and Analytics tools (17 of 35).</p>
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Connect your Google account to unlock Search Console and Analytics tools (17 of 37).</p>
             <div id="google-status"></div>
           </div>
         </div>
@@ -863,7 +863,11 @@
           } catch (e) {}
         }
       }
-      return _origFetch.call(this, url, opts);
+      var response = await _origFetch.call(this, url, opts);
+      if (typeof url === 'string' && url.startsWith(API_BASE) && response.status === 401) {
+        window.location.href = '/login';
+      }
+      return response;
     };
 
     (function() {
@@ -1084,7 +1088,7 @@
           });
         }
         const siteFilter = document.getElementById('audit-site-filter').value;
-        const url = siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20';
+        const url = API_BASE + '/dashboard/api/audits' + (siteFilter ? '?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '?limit=20');
         const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
@@ -1183,7 +1187,7 @@
     function renderGoogle(google) {
       const el = document.getElementById('google-status');
       if (google.connected) {
-        el.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:' + 'var(--radius)' + ';"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">✅</span><div><div style="font-size:14px; font-weight:500;">' + escHtml(google.email || 'Connected') + '</div><div style="font-size:12px; color:var(--text-tertiary);">' + escHtml(google.scopes || 'GSC + GA4') + '</div></div></div><a href="/api/auth/google/disconnect" style="font-size:12px; color:var(--coral);">Disconnect</a></div>';
+        el.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:' + 'var(--radius)' + ';"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">✅</span><div><div style="font-size:14px; font-weight:500;">' + escHtml(google.email || 'Connected') + '</div><div style="font-size:12px; color:var(--text-tertiary);">' + escHtml(google.scopes || 'GSC + GA4') + '</div></div></div><button onclick="disconnectGoogle()" style="font-size:12px; color:var(--coral); background:none; border:none; cursor:pointer;">Disconnect</button></div>';
       } else {
         el.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:20px; opacity:0.5;">🔗</span><div><div style="font-size:14px; font-weight:500; color:var(--text-secondary);">Not connected</div><div style="font-size:12px; color:var(--text-tertiary);">Required for Search Console and Analytics tools</div></div></div><a href="/api/auth/google/start" class="btn-amber" style="text-decoration:none;">Connect Google</a></div>';
       }
@@ -1203,7 +1207,7 @@
         return;
       }
       if (!billing && currentPlan === 'free') {
-        el.innerHTML = '<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You\'re on the <strong>Free</strong> plan (50 calls/mo).</p>' +
+        el.innerHTML = '<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You\'re on the <strong>Free</strong> plan (' + (dashData.usage?.limit || 100) + ' calls/mo).</p>' +
           '<div class="grid-2">' +
             '<div style="padding:20px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius);">' +
               '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Pro</span><span style="color:var(--amber); font-weight:700;">$29/mo</span></div>' +
@@ -1466,6 +1470,13 @@
     }
 
     // ═══ Helpers ═══
+    async function disconnectGoogle() {
+      if (!confirm('Disconnect Google account?')) return;
+      try {
+        const res = await fetch(API_BASE + '/api/auth/google/disconnect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        if (res.ok) { showToast('✅ Google disconnected'); loadDashboard(); } else { const d = await res.json(); showToast('❌ ' + (d.error || 'Failed')); }
+      } catch { showToast('❌ Request failed'); }
+    }
     function escHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
     function timeAgo(date) {
       const s = Math.floor((Date.now() - date.getTime()) / 1000);

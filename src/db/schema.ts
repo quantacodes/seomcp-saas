@@ -18,6 +18,7 @@ export const apiKeys = sqliteTable("api_keys", {
   keyPrefix: text("key_prefix").notNull(), // "sk_live_REDACTED" — first 16 chars for display
   name: text("name").notNull().default("Default"),
   isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  scopes: text("scopes"), // JSON array of tool categories, null = all
   lastUsedAt: integer("last_used_at", { mode: "timestamp" }),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
@@ -88,6 +89,23 @@ export const webhookEvents = sqliteTable("webhook_events", {
   lsId: text("ls_id").notNull(), // Lemon Squeezy object ID
   payload: text("payload").notNull(), // Full JSON for audit/replay
   processedAt: integer("processed_at", { mode: "timestamp" }).notNull(),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export const auditHistory = sqliteTable("audit_history", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  apiKeyId: text("api_key_id")
+    .notNull()
+    .references(() => apiKeys.id),
+  toolName: text("tool_name").notNull(), // 'generate_report' | 'site_audit' | 'crawl_page'
+  siteUrl: text("site_url").notNull(),
+  healthScore: integer("health_score"), // 0-100
+  summary: text("summary"), // JSON extracted metrics
+  fullResult: text("full_result").notNull(), // Full response JSON
+  durationMs: integer("duration_ms"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 

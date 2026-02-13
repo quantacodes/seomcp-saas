@@ -2,6 +2,7 @@ import { createMiddleware } from "hono/factory";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { hashApiKey, isValidKeyFormat } from "./keys";
+import { parseScopes } from "./scopes";
 import type { AuthContext } from "../types";
 
 // Extend Hono context with auth
@@ -73,6 +74,7 @@ export const authMiddleware = createMiddleware(async (c, next) => {
     email: user.email,
     plan: user.plan,
     apiKeyId: keyRecord.id,
+    scopes: parseScopes(keyRecord.scopes),
   });
 
   await next();

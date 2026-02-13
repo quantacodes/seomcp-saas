@@ -14,6 +14,7 @@ import {
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
+import { validateScopes, describeScopeAccess, parseScopes } from "../auth/scopes";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 
@@ -232,6 +233,7 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
       prefix: schema.apiKeys.keyPrefix,
       name: schema.apiKeys.name,
       isActive: schema.apiKeys.isActive,
+      scopes: schema.apiKeys.scopes,
       lastUsedAt: schema.apiKeys.lastUsedAt,
       createdAt: schema.apiKeys.createdAt,
     })
@@ -304,11 +306,16 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
       topTools,
       dailyUsage,
     },
-    keys: keys.map((k) => ({
-      ...k,
-      lastUsedAt: k.lastUsedAt ? k.lastUsedAt.toISOString() : null,
-      createdAt: k.createdAt.toISOString(),
-    })),
+    keys: keys.map((k) => {
+      const parsedScopes = parseScopes(k.scopes);
+      return {
+        ...k,
+        scopes: parsedScopes,
+        scopeDescription: describeScopeAccess(parsedScopes),
+        lastUsedAt: k.lastUsedAt ? k.lastUsedAt.toISOString() : null,
+        createdAt: k.createdAt.toISOString(),
+      };
+    }),
     google: googleToken
       ? {
           connected: true,
@@ -350,7 +357,7 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
     return c.json({ error: "Not authenticated" }, 401);
   }
 
-  return c.req.json<{ name?: string }>().then((body) => {
+  return c.req.json<{ name?: string; scopes?: string[] }>().then((body) => {
     // Check plan limits
     const planLimits = config.plans[session.plan];
     const existingCount = db
@@ -371,6 +378,12 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
       );
     }
 
+    // Validate scopes
+    const scopeResult = validateScopes(body?.scopes);
+    if (!scopeResult.valid) {
+      return c.json({ error: scopeResult.error }, 400);
+    }
+
     const { raw, hash, prefix } = generateApiKey();
     const keyId = ulid();
 
@@ -382,6 +395,7 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
         keyPrefix: prefix,
         name: body?.name || "Untitled",
         isActive: true,
+        scopes: scopeResult.scopes ? JSON.stringify(scopeResult.scopes) : null,
         createdAt: new Date(),
       })
       .run();
@@ -392,6 +406,8 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
         key: raw, // Only shown once
         prefix,
         name: body?.name || "Untitled",
+        scopes: scopeResult.scopes,
+        scopeDescription: describeScopeAccess(scopeResult.scopes),
         message: "Save your API key — it won't be shown again.",
       },
       201,

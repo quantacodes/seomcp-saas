@@ -12,6 +12,8 @@ import {
 } from "../config/user-config";
 import { sqlite } from "../db/index";
 import { decryptToken } from "../crypto/tokens";
+import { isToolAllowed } from "../auth/scopes";
+import { shouldCapture, captureAudit } from "../audit/history";
 
 // Cache: userId → last token updated_at timestamp when config was written
 const configTimestampCache = new Map<string, number>();
@@ -133,9 +135,22 @@ export async function handleRequest(
   // Atomic rate limit check + increment (only for tool calls)
   const isToolCall = request.method === TOOL_CALL_METHOD;
   if (isToolCall) {
+    // Check key scoping
+    const toolName = extractToolName(request);
+    if (toolName && !isToolAllowed(toolName, auth.scopes)) {
+      return {
+        jsonrpc: "2.0",
+        id: request.id ?? null,
+        error: {
+          code: -32000,
+          message: `Tool "${toolName}" is not allowed by this API key's scope. Allowed categories: ${auth.scopes?.join(", ") || "none"}`,
+          data: { tool: toolName, allowedScopes: auth.scopes },
+        },
+      };
+    }
+
     const rateCheck = checkAndIncrementRateLimit(auth);
     if (!rateCheck.allowed) {
-      const toolName = extractToolName(request);
       logUsage(auth, toolName || request.method, "rate_limited", 0);
 
       return {
@@ -169,6 +184,12 @@ export async function handleRequest(
     if (isToolCall) {
       const toolName = extractToolName(request);
       logUsage(auth, toolName || "unknown", response.error ? "error" : "success", durationMs);
+
+      // Capture audit history for report/audit tools (fire-and-forget)
+      if (toolName && !response.error && shouldCapture(toolName)) {
+        const params = (request.params as { arguments?: Record<string, any> })?.arguments || {};
+        captureAudit(auth.userId, auth.apiKeyId, toolName, params, response.result, durationMs, auth.plan);
+      }
     }
 
     return response;

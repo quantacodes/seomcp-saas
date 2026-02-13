@@ -9,6 +9,11 @@ const TERMS_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Terms of Service — seomcp.dev</title>
   <link rel="canonical" href="https://seomcp.dev/terms">
+  <meta property="og:title" content="Terms of Service — seomcp.dev">
+  <meta property="og:url" content="https://seomcp.dev/terms">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="seomcp.dev">
+  <meta name="twitter:card" content="summary">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>body { font-family: 'Inter', sans-serif; }</style>
@@ -95,6 +100,11 @@ const PRIVACY_HTML = `<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Privacy Policy — seomcp.dev</title>
   <link rel="canonical" href="https://seomcp.dev/privacy">
+  <meta property="og:title" content="Privacy Policy — seomcp.dev">
+  <meta property="og:url" content="https://seomcp.dev/privacy">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="seomcp.dev">
+  <meta name="twitter:card" content="summary">
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>body { font-family: 'Inter', sans-serif; }</style>

@@ -19,6 +19,8 @@ import { openapiRoutes } from "./routes/openapi";
 import { toolsRoutes } from "./routes/tools";
 import { playgroundRoutes, stopDemoCleanup } from "./routes/playground";
 import { legalRoutes } from "./routes/legal";
+import { changelogRoutes } from "./routes/changelog";
+import { auditRoutes } from "./routes/audits";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 
@@ -93,6 +95,8 @@ app.route("/", openapiRoutes);
 app.route("/", toolsRoutes);
 app.route("/", playgroundRoutes);
 app.route("/", legalRoutes);
+app.route("/", changelogRoutes);
+app.route("/", auditRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler

@@ -88,6 +88,21 @@ const migrations = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_webhook_events_ls_id ON webhook_events(ls_id)`,
   `CREATE UNIQUE INDEX IF NOT EXISTS idx_webhook_events_idempotent ON webhook_events(event_name, ls_id)`,
+  // Audit history (Phase 6)
+  `CREATE TABLE IF NOT EXISTS audit_history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    api_key_id TEXT NOT NULL REFERENCES api_keys(id),
+    tool_name TEXT NOT NULL,
+    site_url TEXT NOT NULL,
+    health_score INTEGER,
+    summary TEXT,
+    full_result TEXT NOT NULL,
+    duration_ms INTEGER,
+    created_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_audit_history_user ON audit_history(user_id, created_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS idx_audit_history_site ON audit_history(user_id, site_url, created_at DESC)`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,
@@ -96,11 +111,24 @@ const migrations = [
   // rate_limits PK is user_id, no extra index needed
 ];
 
+// ALTER TABLE migrations that may fail if already applied (SQLite lacks IF NOT EXISTS for columns)
+const alterMigrations = [
+  `ALTER TABLE api_keys ADD COLUMN scopes TEXT DEFAULT NULL`,
+];
+
 export function runMigrations() {
   for (const sql of migrations) {
     sqlite.exec(sql);
   }
-  console.log(`✅ Migrations complete (${migrations.length} statements)`);
+  // Apply ALTER TABLE migrations (ignore "duplicate column" errors)
+  for (const sql of alterMigrations) {
+    try {
+      sqlite.exec(sql);
+    } catch (e: any) {
+      if (!e.message?.includes("duplicate column")) throw e;
+    }
+  }
+  console.log(`✅ Migrations complete (${migrations.length + alterMigrations.length} statements)`);
 }
 
 // Run if called directly

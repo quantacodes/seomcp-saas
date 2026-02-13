@@ -51,6 +51,7 @@ export interface AuthContext {
   email: string;
   plan: string;
   apiKeyId: string;
+  scopes: string[] | null; // Tool category restrictions, null = unrestricted
 }
 
 // SSE event

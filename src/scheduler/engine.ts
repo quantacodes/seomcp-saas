@@ -4,7 +4,7 @@ import { binaryPool } from "../mcp/binary";
 import { captureAudit, extractSiteUrl } from "../audit/history";
 import { logUsage } from "../usage/tracker";
 import { checkAndIncrementRateLimit } from "../ratelimit/middleware";
-import { notifyScheduledAuditResult } from "../webhooks/user-webhooks";
+import { notifyScheduledAuditResult, pruneWebhookDeliveries } from "../webhooks/user-webhooks";
 import {
   getUserConfigPath as getPerUserConfigPath,
   writeUserConfig,
@@ -229,13 +229,15 @@ async function runScheduledAudit(audit: any): Promise<void> {
         },
       };
 
-      // Send with timeout
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), RUN_TIMEOUT_MS);
-
+      // Binary has its own 60s timeout per request
+      // Use Promise.race for the 5-minute outer timeout
       try {
-        const response = await binary.send(request);
-        clearTimeout(timeout);
+        const response = await Promise.race([
+          binary.send(request),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Scheduled audit timed out after 5 minutes")), RUN_TIMEOUT_MS)
+          ),
+        ]);
 
         const durationMs = Date.now() - now;
 
@@ -273,7 +275,6 @@ async function runScheduledAudit(audit: any): Promise<void> {
           if (match) healthScore = parseInt(match[1], 10);
         }
       } catch (err) {
-        clearTimeout(timeout);
         errorMsg = err instanceof Error ? err.message : "Run timed out";
         const durationMs = Date.now() - now;
         logUsage(
@@ -317,10 +318,19 @@ async function runScheduledAudit(audit: any): Promise<void> {
   }));
 }
 
+// Prune webhook deliveries every ~10 minutes (every 10th poll)
+let pollCount = 0;
+
 /**
  * Poll for due audits and run them.
  */
 async function pollAndRun(): Promise<void> {
+  // Periodic housekeeping (every ~10 minutes)
+  pollCount++;
+  if (pollCount % 10 === 0) {
+    try { pruneWebhookDeliveries(); } catch { /* non-critical */ }
+  }
+
   const slotsAvailable = MAX_CONCURRENT_RUNS - activeRuns;
   if (slotsAvailable <= 0) return;
 

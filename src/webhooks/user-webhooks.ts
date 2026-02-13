@@ -258,6 +258,27 @@ export function notifyScheduledAuditResult(
 }
 
 /**
+ * Prune old webhook deliveries (keep last 100 per user, max 30 days).
+ */
+export function pruneWebhookDeliveries(): void {
+  try {
+    const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    sqlite.prepare("DELETE FROM webhook_deliveries WHERE created_at < ?").run(thirtyDaysAgo);
+    // Keep max 100 per user
+    sqlite.prepare(`
+      DELETE FROM webhook_deliveries WHERE id IN (
+        SELECT wd.id FROM webhook_deliveries wd
+        WHERE wd.id NOT IN (
+          SELECT id FROM webhook_deliveries WHERE user_id = wd.user_id ORDER BY created_at DESC LIMIT 100
+        )
+      )
+    `).run();
+  } catch (err) {
+    console.error("Failed to prune webhook deliveries:", err);
+  }
+}
+
+/**
  * Send test webhook.
  */
 export function sendTestWebhook(userId: string): void {

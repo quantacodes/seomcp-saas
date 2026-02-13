@@ -21,8 +21,11 @@ import { playgroundRoutes, stopDemoCleanup } from "./routes/playground";
 import { legalRoutes } from "./routes/legal";
 import { changelogRoutes } from "./routes/changelog";
 import { auditRoutes } from "./routes/audits";
+import { webhookSettingsRoutes } from "./routes/webhook-settings";
+import { scheduleRoutes } from "./routes/schedules";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
+import { startScheduler, stopScheduler } from "./scheduler/engine";
 
 // Run database migrations
 runMigrations();
@@ -97,6 +100,8 @@ app.route("/", playgroundRoutes);
 app.route("/", legalRoutes);
 app.route("/", changelogRoutes);
 app.route("/", auditRoutes);
+app.route("/", webhookSettingsRoutes);
+app.route("/", scheduleRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler
@@ -120,9 +125,15 @@ app.onError((err, c) => {
   return c.json({ error: "Internal server error" }, 500);
 });
 
+// Start scheduler (skip in test environment)
+if (process.env.NODE_ENV !== "test") {
+  startScheduler();
+}
+
 // Graceful shutdown
 process.on("SIGINT", () => {
   console.log("\nShutting down...");
+  stopScheduler();
   stopDemoCleanup();
   stopIpRateLimitCleanup();
   binaryPool.killAll();
@@ -130,6 +141,7 @@ process.on("SIGINT", () => {
 });
 
 process.on("SIGTERM", () => {
+  stopScheduler();
   stopDemoCleanup();
   stopIpRateLimitCleanup();
   binaryPool.killAll();

@@ -287,6 +287,53 @@
       </div>
     </section>
 
+    <!-- Scheduled Audits -->
+    <section id="schedules-section" class="hidden">
+      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-lg font-bold">Scheduled Audits</h2>
+          <div class="flex items-center gap-3">
+            <span id="schedule-limit" class="text-xs text-slate-500"></span>
+            <button onclick="showScheduleModal()" id="add-schedule-btn" class="px-3 py-1.5 text-xs font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">+ New Schedule</button>
+          </div>
+        </div>
+        <div id="no-schedules" class="hidden text-center py-12">
+          <div class="text-4xl mb-3">📅</div>
+          <p class="text-slate-400 text-sm">No scheduled audits yet.</p>
+          <p class="text-slate-500 text-xs mt-1">Set up automatic SEO monitoring for your sites.</p>
+        </div>
+        <div id="schedules-list" class="space-y-3"></div>
+      </div>
+    </section>
+
+    <!-- Webhooks -->
+    <section id="webhooks-section" class="hidden">
+      <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
+        <h2 class="text-lg font-bold mb-2">Webhooks</h2>
+        <p class="text-sm text-slate-400 mb-6">Get notified when audits complete or usage limits are reached.</p>
+        <form onsubmit="saveWebhook(event)" class="flex gap-3 mb-6">
+          <input type="url" id="webhook-url" required placeholder="https://your-server.com/webhook" 
+            class="flex-1 px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm font-mono">
+          <button type="submit" class="px-4 py-2 text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Save</button>
+          <button type="button" onclick="removeWebhook()" class="px-4 py-2 text-sm font-medium bg-surface-700 hover:bg-surface-600 text-white rounded-lg border border-white/10 transition">Remove</button>
+          <button type="button" onclick="testWebhook()" class="px-4 py-2 text-sm font-medium bg-surface-700 hover:bg-surface-600 text-white rounded-lg border border-white/10 transition">Test</button>
+        </form>
+        <div id="webhook-error" class="hidden text-xs text-red-400 mb-4"></div>
+        <div id="webhook-success" class="hidden text-xs text-green-400 mb-4"></div>
+        <h3 class="text-sm font-medium text-slate-300 mb-3">Recent Deliveries</h3>
+        <div id="no-deliveries" class="hidden text-center py-6 text-sm text-slate-500">No deliveries yet.</div>
+        <table class="w-full text-sm" id="deliveries-table">
+          <thead><tr class="text-xs text-slate-500 uppercase tracking-wider">
+            <th class="pb-3 text-left font-medium">Event</th>
+            <th class="pb-3 text-left font-medium">Status</th>
+            <th class="pb-3 text-left font-medium hidden sm:table-cell">Duration</th>
+            <th class="pb-3 text-left font-medium">Time</th>
+          </tr></thead>
+          <tbody id="deliveries-body"></tbody>
+        </table>
+      </div>
+    </section>
+
     <!-- Account Settings -->
     <section id="account-section" class="hidden">
       <div class="bg-surface-800 border border-white/5 rounded-2xl p-6 sm:p-8">
@@ -412,6 +459,54 @@
     </div>
   </div>
 
+  <!-- Create Schedule Modal -->
+  <div id="schedule-modal" class="modal-overlay">
+    <div class="w-full max-w-md mx-4 p-8 bg-surface-800 rounded-2xl border border-white/10 shadow-2xl">
+      <h3 class="text-lg font-bold mb-6">New Scheduled Audit</h3>
+      <form id="schedule-form" onsubmit="createSchedule(event)" class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Site URL</label>
+          <input type="text" id="sched-site" required placeholder="example.com" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 text-sm">
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Tool</label>
+          <select id="sched-tool" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+            <option value="generate_report">Full SEO Report (generate_report)</option>
+            <option value="site_audit">Site Audit (site_audit)</option>
+            <option value="crawl_page">Crawl Page (crawl_page)</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Frequency</label>
+            <select id="sched-freq" onchange="updateDayField()" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+              <option value="daily">Daily</option>
+              <option value="weekly" selected>Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5">Hour (UTC)</label>
+            <select id="sched-hour" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+              <option value="0">00:00</option><option value="1">01:00</option><option value="2">02:00</option><option value="3">03:00</option><option value="4">04:00</option><option value="5">05:00</option><option value="6" selected>06:00</option><option value="7">07:00</option><option value="8">08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option>
+            </select>
+          </div>
+          <div id="sched-day-wrap">
+            <label class="text-xs text-slate-500 uppercase tracking-wider block mb-1.5" id="sched-day-label">Day</label>
+            <select id="sched-day" class="w-full px-3 py-2 bg-surface-900 border border-white/10 rounded-lg text-white focus:outline-none focus:border-brand-500 text-sm">
+              <option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option>
+            </select>
+          </div>
+        </div>
+        <div id="schedule-error" class="hidden text-xs text-red-400"></div>
+        <div class="flex gap-3 pt-2">
+          <button type="button" onclick="closeScheduleModal()" class="flex-1 py-2.5 text-sm font-medium text-slate-400 bg-surface-700 hover:bg-surface-600 rounded-lg transition">Cancel</button>
+          <button type="submit" class="flex-1 py-2.5 text-sm font-semibold bg-brand-500 hover:bg-brand-600 text-white rounded-lg transition">Create Schedule</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied</div>
 
@@ -486,6 +581,12 @@
 
       // Activity
       renderActivity(d.recentCalls);
+
+      // Schedules
+      loadSchedules();
+
+      // Webhooks
+      loadWebhooks();
 
       // Account
       document.getElementById('account-email').textContent = d.user.email;
@@ -822,6 +923,225 @@
           <td class="py-2.5 text-right text-xs text-slate-400">${duration}</td>
         </tr>`;
       }).join('');
+    }
+
+    // ── Scheduled Audits ──
+    async function loadSchedules() {
+      const section = document.getElementById('schedules-section');
+      try {
+        const res = await fetch('/dashboard/api/schedules', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        section.classList.remove('hidden');
+        
+        const limitEl = document.getElementById('schedule-limit');
+        const max = data.limits.max === 'unlimited' ? '∞' : data.limits.max;
+        limitEl.textContent = `${data.limits.used}/${max} schedules`;
+        
+        if (data.limits.max === 0) {
+          document.getElementById('add-schedule-btn').disabled = true;
+          document.getElementById('add-schedule-btn').title = 'Upgrade to Pro to use scheduled audits';
+        }
+        
+        const list = document.getElementById('schedules-list');
+        const noSched = document.getElementById('no-schedules');
+        
+        if (data.schedules.length === 0) {
+          noSched.classList.remove('hidden');
+          list.innerHTML = '';
+          return;
+        }
+        noSched.classList.add('hidden');
+        
+        list.innerHTML = data.schedules.map(s => {
+          const statusClass = s.isActive ? 'badge-active' : 'badge-revoked';
+          const statusText = s.isActive ? 'Active' : 'Paused';
+          const nextRun = s.isActive && s.nextRunAt ? new Date(s.nextRunAt).toLocaleString() : '—';
+          const lastRun = s.lastRunAt ? new Date(s.lastRunAt).toLocaleString() : 'Never';
+          const error = s.lastError ? `<span class="text-xs text-red-400 ml-2">${escHtml(s.lastError)}</span>` : '';
+          return `<div class="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-surface-900/50 border border-white/5 rounded-xl gap-3">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm font-medium text-white truncate">${escHtml(s.siteUrl)}</span>
+                <span class="px-2 py-0.5 rounded text-xs font-medium ${statusClass}">${statusText}</span>
+              </div>
+              <div class="text-xs text-slate-500">${escHtml(s.description)} · ${s.toolName} · ${s.runCount} runs${error}</div>
+              <div class="text-xs text-slate-600 mt-1">Next: ${nextRun} · Last: ${lastRun}</div>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <button onclick="toggleSchedule('${s.id}', ${!s.isActive})" class="text-xs px-2 py-1 rounded border border-white/10 bg-surface-700 hover:bg-surface-600 text-slate-300 transition">${s.isActive ? 'Pause' : 'Resume'}</button>
+              <button onclick="runScheduleNow('${s.id}')" class="text-xs px-2 py-1 rounded border border-white/10 bg-surface-700 hover:bg-surface-600 text-slate-300 transition" ${!s.isActive ? 'disabled' : ''}>Run Now</button>
+              <button onclick="deleteSchedule('${s.id}')" class="text-xs px-2 py-1 rounded border border-red-500/20 bg-red-500/5 hover:bg-red-500/10 text-red-400 transition">Delete</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        console.error('Failed to load schedules:', err);
+      }
+    }
+    
+    function showScheduleModal() { document.getElementById('schedule-modal').classList.add('active'); }
+    function closeScheduleModal() { document.getElementById('schedule-modal').classList.remove('active'); }
+    
+    function updateDayField() {
+      const freq = document.getElementById('sched-freq').value;
+      const wrap = document.getElementById('sched-day-wrap');
+      const label = document.getElementById('sched-day-label');
+      const sel = document.getElementById('sched-day');
+      if (freq === 'daily') { wrap.style.display = 'none'; }
+      else {
+        wrap.style.display = '';
+        if (freq === 'weekly') {
+          label.textContent = 'Day';
+          sel.innerHTML = '<option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option>';
+        } else {
+          label.textContent = 'Day';
+          sel.innerHTML = [...Array(28)].map((_,i) => `<option value="${i+1}">${i+1}</option>`).join('');
+        }
+      }
+    }
+    
+    async function createSchedule(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('schedule-error');
+      errEl.classList.add('hidden');
+      const freq = document.getElementById('sched-freq').value;
+      const body = {
+        siteUrl: document.getElementById('sched-site').value,
+        toolName: document.getElementById('sched-tool').value,
+        schedule: freq,
+        hour: parseInt(document.getElementById('sched-hour').value),
+      };
+      if (freq !== 'daily') body.day = parseInt(document.getElementById('sched-day').value);
+      try {
+        const res = await fetch('/dashboard/api/schedules', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
+        closeScheduleModal();
+        document.getElementById('schedule-form').reset();
+        loadSchedules();
+      } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
+    }
+    
+    async function toggleSchedule(id, isActive) {
+      await fetch(`/dashboard/api/schedules/${id}/update`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isActive }),
+      });
+      loadSchedules();
+    }
+    
+    async function runScheduleNow(id) {
+      await fetch(`/dashboard/api/schedules/${id}/run`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const toast = document.getElementById('copy-toast');
+      toast.textContent = '🚀 Audit triggered!';
+      toast.classList.add('show');
+      setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 2500);
+    }
+    
+    async function deleteSchedule(id) {
+      if (!confirm('Delete this scheduled audit?')) return;
+      await fetch(`/dashboard/api/schedules/${id}/delete`, {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      loadSchedules();
+    }
+
+    // ── Webhooks ──
+    async function loadWebhooks() {
+      const section = document.getElementById('webhooks-section');
+      try {
+        const res = await fetch('/dashboard/api/webhook', { credentials: 'include' });
+        if (!res.ok) return;
+        const data = await res.json();
+        section.classList.remove('hidden');
+        
+        if (data.webhook.url) {
+          document.getElementById('webhook-url').value = data.webhook.url;
+        }
+        
+        const tbody = document.getElementById('deliveries-body');
+        const noDeliveries = document.getElementById('no-deliveries');
+        const table = document.getElementById('deliveries-table');
+        
+        if (data.deliveries.length === 0) {
+          noDeliveries.classList.remove('hidden');
+          table.classList.add('hidden');
+        } else {
+          noDeliveries.classList.add('hidden');
+          table.classList.remove('hidden');
+          tbody.innerHTML = data.deliveries.map(d => {
+            const statusClass = d.success ? 'text-green-400' : 'text-red-400';
+            const statusText = d.success ? `${d.statusCode || 'OK'}` : (d.error || 'Failed');
+            const time = new Date(d.createdAt).toLocaleString();
+            return `<tr class="border-b border-white/5">
+              <td class="py-2 pr-4 text-xs font-mono text-slate-300">${escHtml(d.event)}</td>
+              <td class="py-2 pr-4 text-xs ${statusClass}">${escHtml(statusText)}</td>
+              <td class="py-2 pr-4 text-xs text-slate-500 hidden sm:table-cell">${d.durationMs ? d.durationMs + 'ms' : '—'}</td>
+              <td class="py-2 text-xs text-slate-500">${time}</td>
+            </tr>`;
+          }).join('');
+        }
+      } catch (err) { console.error('Failed to load webhooks:', err); }
+    }
+    
+    async function saveWebhook(e) {
+      e.preventDefault();
+      const errEl = document.getElementById('webhook-error');
+      const sucEl = document.getElementById('webhook-success');
+      errEl.classList.add('hidden'); sucEl.classList.add('hidden');
+      const url = document.getElementById('webhook-url').value;
+      try {
+        const res = await fetch('/dashboard/api/webhook', {
+          method: 'POST', credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await res.json();
+        if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
+        sucEl.textContent = 'Webhook URL saved ✓'; sucEl.classList.remove('hidden');
+        setTimeout(() => sucEl.classList.add('hidden'), 3000);
+      } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
+    }
+    
+    async function removeWebhook() {
+      await fetch('/dashboard/api/webhook/remove', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      document.getElementById('webhook-url').value = '';
+      document.getElementById('webhook-success').textContent = 'Webhook removed';
+      document.getElementById('webhook-success').classList.remove('hidden');
+      setTimeout(() => document.getElementById('webhook-success').classList.add('hidden'), 3000);
+    }
+    
+    async function testWebhook() {
+      const res = await fetch('/dashboard/api/webhook/test', {
+        method: 'POST', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        document.getElementById('webhook-error').textContent = data.error;
+        document.getElementById('webhook-error').classList.remove('hidden');
+        return;
+      }
+      document.getElementById('webhook-success').textContent = 'Test webhook sent! Check deliveries.';
+      document.getElementById('webhook-success').classList.remove('hidden');
+      setTimeout(() => { document.getElementById('webhook-success').classList.add('hidden'); loadWebhooks(); }, 2000);
     }
 
     // ── Billing ──

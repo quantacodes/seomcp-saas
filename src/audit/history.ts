@@ -97,24 +97,36 @@ function extractSummary(toolName: string, result: any): Record<string, any> | nu
   }
 }
 
-const insertStmt = sqlite.prepare(`
-  INSERT INTO audit_history (user_id, api_key_id, tool_name, site_url, health_score, summary, full_result, duration_ms, created_at)
-  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-`);
+// Lazy prepared statements — avoids "no such table" errors when module is
+// imported before migrations have run (common in tests).
+let _insertStmt: ReturnType<typeof sqlite.prepare> | null = null;
+let _countStmt: ReturnType<typeof sqlite.prepare> | null = null;
+let _pruneOldStmt: ReturnType<typeof sqlite.prepare> | null = null;
+let _pruneExcessStmt: ReturnType<typeof sqlite.prepare> | null = null;
 
-const countStmt = sqlite.prepare(
-  `SELECT COUNT(*) as cnt FROM audit_history WHERE user_id = ?`
-);
-
-const pruneOldStmt = sqlite.prepare(`
-  DELETE FROM audit_history WHERE user_id = ? AND created_at < ?
-`);
-
-const pruneExcessStmt = sqlite.prepare(`
-  DELETE FROM audit_history WHERE user_id = ? AND id NOT IN (
-    SELECT id FROM audit_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?
-  )
-`);
+function getInsertStmt() {
+  return _insertStmt ??= sqlite.prepare(
+    `INSERT INTO audit_history (user_id, api_key_id, tool_name, site_url, health_score, summary, full_result, duration_ms, created_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+}
+function getCountStmt() {
+  return _countStmt ??= sqlite.prepare(
+    `SELECT COUNT(*) as cnt FROM audit_history WHERE user_id = ?`
+  );
+}
+function getPruneOldStmt() {
+  return _pruneOldStmt ??= sqlite.prepare(
+    `DELETE FROM audit_history WHERE user_id = ? AND created_at < ?`
+  );
+}
+function getPruneExcessStmt() {
+  return _pruneExcessStmt ??= sqlite.prepare(
+    `DELETE FROM audit_history WHERE user_id = ? AND id NOT IN (
+      SELECT id FROM audit_history WHERE user_id = ? ORDER BY created_at DESC LIMIT ?
+    )`
+  );
+}
 
 // Max full_result size: 512KB (prevents DB bloat from massive crawl results)
 const MAX_RESULT_BYTES = 512 * 1024;
@@ -145,7 +157,7 @@ export function captureAudit(
     }
     const now = new Date();
 
-    insertStmt.run(
+    getInsertStmt().run(
       userId,
       apiKeyId,
       toolName,
@@ -160,8 +172,8 @@ export function captureAudit(
     // Enforce retention limits
     const limits = RETENTION_LIMITS[plan] || RETENTION_LIMITS.free;
     const cutoff = new Date(now.getTime() - limits.retentionDays * 24 * 60 * 60 * 1000);
-    pruneOldStmt.run(userId, cutoff.getTime());
-    pruneExcessStmt.run(userId, userId, limits.maxAudits);
+    getPruneOldStmt().run(userId, cutoff.getTime());
+    getPruneExcessStmt().run(userId, userId, limits.maxAudits);
   } catch (err) {
     console.error("Failed to capture audit:", err);
   }

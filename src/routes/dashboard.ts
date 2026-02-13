@@ -15,6 +15,7 @@ import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
 import { validateScopes, describeScopeAccess, parseScopes } from "../auth/scopes";
+import { getUserWebhookUrl, setUserWebhookUrl, validateWebhookUrl } from "../webhooks/user-webhooks";
 import { readFileSync } from "fs";
 import { join, dirname } from "path";
 

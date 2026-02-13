@@ -103,6 +103,39 @@ const migrations = [
   )`,
   `CREATE INDEX IF NOT EXISTS idx_audit_history_user ON audit_history(user_id, created_at DESC)`,
   `CREATE INDEX IF NOT EXISTS idx_audit_history_site ON audit_history(user_id, site_url, created_at DESC)`,
+  // Webhook delivery log (Phase 7)
+  `CREATE TABLE IF NOT EXISTS webhook_deliveries (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    event TEXT NOT NULL,
+    url TEXT NOT NULL,
+    status_code INTEGER,
+    success INTEGER NOT NULL DEFAULT 0,
+    error TEXT,
+    duration_ms INTEGER,
+    created_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_webhook_deliveries_user ON webhook_deliveries(user_id, created_at DESC)`,
+  // Scheduled audits (Phase 7)
+  `CREATE TABLE IF NOT EXISTS scheduled_audits (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    api_key_id TEXT NOT NULL REFERENCES api_keys(id),
+    site_url TEXT NOT NULL,
+    tool_name TEXT NOT NULL DEFAULT 'generate_report',
+    schedule TEXT NOT NULL,
+    schedule_hour INTEGER NOT NULL DEFAULT 6,
+    schedule_day INTEGER,
+    is_active INTEGER NOT NULL DEFAULT 1,
+    last_run_at INTEGER,
+    next_run_at INTEGER NOT NULL,
+    last_error TEXT,
+    run_count INTEGER NOT NULL DEFAULT 0,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_scheduled_audits_user ON scheduled_audits(user_id)`,
+  `CREATE INDEX IF NOT EXISTS idx_scheduled_audits_next ON scheduled_audits(is_active, next_run_at)`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,
@@ -114,6 +147,7 @@ const migrations = [
 // ALTER TABLE migrations that may fail if already applied (SQLite lacks IF NOT EXISTS for columns)
 const alterMigrations = [
   `ALTER TABLE api_keys ADD COLUMN scopes TEXT DEFAULT NULL`,
+  `ALTER TABLE users ADD COLUMN webhook_url TEXT DEFAULT NULL`,
 ];
 
 export function runMigrations() {

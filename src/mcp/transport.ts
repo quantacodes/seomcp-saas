@@ -13,7 +13,8 @@ import {
 import { sqlite } from "../db/index";
 import { decryptToken } from "../crypto/tokens";
 import { isToolAllowed } from "../auth/scopes";
-import { shouldCapture, captureAudit } from "../audit/history";
+import { shouldCapture, captureAudit, extractSiteUrl } from "../audit/history";
+import { notifyAuditComplete, notifyUsageAlert } from "../webhooks/user-webhooks";
 
 // Cache: userId → last token updated_at timestamp when config was written
 const configTimestampCache = new Map<string, number>();
@@ -152,7 +153,10 @@ export async function handleRequest(
     const rateCheck = checkAndIncrementRateLimit(auth);
     if (!rateCheck.allowed) {
       logUsage(auth, toolName || request.method, "rate_limited", 0);
-
+      // Notify at 100%
+      if (typeof rateCheck.limit === "number" && rateCheck.limit !== Infinity) {
+        notifyUsageAlert(auth.userId, rateCheck.used, rateCheck.limit, 1.0);
+      }
       return {
         jsonrpc: "2.0",
         id: request.id ?? null,
@@ -166,6 +170,14 @@ export async function handleRequest(
           },
         },
       };
+    }
+    // Notify at 80% threshold
+    if (typeof rateCheck.limit === "number" && rateCheck.limit !== Infinity) {
+      const pct = rateCheck.used / rateCheck.limit;
+      // Fire at exactly the 80% boundary (e.g., at 40 of 50)
+      if (pct >= 0.8 && (rateCheck.used - 1) / rateCheck.limit < 0.8) {
+        notifyUsageAlert(auth.userId, rateCheck.used, rateCheck.limit, 0.8);
+      }
     }
   }
 
@@ -189,6 +201,17 @@ export async function handleRequest(
       if (toolName && !response.error && shouldCapture(toolName)) {
         const params = (request.params as { arguments?: Record<string, any> })?.arguments || {};
         captureAudit(auth.userId, auth.apiKeyId, toolName, params, response.result, durationMs, auth.plan);
+        // Send webhook notification with health score extraction (fire-and-forget)
+        const siteUrl = extractSiteUrl(toolName, params);
+        if (siteUrl) {
+          let healthScore: number | null = null;
+          try {
+            const text = JSON.stringify(response.result);
+            const match = text.match(/[Hh]ealth\s*[Ss]core[:\s]*(\d{1,3})/);
+            if (match) healthScore = parseInt(match[1], 10);
+          } catch { /* non-critical */ }
+          notifyAuditComplete(auth.userId, toolName, siteUrl, healthScore, durationMs);
+        }
       }
     }
 

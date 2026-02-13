@@ -5,6 +5,7 @@ export const users = sqliteTable("users", {
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   plan: text("plan").notNull().default("free"), // free | pro | agency | enterprise
+  webhookUrl: text("webhook_url"), // Webhook notification URL
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
@@ -107,6 +108,42 @@ export const auditHistory = sqliteTable("audit_history", {
   fullResult: text("full_result").notNull(), // Full response JSON
   durationMs: integer("duration_ms"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export const webhookDeliveries = sqliteTable("webhook_deliveries", {
+  id: integer("id").primaryKey({ autoIncrement: true }),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  event: text("event").notNull(),
+  url: text("url").notNull(),
+  statusCode: integer("status_code"),
+  success: integer("success", { mode: "boolean" }).notNull().default(false),
+  error: text("error"),
+  durationMs: integer("duration_ms"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export const scheduledAudits = sqliteTable("scheduled_audits", {
+  id: text("id").primaryKey(), // ULID
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id),
+  apiKeyId: text("api_key_id")
+    .notNull()
+    .references(() => apiKeys.id),
+  siteUrl: text("site_url").notNull(),
+  toolName: text("tool_name").notNull().default("generate_report"),
+  schedule: text("schedule").notNull(), // 'daily' | 'weekly' | 'monthly'
+  scheduleHour: integer("schedule_hour").notNull().default(6), // UTC hour
+  scheduleDay: integer("schedule_day"), // Day of week (0-6) or day of month (1-28)
+  isActive: integer("is_active", { mode: "boolean" }).notNull().default(true),
+  lastRunAt: integer("last_run_at", { mode: "timestamp" }),
+  nextRunAt: integer("next_run_at").notNull(), // Unix timestamp ms
+  lastError: text("last_error"),
+  runCount: integer("run_count").notNull().default(0),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
 export const rateLimits = sqliteTable("rate_limits", {

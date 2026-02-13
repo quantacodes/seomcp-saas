@@ -120,8 +120,8 @@ export function readCredentials(
  */
 export function validateApiKey(key: string | undefined): string | null {
   if (!key) return "SEOMCP_API_KEY not set";
-  if (!/^sk_live_[a-f0-9]{32}$/.test(key)) {
-    return "SEOMCP_API_KEY format invalid. Expected: sk_live_ followed by 32 hex characters";
+  if (!/^sk_live_[a-f0-9]{32,48}$/.test(key)) {
+    return "SEOMCP_API_KEY format invalid. Expected: sk_live_ followed by 32-48 hex characters";
   }
   return null;
 }

@@ -4,13 +4,14 @@ export const VERSION = "0.1.0";
 
 // Generate a dev-only default for secrets that throws in production
 function devSecret(name: string, length: number): string {
+  if (process.env[name]) {
+    return process.env[name]!;
+  }
   if (process.env.NODE_ENV === "production") {
     throw new Error(`${name} must be set in production`);
   }
-  if (!process.env[name]) {
-    console.warn(`⚠️  WARNING: Using default ${name} — set ${name} env var for production`);
-  }
-  return process.env[name] || "0".repeat(length);
+  console.warn(`⚠️  WARNING: Using default ${name} — set ${name} env var for production`);
+  return "0".repeat(length);
 }
 
 export const config = {

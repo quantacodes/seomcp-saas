@@ -704,15 +704,37 @@
   <!-- Lemon Squeezy checkout overlay -->
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
+  <!-- Clerk JS SDK -->
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_REDACTED"
+    src="https://included-chimp-10.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
   <script>
     // ── API Base URL ──
     const API_BASE = 'https://api.seomcp.dev';
 
-    // ── Cross-origin fetch wrapper (always send cookies) ──
+    // ── Cross-origin fetch wrapper (send Clerk session token) ──
     const _origFetch = window.fetch;
-    window.fetch = function(url, opts = {}) {
+    window.fetch = async function(url, opts = {}) {
       if (typeof url === 'string' && url.startsWith(API_BASE)) {
         opts.credentials = 'include';
+        // Add Clerk session token as Bearer auth
+        if (window.Clerk && window.Clerk.session) {
+          try {
+            const token = await window.Clerk.session.getToken();
+            if (token) {
+              opts.headers = opts.headers || {};
+              if (opts.headers instanceof Headers) {
+                opts.headers.set('Authorization', 'Bearer ' + token);
+              } else {
+                opts.headers['Authorization'] = 'Bearer ' + token;
+              }
+            }
+          } catch (e) { /* fallback to cookie auth */ }
+        }
       }
       return _origFetch.call(this, url, opts);
     };
@@ -720,6 +742,26 @@
     // ── State ──
     let dashData = null;
     let revokeKeyId = null;
+
+    // ── Wait for Clerk, then load dashboard ──
+    window.addEventListener('load', async () => {
+      if (window.Clerk) {
+        await window.Clerk.load();
+        if (!window.Clerk.user) {
+          window.location.href = '/login';
+          return;
+        }
+        // Update UI with Clerk user info
+        const emailEl = document.getElementById('user-email');
+        if (emailEl) emailEl.textContent = window.Clerk.user.primaryEmailAddress?.emailAddress || '';
+        // Replace logout with Clerk sign-out
+        const logoutBtn = document.querySelector('.logout-btn');
+        if (logoutBtn) {
+          logoutBtn.onclick = () => window.Clerk.signOut({ redirectUrl: '/' });
+        }
+      }
+      loadDashboard();
+    });
 
     // ── Load Dashboard ──
     async function loadDashboard() {
@@ -1370,7 +1412,7 @@
         setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 3000);
       }, 1000);
     }
-    loadDashboard();
+    // loadDashboard() is called after Clerk loads (see top of script)
   </script>
 </body>
 </html>

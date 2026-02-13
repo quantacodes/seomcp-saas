@@ -34,7 +34,25 @@ function requireJson(c: any): Response | null {
 
 // Dashboard login rate limiting now uses shared module (src/middleware/rate-limit-ip.ts)
 
-// ── Session middleware ──
+// ── Session middleware (hybrid: Clerk Bearer token OR cookie session) ──
+import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
+
+async function getSessionHybrid(c: any): Promise<SessionData | ClerkSessionData | null> {
+  // Try Clerk first (Bearer token from dashboard SPA)
+  try {
+    const clerkSession = await getClerkSession(c);
+    if (clerkSession) return clerkSession;
+  } catch (e) {
+    // Clerk not configured or token invalid — fall through to cookie
+  }
+
+  // Fallback: cookie-based session (legacy)
+  const sessionId = getCookie(c, SESSION_COOKIE_NAME);
+  if (!sessionId) return null;
+  return validateSession(sessionId);
+}
+
+// Legacy sync version for non-async routes
 function getSession(c: any): SessionData | null {
   const sessionId = getCookie(c, SESSION_COOKIE_NAME);
   if (!sessionId) return null;
@@ -155,8 +173,8 @@ dashboardRoutes.get("/dashboard", (c) => {
 /**
  * GET /dashboard/api/overview — All dashboard data in one call
  */
-dashboardRoutes.get("/dashboard/api/overview", (c) => {
-  const session = getSession(c);
+dashboardRoutes.get("/dashboard/api/overview", async (c) => {
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -341,11 +359,11 @@ dashboardRoutes.get("/dashboard/api/overview", (c) => {
 /**
  * POST /dashboard/api/keys — Create new API key
  */
-dashboardRoutes.post("/dashboard/api/keys", (c) => {
+dashboardRoutes.post("/dashboard/api/keys", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -417,7 +435,7 @@ dashboardRoutes.post("/dashboard/api/keys", (c) => {
 dashboardRoutes.post("/dashboard/api/keys/:id/revoke", revokeKeyHandler);
 dashboardRoutes.delete("/dashboard/api/keys/:id", revokeKeyHandler);
 
-function revokeKeyHandler(c: any) {
+async function revokeKeyHandler(c: any) {
   // For DELETE requests, verify X-Requested-With header for CSRF protection
   if (c.req.method === "DELETE") {
     const xrw = c.req.header("X-Requested-With");
@@ -426,7 +444,7 @@ function revokeKeyHandler(c: any) {
     }
   }
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -465,7 +483,7 @@ dashboardRoutes.post("/dashboard/api/keys/:id/rotate", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }
@@ -539,7 +557,7 @@ dashboardRoutes.post("/dashboard/api/password", async (c) => {
   const csrfCheck = requireJson(c);
   if (csrfCheck) return csrfCheck;
 
-  const session = getSession(c);
+  const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
   }

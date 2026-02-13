@@ -3,126 +3,105 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — seomcp.dev</title>
+  <title>Sign In — seomcp.dev</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-deep: #0C0C0F; --bg-surface: #16161D; --bg-raised: #1E1E28;
-      --border-subtle: #2A2A36; --text-primary: #EDEDF0; --text-secondary: #8E8EA0;
-      --text-tertiary: #5C5C6E; --amber: #E5A430; --amber-hover: #F0B840;
-      --coral: #F87171; --font-sans: 'Inter', system-ui, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --bg-deep: #0C0C0F; --bg-surface: #16161D;
+      --border-subtle: #2A2A36; --text-primary: #EDEDF0;
+      --text-secondary: #8E8EA0; --text-tertiary: #5C5C6E;
+      --amber: #E5A430; --amber-hover: #F0B840;
+      --font-sans: 'Inter', system-ui, sans-serif;
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: var(--font-sans); background: var(--bg-deep); color: var(--text-primary);
-      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
       padding: 16px; -webkit-font-smoothing: antialiased;
     }
     a { color: inherit; text-decoration: none; }
-    .login-container { width: 100%; max-width: 400px; text-align: center; }
+    .container { width: 100%; max-width: 440px; text-align: center; }
     .logo { font-size: 28px; font-weight: 600; margin-bottom: 8px; }
     .logo .dot { color: var(--amber); }
-    .login-sub { font-size: 16px; color: var(--text-secondary); margin-bottom: 32px; }
-    .login-card {
-      background: var(--bg-surface); border: 1px solid var(--border-subtle);
-      border-radius: 16px; padding: 40px; text-align: left;
+    .sub { font-size: 15px; color: var(--text-secondary); margin-bottom: 32px; }
+    #clerk-auth {
+      min-height: 400px; display: flex; align-items: center; justify-content: center;
     }
-    .form-label { display: block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
-    .form-input {
-      width: 100%; padding: 12px 14px; background: var(--bg-deep);
-      border: 1px solid var(--border-subtle); border-radius: 8px;
-      color: var(--text-primary); font-size: 14px; font-family: var(--font-sans);
-      outline: none; transition: border-color 0.2s; margin-bottom: 16px;
+    .loading-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border-subtle); border-top-color: var(--amber);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
     }
-    .form-input:focus { border-color: var(--amber); }
-    .form-input::placeholder { color: var(--text-tertiary); }
-    .btn-login {
-      width: 100%; padding: 12px; background: var(--amber); color: var(--bg-deep);
-      border: none; border-radius: 8px; font-weight: 600; font-size: 14px;
-      cursor: pointer; transition: background 0.2s; font-family: var(--font-sans);
-    }
-    .btn-login:hover { background: var(--amber-hover); }
-    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; }
-    .error-msg { color: var(--coral); font-size: 13px; margin-bottom: 12px; display: none; }
-    .links { margin-top: 24px; }
-    .links a { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
-    .links a:hover { color: var(--text-secondary); }
-    .signup-link { color: var(--amber) !important; font-weight: 500; }
-    .signup-link:hover { color: var(--amber-hover) !important; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .back-link { margin-top: 24px; }
+    .back-link a { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
+    .back-link a:hover { color: var(--text-secondary); }
+
+    /* Override Clerk's default styles to match our theme */
+    .cl-rootBox { --clerk-font-family: 'Inter', system-ui, sans-serif; }
   </style>
 </head>
 <body>
-  <div class="login-container">
+  <div class="container">
     <div class="logo"><a href="/">seomcp<span class="dot">.dev</span></a></div>
-    <p class="login-sub">Sign in to your dashboard</p>
+    <p class="sub">Sign in to your dashboard</p>
 
-    <div class="login-card">
-      <form id="login-form" onsubmit="handleLogin(event)">
-        <label class="form-label" for="email">Email</label>
-        <input type="email" id="email" required placeholder="you@example.com" class="form-input" autocomplete="email">
-
-        <label class="form-label" for="password">Password</label>
-        <input type="password" id="password" required placeholder="Your password" class="form-input" autocomplete="current-password">
-
-        <div id="error" class="error-msg"></div>
-
-        <button type="submit" id="login-btn" class="btn-login">Sign In</button>
-      </form>
-
-      <div style="text-align: center; margin-top: 16px;">
-        <a href="/forgot-password" style="font-size: 13px; color: var(--text-tertiary);">Forgot password?</a>
-      </div>
+    <div id="clerk-auth">
+      <div class="loading-spinner"></div>
     </div>
 
-    <div class="links">
-      <p style="margin-bottom: 8px;">Don't have an account? <a href="/#" onclick="window.location.href='/'; setTimeout(()=>window.openSignup && openSignup(), 500)" class="signup-link">Sign up free →</a></p>
-      <p><a href="/">← Back to home</a></p>
+    <div class="back-link">
+      <a href="/">← Back to home</a>
     </div>
   </div>
 
+  <script
+    async
+    crossorigin="anonymous"
+    data-clerk-publishable-key="pk_test_REDACTED"
+    src="https://included-chimp-10.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js"
+    type="text/javascript"
+  ></script>
   <script>
-    const API_BASE = 'https://api.seomcp.dev';
+    window.addEventListener('load', async () => {
+      await window.Clerk.load();
 
-    async function handleLogin(e) {
-      e.preventDefault();
-      const btn = document.getElementById('login-btn');
-      const errorEl = document.getElementById('error');
-      errorEl.style.display = 'none';
-      btn.disabled = true;
-      btn.textContent = 'Signing in...';
-
-      try {
-        const res = await fetch(API_BASE + '/dashboard/login', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: document.getElementById('email').value,
-            password: document.getElementById('password').value
-          })
-        });
-
-        const data = await res.json();
-        if (!res.ok) {
-          errorEl.textContent = data.error || 'Login failed';
-          errorEl.style.display = 'block';
-          btn.disabled = false;
-          btn.textContent = 'Sign In';
-          return;
-        }
-
+      if (window.Clerk.user) {
+        // Already signed in — go to dashboard
         window.location.href = '/dashboard';
-      } catch (err) {
-        errorEl.textContent = 'Network error. Please try again.';
-        errorEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Sign In';
+        return;
       }
-    }
+
+      const authDiv = document.getElementById('clerk-auth');
+      authDiv.innerHTML = '';
+
+      window.Clerk.mountSignIn(authDiv, {
+        afterSignInUrl: '/dashboard',
+        afterSignUpUrl: '/dashboard',
+        signUpUrl: '/login',
+        appearance: {
+          variables: {
+            colorPrimary: '#E5A430',
+            colorBackground: '#16161D',
+            colorText: '#EDEDF0',
+            colorTextSecondary: '#8E8EA0',
+            colorInputBackground: '#0C0C0F',
+            colorInputText: '#EDEDF0',
+            borderRadius: '8px',
+            fontFamily: "'Inter', system-ui, sans-serif",
+          },
+          elements: {
+            card: { backgroundColor: '#16161D', border: '1px solid #2A2A36', borderRadius: '16px' },
+            formButtonPrimary: { backgroundColor: '#E5A430', color: '#0C0C0F', fontWeight: '600' },
+            formButtonPrimary__hover: { backgroundColor: '#F0B840' },
+            footerActionLink: { color: '#E5A430' },
+          }
+        }
+      });
+    });
   </script>
 </body>
 </html>

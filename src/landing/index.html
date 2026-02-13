@@ -227,11 +227,12 @@
     }
     .btn-text {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 14px 24px; color: var(--text-secondary);
+      padding: 12px 24px; color: var(--text-secondary);
       font-weight: 500; font-size: 16px;
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 10px;
       transition: all 0.3s;
+      box-sizing: border-box;
     }
     .btn-text:hover { color: var(--text-primary); border-color: rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.03); }
 
@@ -820,19 +821,34 @@
       .nav-links { display: none; }
       .nav-hamburger { display: block; }
 
-      .hero { padding: 100px 0 80px; }
-      .hero::before { width: 400px; height: 300px; } /* smaller glow orb on mobile */
+      .hero { padding: 100px 0 60px; }
+      .hero::before { width: 400px; height: 300px; }
       .hero-ctas { flex-direction: column; gap: 12px; }
       .hero-ctas .btn-glow-wrap { width: 100%; }
       .hero-ctas .btn-glow-wrap .btn-primary { width: 100%; justify-content: center; }
       .hero-ctas .btn-primary, .hero-ctas .btn-text { width: 100%; justify-content: center; }
-      .hero-code::before { display: none; } /* no code glow on mobile — causes overflow */
+      .hero-code::before { display: none; }
+      .hero-subhead { margin-bottom: 24px; }
+      .hero-trust { gap: 8px; }
+
+      /* Fix code blocks overflow on mobile */
+      .code-body pre, pre, .step-code pre {
+        overflow-x: auto !important;
+        font-size: 12px !important;
+        line-height: 18px !important;
+        white-space: pre !important;
+        -webkit-overflow-scrolling: touch;
+      }
+      .code-block, .hero-code .code-block {
+        overflow: hidden;
+        max-width: 100%;
+      }
 
       .steps-grid { grid-template-columns: 1fr; gap: 40px; }
       .steps-line { display: none !important; }
       .step { padding-left: 0; }
       .step-number { margin-bottom: 16px; }
-      .step-code pre { font-size: 12px !important; line-height: 18px !important; }
+      .step-code pre { font-size: 11px !important; line-height: 16px !important; word-break: break-all; white-space: pre-wrap !important; }
 
       .tool-categories { grid-template-columns: 1fr; }
 

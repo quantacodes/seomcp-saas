@@ -17,7 +17,7 @@ import { docsRoutes } from "./routes/docs";
 import { adminRoutes } from "./routes/admin";
 import { openapiRoutes } from "./routes/openapi";
 import { toolsRoutes } from "./routes/tools";
-import { playgroundRoutes } from "./routes/playground";
+import { playgroundRoutes, stopDemoCleanup } from "./routes/playground";
 import { binaryPool } from "./mcp/binary";
 
 // Run database migrations
@@ -95,11 +95,13 @@ app.onError((err, c) => {
 // Graceful shutdown
 process.on("SIGINT", () => {
   console.log("\nShutting down...");
+  stopDemoCleanup();
   binaryPool.killAll();
   process.exit(0);
 });
 
 process.on("SIGTERM", () => {
+  stopDemoCleanup();
   binaryPool.killAll();
   process.exit(0);
 });

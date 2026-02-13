@@ -163,6 +163,39 @@ describe("Playground API validation", () => {
     expect(data.error).toContain("private");
   });
 
+  it("blocks IPv6 loopback [::1]", async () => {
+    const res = await req("/api/playground/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tool: "crawl_page", args: { url: "http://[::1]:8080/" } }),
+    });
+    expect(res.status).toBe(400);
+    const data = await res.json() as { error: string };
+    expect(data.error).toContain("private");
+  });
+
+  it("blocks 169.254.x.x link-local URLs", async () => {
+    const res = await req("/api/playground/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tool: "crawl_page", args: { url: "http://169.254.169.254/latest/meta-data/" } }),
+    });
+    expect(res.status).toBe(400);
+    const data = await res.json() as { error: string };
+    expect(data.error).toContain("private");
+  });
+
+  it("blocks 172.17.x.x (full /12 range)", async () => {
+    const res = await req("/api/playground/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tool: "crawl_page", args: { url: "http://172.31.0.1" } }),
+    });
+    expect(res.status).toBe(400);
+    const data = await res.json() as { error: string };
+    expect(data.error).toContain("private");
+  });
+
   it("rejects invalid URL format", async () => {
     const res = await req("/api/playground/run", {
       method: "POST",

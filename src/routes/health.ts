@@ -22,8 +22,9 @@ Sitemap: https://seomcp.dev/sitemap.xml
 });
 
 // Sitemap
+const BUILD_DATE = new Date().toISOString().split("T")[0]; // Set once at startup, not on every request
 healthRoutes.get("/sitemap.xml", (c) => {
-  const now = new Date().toISOString().split("T")[0];
+  const now = BUILD_DATE;
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://seomcp.dev/</loc><changefreq>weekly</changefreq><priority>1.0</priority><lastmod>${now}</lastmod></url>

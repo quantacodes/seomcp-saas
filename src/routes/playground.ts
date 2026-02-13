@@ -36,15 +36,64 @@ function checkDemoRate(ip: string): { allowed: boolean; remaining: number } {
 }
 
 // Cleanup expired entries every 30 min
-setInterval(() => {
+const demoCleanupTimer = setInterval(() => {
   const now = Date.now();
   for (const [key, record] of demoLimits) {
     if (now > record.resetAt) demoLimits.delete(key);
   }
 }, 30 * 60 * 1000);
 
+// Allow cleanup on shutdown
+export function stopDemoCleanup() {
+  clearInterval(demoCleanupTimer);
+  if (demoBinary) {
+    demoBinary.kill();
+    demoBinary = null;
+  }
+}
+
 // Allowed demo tools (free tools that don't need Google OAuth)
 const DEMO_TOOLS = new Set(["crawl_page", "validate_schema", "core_web_vitals"]);
+
+/**
+ * Check if a hostname is private/internal (SSRF protection).
+ * Covers: IPv4 private, IPv6 loopback, link-local, cloud metadata.
+ */
+function isPrivateHost(host: string): boolean {
+  // Exact matches
+  const BLOCKED_EXACT = new Set([
+    "localhost",
+    "127.0.0.1",
+    "0.0.0.0",
+    "::1",                          // IPv6 loopback
+    "::",                           // IPv6 any
+    "0:0:0:0:0:0:0:1",             // IPv6 loopback long form
+    "0:0:0:0:0:0:0:0",             // IPv6 any long form
+    "metadata.google.internal",
+  ]);
+
+  if (BLOCKED_EXACT.has(host)) return true;
+
+  // Prefix checks (IPv4 private ranges)
+  if (
+    host.startsWith("10.") ||           // 10.0.0.0/8
+    host.startsWith("192.168.") ||      // 192.168.0.0/16
+    host.startsWith("169.254.")         // Link-local / AWS/Azure metadata
+  ) {
+    return true;
+  }
+
+  // 172.16.0.0/12 = 172.16.x – 172.31.x
+  if (host.startsWith("172.")) {
+    const second = parseInt(host.split(".")[1], 10);
+    if (!isNaN(second) && second >= 16 && second <= 31) return true;
+  }
+
+  // Suffix checks
+  if (host.endsWith(".local") || host.endsWith(".internal")) return true;
+
+  return false;
+}
 
 // Shared demo binary instance (no user-specific config)
 let demoBinary: BinaryInstance | null = null;
@@ -126,16 +175,12 @@ playgroundRoutes.post("/api/playground/run", async (c) => {
         return c.json({ error: "URL must use http:// or https://" }, 400);
       }
       const hostname = parsed.hostname.toLowerCase();
-      if (
-        hostname === "localhost" ||
-        hostname === "127.0.0.1" ||
-        hostname === "0.0.0.0" ||
-        hostname.startsWith("192.168.") ||
-        hostname.startsWith("10.") ||
-        hostname.startsWith("172.16.") ||
-        hostname.endsWith(".local") ||
-        hostname === "metadata.google.internal"
-      ) {
+      // Strip IPv6 brackets if present
+      const bareHost = hostname.startsWith("[") && hostname.endsWith("]")
+        ? hostname.slice(1, -1)
+        : hostname;
+
+      if (isPrivateHost(bareHost)) {
         return c.json({ error: "Cannot scan private/local URLs" }, 400);
       }
     } catch {
@@ -189,7 +234,7 @@ playgroundRoutes.post("/api/playground/run", async (c) => {
     });
   } catch (err) {
     // Reset demo binary state on crash
-    demoBinaryReady = false;
+    demoBinary = null;
     return c.json(
       {
         success: false,

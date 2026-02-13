@@ -102,16 +102,17 @@ export function checkAndIncrementRateLimit(auth: AuthContext): {
 
 /**
  * Get current rate limit status without incrementing (for usage endpoint).
+ * Accepts full AuthContext to correctly apply unverified-user limits.
  */
-export function getRateLimitStatus(userId: string, plan: string): {
+export function getRateLimitStatus(auth: AuthContext): {
   used: number;
   limit: number;
   remaining: number;
 } {
-  const planLimits = config.plans[plan];
+  const planLimits = config.plans[auth.plan];
   if (!planLimits) return { used: 0, limit: 0, remaining: 0 };
 
-  const limit = planLimits.callsPerMonth;
+  const limit = getEffectiveLimit(auth);
   if (limit === Infinity) return { used: 0, limit: Infinity, remaining: Infinity };
 
   const windowStart = getCurrentWindowStart();
@@ -120,7 +121,7 @@ export function getRateLimitStatus(userId: string, plan: string): {
     .query<{ call_count: number; window_start: number }, [string]>(
       "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
     )
-    .get(userId);
+    .get(auth.userId);
 
   if (!row || row.window_start < windowStart) {
     return { used: 0, limit, remaining: limit };

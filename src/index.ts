@@ -26,6 +26,7 @@ import { scheduleRoutes } from "./routes/schedules";
 import { verifyRoutes } from "./routes/verify";
 import { teamRoutes } from "./routes/teams";
 import { passwordResetRoutes } from "./routes/password-reset";
+import { proxyRoutes } from "./routes/proxy";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 import { startScheduler, stopScheduler } from "./scheduler/engine";
@@ -42,7 +43,7 @@ app.use("*", cors({
   origin: ["https://seomcp.dev", "https://www.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
   allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
-  exposeHeaders: ["Mcp-Session-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Used", "X-Request-Id"],
+  exposeHeaders: ["Mcp-Session-Id", "X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Used", "X-RateLimit-Reset", "X-Request-Id", "X-Min-Version", "X-Force-Update"],
 }));
 
 // Request ID for log correlation
@@ -145,6 +146,7 @@ app.route("/", scheduleRoutes);
 app.route("/", verifyRoutes);
 app.route("/", teamRoutes);
 app.route("/", passwordResetRoutes);
+app.route("/", proxyRoutes);
 app.route("/", landingRoutes); // Landing page last — API routes take priority
 
 // 404 handler — HTML for browsers, JSON for API clients

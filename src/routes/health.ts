@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { binaryPool } from "../mcp/binary";
 import { sessionManager } from "../mcp/session";
+import { proxyPool } from "./proxy";
 import { VERSION } from "../config";
 import { sqlite } from "../db/index";
 
@@ -62,6 +63,10 @@ healthRoutes.get("/health", (c) => {
     activeSessions: sessionManager.size,
     activeBinaries: binaryPool.size,
     db: dbOk ? "ok" : "error",
+    proxySpawns: {
+      active: proxyPool.active,
+      max: proxyPool.max,
+    },
     memoryMb: {
       rss: Math.round(mem.rss / 1024 / 1024),
       heapUsed: Math.round(mem.heapUsed / 1024 / 1024),

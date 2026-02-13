@@ -90,16 +90,19 @@
     /* ── Design Tokens ── */
     :root {
       --bg-deep: #0C0C0F;
+      --bg-card: #101015;
       --bg-surface: #16161D;
       --bg-raised: #1E1E28;
-      --border-subtle: #2A2A36;
-      --border-active: #3D3D4E;
+      --border-subtle: rgba(255, 255, 255, 0.06);
+      --border-active: rgba(255, 255, 255, 0.12);
+      --border-hover: rgba(255, 255, 255, 0.10);
       --text-primary: #EDEDF0;
       --text-secondary: #9A9AB2;
       --text-tertiary: #5C5C6E;
       --amber: #E5A430;
       --amber-hover: #F0B840;
       --amber-muted: rgba(229, 164, 48, 0.12);
+      --amber-glow: rgba(229, 164, 48, 0.3);
       --sage: #4ADE80;
       --sage-muted: rgba(74, 222, 128, 0.12);
       --coral: #F87171;
@@ -129,11 +132,34 @@
     /* ── Layout ── */
     .container { max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
     .section { padding: 120px 0; }
-    .section-border { border-top: 1px solid var(--border-subtle); }
+    .section-border { border-top: none; position: relative; }
+    .section-border::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(to right, transparent, rgba(229, 164, 48, 0.15), transparent);
+    }
 
     /* ── Typography ── */
-    .h1 { font-size: 64px; line-height: 72px; letter-spacing: -0.02em; font-weight: 700; }
-    .h2 { font-size: 40px; line-height: 48px; letter-spacing: -0.02em; font-weight: 600; }
+    .h1 { font-size: 72px; line-height: 1.05; letter-spacing: -0.03em; font-weight: 700; }
+    .h2 { font-size: 42px; line-height: 1.1; letter-spacing: -0.025em; font-weight: 700; }
+    .h1-shimmer {
+      background: linear-gradient(to bottom right, #EDEDF0, #FFFFFF, #E5A430);
+      background-size: 200% 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: text-shimmer 4s ease-in-out infinite;
+    }
+    @keyframes text-shimmer {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes ping {
+      75%, 100% { transform: scale(2.5); opacity: 0; }
+    }
     .h3 { font-size: 24px; line-height: 32px; letter-spacing: -0.01em; font-weight: 600; }
     .body-lg { font-size: 20px; line-height: 30px; }
     .body { font-size: 16px; line-height: 26px; }
@@ -150,17 +176,30 @@
       padding: 14px 28px; border-radius: 10px;
       background: var(--amber); color: #000000;
       font-weight: 700; font-size: 16px;
-      transition: background 0.2s, transform 0.15s;
+      transition: all 0.3s;
       text-shadow: none;
+      position: relative; overflow: hidden;
+      box-shadow: 0 0 0 0 rgba(229, 164, 48, 0);
     }
-    .btn-primary:hover { background: var(--amber-hover); transform: translateY(-1px); }
+    .btn-primary::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(rgba(255,255,255,0.15), transparent);
+      border-radius: inherit; pointer-events: none;
+    }
+    .btn-primary:hover {
+      background: var(--amber-hover); transform: translateY(-1px);
+      box-shadow: 0 0 30px rgba(229, 164, 48, 0.3), 0 0 60px rgba(229, 164, 48, 0.1);
+    }
     .btn-text {
       display: inline-flex; align-items: center; gap: 6px;
-      padding: 14px 8px; color: var(--text-secondary);
+      padding: 14px 24px; color: var(--text-secondary);
       font-weight: 500; font-size: 16px;
-      transition: color 0.2s;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      transition: all 0.3s;
     }
-    .btn-text:hover { color: var(--text-primary); }
+    .btn-text:hover { color: var(--text-primary); border-color: rgba(255, 255, 255, 0.18); background: rgba(255, 255, 255, 0.03); }
 
     /* ── Nav ── */
     .nav {
@@ -271,13 +310,28 @@
     /* ── Hero ── */
     .hero {
       position: relative;
-      padding: 160px 0 120px;
+      padding: 168px 0 120px;
       text-align: center;
       overflow: hidden;
     }
     .hero-gradient {
       position: absolute; inset: 0; pointer-events: none;
       background: linear-gradient(135deg, rgba(229,164,48,0.06) 0%, rgba(74,222,128,0.03) 50%, transparent 100%);
+    }
+    /* Ambient glow orb */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -10%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 900px;
+      height: 500px;
+      background: rgba(229, 164, 48, 0.07);
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
     }
     .hero-content { position: relative; z-index: 2; }
     .hero-headline { margin-bottom: 20px; }
@@ -711,7 +765,7 @@
     /* ── Responsive ── */
     @media (max-width: 768px) {
       .section { padding: 80px 0; }
-      .h1 { font-size: 40px; line-height: 48px; }
+      .h1 { font-size: 44px; line-height: 1.05; }
       .h2 { font-size: 28px; line-height: 36px; }
       .h3 { font-size: 20px; line-height: 28px; }
       .body-lg { font-size: 17px; line-height: 26px; }
@@ -802,10 +856,11 @@
     </div>
 
     <div class="container hero-content">
-      <div style="display:inline-block; padding: 4px 12px; border-radius: 20px; background: var(--amber-muted); color: var(--amber); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 16px;">
+      <div style="display:inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 9999px; background: rgba(229, 164, 48, 0.04); border: 1px solid rgba(229, 164, 48, 0.12); color: var(--amber); font-size: 13px; font-weight: 600; letter-spacing: 0.02em; margin-bottom: 16px;">
+        <span style="position:relative; width:8px; height:8px;"><span style="position:absolute;inset:0;border-radius:50%;background:var(--amber);animation:ping 1.5s cubic-bezier(0,0,0.2,1) infinite;"></span><span style="width:8px;height:8px;border-radius:50%;background:var(--amber);display:block;"></span></span>
         EARLY ACCESS
       </div>
-      <h1 class="h1 hero-headline">37 SEO tools.<br>One line of config.</h1>
+      <h1 class="h1 h1-shimmer hero-headline">37 SEO tools.<br>One line of config.</h1>
       <p class="body-lg text-secondary hero-subhead">
         Give your AI agent real SEO superpowers. Keyword research,
         SERP analysis, site audits, rank tracking — all through
@@ -848,6 +903,10 @@
         <p class="small text-tertiary">Upgrade to Pro ($29/mo) for 2,000 calls/month</p>
       </div>
 
+      <div style="text-align:center; margin-bottom: 16px;">
+        <p class="small" style="color: var(--text-tertiary);">15 tools included free. <a href="https://api.seomcp.dev/docs#proxy-setup" style="color: var(--amber); text-decoration: underline; text-underline-offset: 3px;">Connect Google Search Console & GA4</a> for all 37.</p>
+      </div>
+
       <div class="hero-trust">
         <span>Works with</span>
         <span class="client">Claude</span>
@@ -855,6 +914,8 @@
         <span class="client">Cursor</span>
         <span class="text-tertiary">·</span>
         <span class="client">Windsurf</span>
+        <span class="text-tertiary">·</span>
+        <span class="client">VS Code</span>
         <span class="text-tertiary">·</span>
         <span class="client">Any MCP client</span>
       </div>

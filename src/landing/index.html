@@ -287,19 +287,18 @@
     .hero-trust .client { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
 
     /* ── How It Works ── */
-    .steps-wrapper { position: relative; }
     .steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 48px; position: relative; }
-    .step { position: relative; min-width: 0; }
+    .step { position: relative; min-width: 0; text-align: center; }
     .step-number {
       display: flex; align-items: center; justify-content: center;
-      width: 40px; height: 40px; border-radius: 10px;
+      width: 48px; height: 48px; border-radius: 50%;
       background: var(--amber-muted); color: var(--amber);
-      font-weight: 700; font-size: 18px; margin-bottom: 20px;
+      font-weight: 700; font-size: 18px; margin: 0 auto 20px;
       position: relative; z-index: 2;
     }
     .step-title { font-size: 20px; font-weight: 600; margin-bottom: 8px; }
     .step-desc { color: var(--text-secondary); font-size: 15px; line-height: 24px; }
-    .step-code { margin-top: 16px; min-width: 0; }
+    .step-code { margin-top: 16px; min-width: 0; text-align: left; }
     .step-code .code-block { min-width: 0; overflow: visible; }
     .step-code .code-body {
       min-width: 0;
@@ -320,9 +319,13 @@
     .step-code pre::-webkit-scrollbar { height: 4px; }
     .step-code pre::-webkit-scrollbar-track { background: transparent; }
     .step-code pre::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-    /* Connecting line — positioned via JS for pixel-perfect accuracy */
+    /* Connecting line — pure CSS, centered between circles */
     .steps-line {
       position: absolute;
+      top: 23px; /* half of 48px circle = 24px, minus 1px for 2px line height */
+      /* Center of col 1 to center of col 3: symmetric inset of half a column width */
+      left: calc((100% - 96px) / 6);
+      right: calc((100% - 96px) / 6);
       height: 2px;
       background: linear-gradient(90deg, var(--amber), var(--sage));
       opacity: 0.3;
@@ -331,9 +334,9 @@
     }
     .steps-line-dot {
       position: absolute;
-      top: -4px;
       width: 10px; height: 10px;
       border-radius: 50%;
+      top: -4px;
       z-index: 1;
     }
     .steps-line-dot--start { left: -5px; background: var(--amber); }
@@ -903,13 +906,12 @@
         <p class="body-lg text-secondary">From signup to first query. No Docker, no OAuth dance, no setup scripts.</p>
       </div>
 
-      <div class="steps-wrapper">
-        <div class="steps-line" id="steps-line">
+      <div class="steps-grid">
+        <div class="steps-line">
           <div class="steps-line-dot steps-line-dot--start"></div>
           <div class="steps-line-dot steps-line-dot--mid"></div>
           <div class="steps-line-dot steps-line-dot--end"></div>
         </div>
-        <div class="steps-grid">
         <div class="step">
           <div class="step-number">1</div>
           <h3 class="step-title">Get your API key</h3>
@@ -948,7 +950,6 @@
             </div>
           </div>
         </div>
-      </div>
       </div>
     </div>
   </section>
@@ -1682,51 +1683,5 @@
     });
   </script>
 
-  <script>
-    // ── Steps connecting line: pixel-perfect positioning ──
-    (function() {
-      function positionStepsLine() {
-        const wrapper = document.querySelector('.steps-wrapper');
-        const line = document.getElementById('steps-line');
-        const steps = document.querySelectorAll('.steps-grid .step');
-        if (!wrapper || !line || steps.length < 3) return;
-
-        // Hide on mobile (single column)
-        if (window.innerWidth <= 768) {
-          line.style.display = 'none';
-          return;
-        }
-        line.style.display = 'block';
-
-        const wrapperRect = wrapper.getBoundingClientRect();
-        const firstCircle = steps[0].querySelector('.step-number');
-        const lastCircle = steps[2].querySelector('.step-number');
-        if (!firstCircle || !lastCircle) return;
-
-        const firstRect = firstCircle.getBoundingClientRect();
-        const lastRect = lastCircle.getBoundingClientRect();
-
-        // Center X of first and last circles, relative to wrapper
-        const startX = (firstRect.left + firstRect.width / 2) - wrapperRect.left;
-        const endX = (lastRect.left + lastRect.width / 2) - wrapperRect.left;
-        // Center Y of first circle, relative to wrapper
-        const centerY = (firstRect.top + firstRect.height / 2) - wrapperRect.top;
-
-        line.style.left = startX + 'px';
-        line.style.width = (endX - startX) + 'px';
-        line.style.top = (centerY - 1) + 'px'; // -1 for half of 2px line height
-      }
-
-      // Run on load & resize
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', positionStepsLine);
-      } else {
-        positionStepsLine();
-      }
-      window.addEventListener('resize', positionStepsLine);
-      // Also run after fonts load
-      if (document.fonts) document.fonts.ready.then(positionStepsLine);
-    })();
-  </script>
 </body>
 </html>

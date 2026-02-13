@@ -681,3 +681,103 @@ Phase 3 was already built in Session 2 (commit f3930f0) but not reviewed or logg
 - [ ] Cross-compile seo-mcp Rust binary for linux-amd64
 - [ ] Production smoke test
 - [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)
+
+---
+
+## Session 12 — 2026-02-13 10:02 IST
+
+### Phase 10: Password Reset + UX Polish
+
+**Build:** ✅ Complete
+
+**Password Reset Flow** (4 routes, ~500 lines)
+- `src/auth/password-reset.ts` — HMAC-SHA256 tokens (1h expiry), domain-separated key
+- `src/routes/password-reset.ts` — POST forgot-password, GET reset-password form, POST reset-password, GET forgot-password form
+- Hash-before-store, timing-safe comparison, single-use enforcement
+- Superseded token detection (GET validates stored hash)
+- Anti-enumeration (forgot-password always returns identical 200)
+- IP rate limiting: 3/hr forgot, 5/hr reset
+- XSS prevention via escapeHtml on all dynamic values
+
+**Onboarding Checklist** (replaces simple quickstart)
+- 5-step wizard: account, verify email, add MCP config, connect Google, first tool call
+- Auto-detects completion from overview data
+- Auto-dismisses when all 5 steps complete
+- Progress badge (X/5 complete)
+- Scroll-to-section for Google connection step
+
+**Custom Error Pages**
+- HTML 404/500 pages for browser requests (JSON for API/MCP clients)
+- Styled to match site design, with navigation links
+
+**Usage Alert Emails**
+- Email notification at 80% and 100% usage quota
+- Deduplication: email fires once per threshold per month
+- HTML email with visual progress bar + upgrade CTA
+- Console fallback when RESEND_API_KEY not set
+
+**Other Fixes**
+- "Forgot password?" link on login page
+- DB migration for reset_token + reset_sent_at columns
+
+**Review:** ✅ Barnacle — APPROVE (0 MUST, 2 SHOULD fixed, 1 NICE fixed)
+- Fixed: Broken link in resetResultHtml (/api/auth/forgot-password-form → /forgot-password)
+- Fixed: GET /reset-password now validates stored hash (superseded token detection)
+
+**Test:** ✅ 31 new tests, 62 assertions
+
+**Commits:**
+- 251c10e — "Session 12: Password reset + custom error pages"
+- 2f191f1 — "Onboarding checklist + custom error pages"
+- ed3d21a — "Usage alert emails at 80% and 100% quota"
+
+### Session 12 Stats
+- **Total tests:** 383 (all passing)
+- **Total assertions:** 879
+- **Test files:** 19
+- **Source files:** 53 (.ts) + 3 (.html)
+- **Lines of code:** ~11,000 TS + ~3,200 HTML + ~5,500 test
+- **Total commits:** 41
+
+### What Works (End of Session 12)
+- ✅ Full MCP Streamable HTTP server with auth + rate limiting + usage tracking
+- ✅ All 35 seo-mcp tools accessible through HTTP gateway
+- ✅ Landing page with signup flow + MCP config snippet + JSON-LD structured data
+- ✅ Interactive Playground — try tools without signup, SSRF-hardened
+- ✅ Google OAuth for user's GSC/GA4 (AES-256-GCM encrypted tokens)
+- ✅ Dashboard with session auth, usage stats, top tools, API key CRUD, activity feed
+- ✅ **Onboarding checklist** — 5-step guided setup, auto-completion detection
+- ✅ **Password reset** — forgot password flow with magic links
+- ✅ **Usage alert emails** — notifications at 80% and 100% quota
+- ✅ **Custom error pages** — styled HTML 404/500 for browsers
+- ✅ Team/Organization support — create team, invite members, role management
+- ✅ API key rotation — atomic revoke + create
+- ✅ Team-aware MCP rate limiting — aggregate team usage enforcement
+- ✅ Lemon Squeezy billing (checkout overlay, webhooks, cancel/resume, plan sync)
+- ✅ Full documentation page (8 sections)
+- ✅ Admin API (stats, users, plan management, usage analytics, error listing)
+- ✅ Tool catalog page (/tools) with 35 tools, categories, params, examples
+- ✅ OpenAPI 3.1 spec at /openapi.json
+- ✅ MCP discovery at /.well-known/mcp
+- ✅ Setup script at /setup (curl | bash installer)
+- ✅ Email verification with magic links (Resend API)
+- ✅ Audit history, user webhooks, scheduled audits
+- ✅ Key scoping (restrict to tool categories), changelog
+- ✅ Terms of Service + Privacy Policy (Google compliance)
+- ✅ IP rate limiting on signup/login + structured JSON logging
+- ✅ E2E integration test (complete user journey)
+- ✅ robots.txt + sitemap.xml + security headers
+- ✅ Dockerfile + docker-compose + Fly.io deploy config
+- ✅ 383 tests, 879 assertions, ALL PASSING
+
+### What's Left Before Launch
+- [ ] Domain purchase: seomcp.dev
+- [ ] Resend account + domain verification (for emails)
+- [ ] Google Cloud project setup (OAuth client ID/secret)
+- [ ] Lemon Squeezy store setup (products/variants/webhook URL)
+- [ ] Deploy to Fly.io (`./deploy/deploy.sh --first-run`)
+- [ ] DNS + SSL (`fly certs add seomcp.dev`)
+- [ ] Cross-compile seo-mcp Rust binary for linux-amd64
+- [ ] Set TRUSTED_PROXY=true in production env
+- [ ] Production smoke test
+- [ ] X announcement + Product Hunt (drafts ready: LAUNCH.md)

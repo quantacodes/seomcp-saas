@@ -9,6 +9,42 @@ import { validateSession, SESSION_COOKIE_NAME, type SessionData } from "../auth/
 
 export const agentRoutes = new Hono();
 
+// ── Rate limiting: simple in-memory per-user limiter for Agent SaaS calls ──
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 60_000; // 1 minute
+const RATE_LIMIT_MAX = 20; // max 20 Agent SaaS calls per minute per user
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now >= entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// ── Sanitize upstream API errors (never leak internal details) ──
+function sanitizeUpstreamError(errorData: any, fallback: string): string {
+  // Only pass through safe, known error messages
+  const safeErrors = [
+    "Customer not found",
+    "Provisioning failed",
+    "Deprovisioning failed",
+    "Deployment failed",
+    "Invalid request",
+    "Plan not found",
+    "Server not found",
+  ];
+  const msg = errorData?.error || "";
+  if (typeof msg === "string" && safeErrors.some((s) => msg.includes(s))) {
+    return msg;
+  }
+  return fallback;
+}
+
 // ── Session middleware (hybrid: Clerk Bearer token OR cookie session) ──
 async function getSessionHybrid(c: any): Promise<SessionData | ClerkSessionData | null> {
   // Try Clerk first (Bearer token from dashboard SPA)
@@ -149,6 +185,33 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     return c.json({ error: "telegram_chat_id and site_url are required" }, 400);
   }
 
+  // Rate limit
+  if (!checkRateLimit(session.userId)) {
+    return c.json({ error: "Too many requests. Please wait a moment." }, 429);
+  }
+
+  // Idempotency: check if user already has an active agent for this site_url
+  const existing = db
+    .select()
+    .from(schema.userAgentMappings)
+    .where(
+      and(
+        eq(schema.userAgentMappings.userId, session.userId),
+        eq(schema.userAgentMappings.siteUrl, body.site_url)
+      )
+    )
+    .limit(1)
+    .all()[0];
+
+  if (existing && existing.status !== "cancelled") {
+    return c.json({
+      error: "Agent already exists for this site",
+      id: existing.id,
+      agentCustomerId: existing.agentCustomerId,
+      status: existing.status,
+    }, 409);
+  }
+
   try {
     // Call Agent SaaS provision endpoint
     const provisionRes = await agentApi("POST", "/api/provision", {
@@ -161,8 +224,8 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     });
 
     if (!provisionRes.ok) {
-      const errorData = await provisionRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Provisioning failed" }, provisionRes.status as any);
+      const errorData = await provisionRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Provisioning failed") }, provisionRes.status as any);
     }
 
     const provisionData = await provisionRes.json();
@@ -205,6 +268,11 @@ agentRoutes.post("/dashboard/api/agents/:id/deprovision", async (c) => {
     return c.json({ error: "Not authenticated" }, 401);
   }
 
+  // Rate limit
+  if (!checkRateLimit(session.userId)) {
+    return c.json({ error: "Too many requests. Please wait a moment." }, 429);
+  }
+
   const agentId = c.req.param("id");
   const mapping = verifyAgentOwnership(session.userId, agentId);
 
@@ -219,8 +287,8 @@ agentRoutes.post("/dashboard/api/agents/:id/deprovision", async (c) => {
     });
 
     if (!deprovisionRes.ok) {
-      const errorData = await deprovisionRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Deprovisioning failed" }, deprovisionRes.status as any);
+      const errorData = await deprovisionRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Deprovisioning failed") }, deprovisionRes.status as any);
     }
 
     // Update local mapping status
@@ -260,8 +328,8 @@ agentRoutes.get("/dashboard/api/agents/:id", async (c) => {
     const detailRes = await agentApi("GET", `/api/customers/${mapping.agentCustomerId}`);
     
     if (!detailRes.ok) {
-      const errorData = await detailRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Failed to fetch agent details" }, detailRes.status as any);
+      const errorData = await detailRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Failed to fetch agent details") }, detailRes.status as any);
     }
 
     const agentDetails = await detailRes.json();
@@ -305,8 +373,8 @@ agentRoutes.get("/dashboard/api/agents/:id/usage", async (c) => {
     const usageRes = await agentApi("GET", `/api/customers/${mapping.agentCustomerId}/usage`);
     
     if (!usageRes.ok) {
-      const errorData = await usageRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Failed to fetch agent usage" }, usageRes.status as any);
+      const errorData = await usageRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Failed to fetch agent usage") }, usageRes.status as any);
     }
 
     const usageData = await usageRes.json();
@@ -347,6 +415,11 @@ agentRoutes.post("/dashboard/api/agents/deploy", async (c) => {
     return c.json({ error: "name, telegram_token, and anthropic_key are required" }, 400);
   }
 
+  // Rate limit
+  if (!checkRateLimit(session.userId)) {
+    return c.json({ error: "Too many requests. Please wait a moment." }, 429);
+  }
+
   try {
     // Call Agent SaaS deploy endpoint
     const deployRes = await agentApi("POST", "/api/deploy", {
@@ -355,8 +428,8 @@ agentRoutes.post("/dashboard/api/agents/deploy", async (c) => {
     });
 
     if (!deployRes.ok) {
-      const errorData = await deployRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Deployment failed" }, deployRes.status as any);
+      const errorData = await deployRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Deployment failed") }, deployRes.status as any);
     }
 
     const deployData = await deployRes.json();
@@ -428,8 +501,8 @@ agentRoutes.get("/dashboard/api/agents/deploy/:serverId/verify", async (c) => {
     const verifyRes = await agentApi("GET", `/api/deploy/${serverId}/verify`);
     
     if (!verifyRes.ok) {
-      const errorData = await verifyRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Failed to verify deployment" }, verifyRes.status as any);
+      const errorData = await verifyRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Failed to verify deployment") }, verifyRes.status as any);
     }
 
     const verifyData = await verifyRes.json();
@@ -473,8 +546,8 @@ agentRoutes.delete("/dashboard/api/agents/deploy/:serverId", async (c) => {
     const destroyRes = await agentApi("DELETE", `/api/deploy/${serverId}`);
 
     if (!destroyRes.ok) {
-      const errorData = await destroyRes.json().catch(() => ({ error: "Unknown error" }));
-      return c.json({ error: errorData.error || "Failed to destroy deployment" }, destroyRes.status as any);
+      const errorData = await destroyRes.json().catch(() => ({}));
+      return c.json({ error: sanitizeUpstreamError(errorData, "Failed to destroy deployment") }, destroyRes.status as any);
     }
 
     // Update mapping status

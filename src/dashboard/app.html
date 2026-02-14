@@ -2008,6 +2008,9 @@
       const botId = telegramToken.split(':')[0];
       document.getElementById('telegram-bot-link').href = `https://t.me/bot${botId}`;
       
+      // Clear sensitive data from memory after success
+      deployData = {};
+      
       // Refresh agents list
       setTimeout(() => {
         loadAgents();

@@ -350,7 +350,15 @@
   </style>
 </head>
 <body>
-  <div class="app-layout">
+  <!-- Auth Gate: blocks everything until Clerk verifies login -->
+  <div id="auth-gate" style="display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg-deep);">
+    <div style="text-align:center;">
+      <div style="width:32px; height:32px; border:3px solid var(--border-subtle); border-top-color:var(--amber); border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto 16px;"></div>
+      <p style="color:var(--text-tertiary); font-size:13px;">Authenticating...</p>
+    </div>
+  </div>
+
+  <div class="app-layout" id="app-layout" style="display:none;">
     <!-- Mobile Header -->
     <div class="mobile-header">
       <a href="/" class="logo">seomcp<span class="dot">.dev</span></a>
@@ -1056,12 +1064,17 @@
           attempts++;
           var c = window.Clerk;
           if (c && c.loaded !== undefined) { clearInterval(interval); onClerkReady(c); }
-          else if (attempts > 100) { clearInterval(interval); loadDashboard(); }
+          else if (attempts > 100) { clearInterval(interval); window.location.href = '/login'; }
         }, 100);
       });
-      s.addEventListener('error', function() { loadDashboard(); });
+      s.addEventListener('error', function() { window.location.href = '/login'; });
       document.head.appendChild(s);
     })();
+
+    function showApp() {
+      document.getElementById('auth-gate').style.display = 'none';
+      document.getElementById('app-layout').style.display = '';
+    }
 
     async function onClerkReady(clerk) {
       try {
@@ -1070,6 +1083,7 @@
         if (!clerk.user) { window.location.href = '/login'; return; }
         var emailEl = document.getElementById('user-email');
         if (emailEl) emailEl.textContent = clerk.user.primaryEmailAddress?.emailAddress || '';
+        showApp();
       } catch (e) { console.warn('Clerk auth failed:', e); }
       loadDashboard();
     }

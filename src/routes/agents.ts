@@ -220,22 +220,10 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
   }
 
   try {
-    // Call Agent SaaS provision endpoint
-    const provisionRes = await agentApi("POST", "/api/provision", {
-      telegram_chat_id: telegramChatId,
-      site_url: body.site_url,
-      email: session.email,
-      plan: body.plan || "starter",
-      bot_name: body.bot_name,
-      platform: config.agentSaas.platform,
-    });
-
-    if (!provisionRes.ok) {
-      const errorData = await provisionRes.json().catch(() => ({}));
-      return c.json({ error: sanitizeUpstreamError(errorData, "Provisioning failed") }, provisionRes.status as any);
-    }
-
-    const provisionData = await provisionRes.json();
+    // For Hetzner deploy flow: create local records only.
+    // The Agent SaaS /api/provision is for multi-tenant (shared gateway) mode.
+    // In Hetzner mode, each agent gets its own server via /deploy.
+    const agentCustomerId = `hetzner-${ulid().slice(0, 12).toLowerCase()}`;
 
     // Auto-create a dedicated API key for this agent
     const { raw: agentKeyRaw, hash: agentKeyHash, prefix: agentKeyPrefix } = generateApiKey();
@@ -264,7 +252,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
       .values({
         id: mappingId,
         userId: session.userId,
-        agentCustomerId: provisionData.customer_id,
+        agentCustomerId,
         siteUrl: body.site_url,
         plan: body.plan || "starter",
         status: "provisioning",
@@ -277,9 +265,10 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
 
     return c.json({
       id: mappingId,
-      agentCustomerId: provisionData.customer_id,
+      agentId: mappingId,
+      agentCustomerId,
       agentApiKeyPrefix: agentKeyPrefix,
-      ...provisionData,
+      customer_id: agentCustomerId,
     }, 201);
   } catch (error) {
     console.error("Agent provision error:", error);

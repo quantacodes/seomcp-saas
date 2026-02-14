@@ -218,11 +218,150 @@
     }
     .onb-step.done { opacity: 0.5; }
 
+    /* Agent Cards */
+    .agent-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+    .agent-card:hover { border-color: var(--border-active); }
+    .agent-status-badge {
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+    .status-provisioning { color: var(--amber); background: var(--amber-muted); border: 1px solid rgba(229,164,48,0.2); }
+    .status-active { color: var(--sage); background: var(--sage-muted); border: 1px solid rgba(74,222,128,0.2); }
+    .status-suspended { color: #FBBF24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); }
+    .status-cancelled { color: var(--text-tertiary); background: rgba(92,92,110,0.1); border: 1px solid rgba(92,92,110,0.2); }
+
+    /* Deploy Wizard */
+    .deploy-wizard {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .wizard-step {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .wizard-step.active {
+      border-color: var(--amber);
+      background: linear-gradient(135deg, rgba(229,164,48,0.03) 0%, transparent 100%);
+    }
+    .wizard-step.completed {
+      border-color: var(--sage);
+      background: linear-gradient(135deg, rgba(74,222,128,0.03) 0%, transparent 100%);
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .step-number.active {
+      background: var(--amber);
+      color: var(--bg-deep);
+    }
+    .step-number.completed {
+      background: var(--sage);
+      color: var(--bg-deep);
+    }
+    .step-number.inactive {
+      background: var(--bg-raised);
+      color: var(--text-tertiary);
+      border: 1px solid var(--border-subtle);
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .telegram-instructions {
+      background: var(--bg-deep);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    .telegram-instructions ol {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--text-secondary);
+    }
+    .telegram-instructions li {
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    /* Upload Area */
+    .upload-area {
+      border: 2px dashed var(--border-subtle);
+      border-radius: 12px;
+      padding: 32px;
+      text-align: center;
+      background: var(--bg-raised);
+      transition: border-color 0.2s, background 0.2s;
+      cursor: pointer;
+    }
+    .upload-area:hover, .upload-area.dragover {
+      border-color: var(--amber);
+      background: rgba(229,164,48,0.03);
+    }
+    .upload-area input[type="file"] {
+      display: none;
+    }
+    
+    /* Progress Spinner */
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-subtle);
+      border-top: 2px solid var(--amber);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty States */
+    .empty-state {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-tertiary);
+    }
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.6;
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
       .grid-2, .grid-4 { grid-template-columns: 1fr; }
       .dash-right .hide-mobile { display: none; }
       td.hide-mobile, th.hide-mobile { display: none; }
+      .wizard-step { padding: 16px; }
     }
   </style>
 </head>
@@ -540,6 +679,169 @@
       </div>
     </section>
 
+    <!-- Agents List -->
+    <section id="agents-section" class="hidden">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+          <span class="card-title" style="margin-bottom:0;">Your SEO Agents</span>
+          <button onclick="scrollToSection('deploy-section')" class="btn-amber">Deploy New Agent</button>
+        </div>
+        <div id="agents-list"></div>
+        <div id="no-agents" class="empty-state hidden">
+          <div class="empty-state-icon">🤖</div>
+          <p style="font-size:16px; margin-bottom:8px; color:var(--text-secondary);">No agents yet</p>
+          <p style="font-size:13px; margin-bottom:20px;">Deploy your first SEO agent to get started.</p>
+          <button onclick="scrollToSection('deploy-section')" class="btn-amber">Deploy Your First Agent</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Deploy Agent -->
+    <section id="deploy-section" class="hidden">
+      <div class="card">
+        <div class="card-title">Deploy New SEO Agent</div>
+        <div class="deploy-wizard">
+          <!-- Step 1: Site URL -->
+          <div id="deploy-step-1" class="wizard-step active">
+            <div class="step-header">
+              <div class="step-number active">1</div>
+              <div class="step-title">Site URL</div>
+            </div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Enter the website URL you want to monitor with SEO tools.</p>
+            <div style="max-width:400px;">
+              <input type="url" id="deploy-site-url" placeholder="https://example.com" class="input" style="margin-bottom:12px;">
+              <div id="site-url-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
+              <button onclick="deployStep(2)" class="btn-amber">Next</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Telegram Bot -->
+          <div id="deploy-step-2" class="wizard-step">
+            <div class="step-header">
+              <div class="step-number inactive">2</div>
+              <div class="step-title">Create Telegram Bot</div>
+            </div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Create a Telegram bot to receive notifications and interact with your agent.</p>
+            <div class="telegram-instructions">
+              <p style="font-size:13px; margin-bottom:12px; color:var(--text-secondary);">Follow these steps:</p>
+              <ol>
+                <li>Open <a href="https://t.me/BotFather" target="_blank" style="color:var(--amber);">@BotFather</a> on Telegram</li>
+                <li>Send <code>/newbot</code></li>
+                <li>Choose a name (e.g., "My SEO Agent")</li>
+                <li>Choose a username ending in <code>bot</code></li>
+                <li>Copy the token BotFather gives you</li>
+              </ol>
+            </div>
+            <div style="max-width:400px;">
+              <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Bot Token</label>
+              <input type="text" id="deploy-telegram-token" placeholder="1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ" class="input input-mono" style="margin-bottom:12px;">
+              <div id="telegram-token-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
+              <div style="display:flex; gap:8px;">
+                <button onclick="deployStep(1)" class="btn-ghost">Back</button>
+                <button onclick="deployStep(3)" class="btn-amber">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 3: Anthropic API Key -->
+          <div id="deploy-step-3" class="wizard-step">
+            <div class="step-header">
+              <div class="step-number inactive">3</div>
+              <div class="step-title">Anthropic API Key</div>
+            </div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">
+              Add your Anthropic API key to power the AI agent. 
+              <a href="https://console.anthropic.com/account/keys" target="_blank" style="color:var(--amber);">Get your key here →</a>
+            </p>
+            <div style="max-width:400px;">
+              <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">API Key</label>
+              <input type="password" id="deploy-anthropic-key" placeholder="sk-ant-..." class="input input-mono" style="margin-bottom:12px;">
+              <div id="anthropic-key-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
+              <div style="display:flex; gap:8px;">
+                <button onclick="deployStep(2)" class="btn-ghost">Back</button>
+                <button onclick="deployStep(4)" class="btn-amber">Next</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 4: Deploy -->
+          <div id="deploy-step-4" class="wizard-step">
+            <div class="step-header">
+              <div class="step-number inactive">4</div>
+              <div class="step-title">Deploy</div>
+            </div>
+            <div id="deploy-summary" style="background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:8px; padding:16px; margin-bottom:16px;">
+              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Deployment Summary</div>
+              <div style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
+                <div><strong>Site URL:</strong> <span id="summary-site-url">-</span></div>
+                <div><strong>Telegram Bot:</strong> <span id="summary-telegram">-</span></div>
+                <div><strong>Plan:</strong> <span id="summary-plan">Free</span></div>
+              </div>
+            </div>
+            <div id="deploy-actions">
+              <div style="display:flex; gap:8px; margin-bottom:16px;">
+                <button onclick="deployStep(3)" class="btn-ghost">Back</button>
+                <button onclick="startDeployment()" id="deploy-btn" class="btn-amber" style="font-weight:600;">Deploy Agent</button>
+              </div>
+            </div>
+            <div id="deploy-progress" class="hidden">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+                <div class="spinner"></div>
+                <span id="deploy-status">Provisioning agent...</span>
+              </div>
+              <div id="deploy-logs" style="background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:8px; padding:12px; max-height:200px; overflow-y:auto; font-family:var(--font-mono); font-size:12px; line-height:1.6;"></div>
+            </div>
+            <div id="deploy-success" class="hidden" style="text-align:center; padding:20px;">
+              <div style="font-size:48px; margin-bottom:16px;">✅</div>
+              <div style="font-size:18px; font-weight:600; margin-bottom:8px;">Agent Deployed Successfully!</div>
+              <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Your SEO agent is now running and ready to help.</p>
+              <a id="telegram-bot-link" href="#" target="_blank" class="btn-amber" style="display:inline-block;">Open Telegram Bot</a>
+            </div>
+            <div id="deploy-error" class="hidden" style="text-align:center; padding:20px;">
+              <div style="font-size:48px; margin-bottom:16px;">❌</div>
+              <div style="font-size:18px; font-weight:600; margin-bottom:8px; color:var(--coral);">Deployment Failed</div>
+              <p id="deploy-error-message" style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;"></p>
+              <button onclick="retryDeployment()" class="btn-amber">Retry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Google Credentials -->
+    <section id="google-creds-section" class="hidden">
+      <div class="card">
+        <div class="card-title">Google Credentials</div>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">
+          Upload your Google service account JSON to enable GSC/GA4 data access for your agents.
+        </p>
+        
+        <div id="google-upload-area" style="margin-bottom:24px;">
+          <div class="upload-area" onclick="document.getElementById('google-file-input').click();">
+            <input type="file" id="google-file-input" accept=".json" onchange="handleGoogleFileSelect(event)">
+            <div style="font-size:32px; margin-bottom:12px;">📄</div>
+            <div style="font-size:14px; font-weight:500; margin-bottom:4px;">Upload Service Account JSON</div>
+            <div style="font-size:12px; color:var(--text-tertiary);">Click to browse or drag and drop</div>
+          </div>
+          <div style="margin-top:16px;">
+            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Or Paste JSON</div>
+            <textarea id="google-json-text" placeholder="Paste your Google service account JSON here..." class="input" style="min-height:120px; font-family:var(--font-mono); font-size:12px; line-height:1.4; margin-bottom:12px;"></textarea>
+            <button onclick="uploadGoogleCredentials()" class="btn-amber">Validate & Upload</button>
+          </div>
+        </div>
+
+        <div id="google-credentials-list">
+          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Uploaded Credentials</div>
+          <div id="google-creds-empty" class="empty-state">
+            <div class="empty-state-icon">🔑</div>
+            <p style="font-size:16px; margin-bottom:8px; color:var(--text-secondary);">No credentials uploaded</p>
+            <p style="font-size:13px;">Upload your Google service account JSON to enable GSC/GA4 data.</p>
+          </div>
+          <div id="google-creds-items"></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Account Settings -->
     <section id="account-section" class="hidden">
       <div class="card">
@@ -555,6 +857,10 @@
               <div>
                 <div style="font-size:11px; color:var(--text-tertiary);">Plan</div>
                 <div id="account-plan" style="font-size:13px; font-weight:600; text-transform:uppercase;"></div>
+              </div>
+              <div>
+                <div style="font-size:11px; color:var(--text-tertiary);">Agents</div>
+                <div id="account-agents" style="font-size:13px; font-weight:500;"></div>
               </div>
             </div>
           </div>
@@ -698,6 +1004,20 @@
     </div>
   </div>
 
+  <!-- Deprovision Agent Modal -->
+  <div id="deprovision-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width:400px;">
+      <div style="font-size:17px; font-weight:600; margin-bottom:8px; color:var(--coral);">Deprovision Agent?</div>
+      <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:8px;">This will permanently delete the agent and all its data:</p>
+      <p id="deprovision-agent-url" style="font-size:14px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:20px;"></p>
+      <p style="font-size:12px; color:var(--coral); margin-bottom:16px;">⚠️ This action cannot be undone.</p>
+      <div style="display:flex; gap:10px;">
+        <button onclick="closeDeprovisionModal()" class="btn-ghost" style="flex:1;">Cancel</button>
+        <button onclick="confirmDeprovision()" class="btn-danger" style="flex:1;">Deprovision</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied</div>
 
@@ -708,6 +1028,10 @@
     // ── State ──
     let dashData = null;
     let revokeKeyId = null;
+    let deprovisionAgentId = null;
+    let currentDeployStep = 1;
+    let deployData = {};
+    let deploymentPollingInterval = null;
 
     // ── Load Dashboard ──
     async function loadDashboard() {
@@ -740,9 +1064,17 @@
       renderActivity(d.recentCalls);
       loadSchedules();
       loadWebhooks();
+      loadAgents();
+      loadGoogleCredentials();
 
       document.getElementById('account-email').textContent = d.user.email;
       document.getElementById('account-plan').textContent = d.user.plan;
+      
+      // Will be updated by loadAgents()
+      if (!document.getElementById('account-agents').textContent) {
+        document.getElementById('account-agents').textContent = 'Loading...';
+      }
+      
       document.getElementById('account-section').classList.remove('hidden');
     }
 
@@ -1323,6 +1655,607 @@
         if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000); }
         else { const data = await res.json(); btn.textContent = data.error || 'Failed'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
       } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
+    }
+
+    // ── Agents ──
+    async function loadAgents() {
+      try {
+        const res = await fetch('/dashboard/api/agents');
+        if (!res.ok) return;
+        const data = await res.json();
+        
+        document.getElementById('agents-section').classList.remove('hidden');
+        const agentsList = document.getElementById('agents-list');
+        const noAgents = document.getElementById('no-agents');
+        
+        // Update account section with agent count
+        const agentCountEl = document.getElementById('account-agents');
+        if (agentCountEl) {
+          agentCountEl.textContent = `${data.agents.length} active`;
+        }
+        
+        if (!data.agents || data.agents.length === 0) {
+          agentsList.innerHTML = '';
+          noAgents.classList.remove('hidden');
+          return;
+        }
+        
+        noAgents.classList.add('hidden');
+        agentsList.innerHTML = data.agents.map(agent => {
+          const statusClass = `status-${agent.status}`;
+          const createdDate = new Date(agent.createdAt).toLocaleDateString();
+          const hasApiKeyIndicator = agent.hasApiKey 
+            ? '<span style="color:var(--sage); font-size:12px;">🔑</span>' 
+            : '<span style="color:var(--text-tertiary); font-size:12px;">🔑</span>';
+          
+          return `<div class="agent-card">
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px;">
+              <div style="flex:1;">
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+                  <span style="font-size:15px; font-weight:600;">${escHtml(agent.siteUrl)}</span>
+                  <span class="agent-status-badge ${statusClass}">${agent.status}</span>
+                  ${hasApiKeyIndicator}
+                </div>
+                <div style="font-size:12px; color:var(--text-tertiary);">
+                  Plan: ${escHtml(agent.plan || 'Free')} • Created: ${createdDate}
+                </div>
+              </div>
+              <div style="display:flex; gap:8px; flex-shrink:0;">
+                <button onclick="viewAgentDetails('${agent.id}')" class="btn-ghost" style="font-size:12px; padding:6px 12px;">View Details</button>
+                <button onclick="openDeprovisionModal('${agent.id}', '${escHtml(agent.siteUrl)}')" class="btn-danger" style="font-size:12px; padding:6px 12px;">Deprovision</button>
+              </div>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        console.error('Failed to load agents:', err);
+      }
+    }
+
+    async function viewAgentDetails(agentId) {
+      try {
+        const res = await fetch(`/dashboard/api/agents/${agentId}`);
+        if (!res.ok) return;
+        const agent = await res.json();
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay active';
+        modal.style.display = 'flex';
+        modal.innerHTML = `<div class="modal-card" style="max-width:600px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
+            <div>
+              <div style="font-size:17px; font-weight:600;">${escHtml(agent.siteUrl)}</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Agent Details</div>
+            </div>
+            <button onclick="this.closest('.modal-overlay').remove()" style="color:var(--text-tertiary); font-size:20px;">×</button>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+            <div>
+              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Status</div>
+              <span class="agent-status-badge status-${agent.status}">${agent.status}</span>
+            </div>
+            <div>
+              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Plan</div>
+              <div style="font-size:13px;">${escHtml(agent.plan || 'Free')}</div>
+            </div>
+            <div>
+              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Created</div>
+              <div style="font-size:13px;">${new Date(agent.createdAt).toLocaleString()}</div>
+            </div>
+            <div>
+              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">API Key</div>
+              <div style="font-size:13px;">${agent.hasApiKey ? '✅ Configured' : '❌ Missing'}</div>
+            </div>
+          </div>
+        </div>`;
+        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+        document.body.appendChild(modal);
+      } catch (err) {
+        console.error('Failed to load agent details:', err);
+      }
+    }
+
+    function openDeprovisionModal(agentId, siteUrl) {
+      deprovisionAgentId = agentId;
+      document.getElementById('deprovision-agent-url').textContent = siteUrl;
+      document.getElementById('deprovision-modal').classList.add('active');
+    }
+
+    function closeDeprovisionModal() {
+      document.getElementById('deprovision-modal').classList.remove('active');
+      deprovisionAgentId = null;
+    }
+
+    async function confirmDeprovision() {
+      if (!deprovisionAgentId) return;
+      try {
+        const res = await fetch(`/dashboard/api/agents/${deprovisionAgentId}/deprovision`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          alert(data.error || 'Failed to deprovision agent');
+          return;
+        }
+        closeDeprovisionModal();
+        loadAgents();
+        showToast('Agent deprovisioned successfully');
+      } catch (err) {
+        alert('Failed to deprovision agent');
+      }
+    }
+
+    // ── Deploy Wizard ──
+    function deployStep(step) {
+      if (step === 2 && !validateSiteUrl()) return;
+      if (step === 3 && !validateTelegramToken()) return;
+      if (step === 4 && !validateAnthropicKey()) return;
+      
+      // Hide all steps
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`deploy-step-${i}`);
+        const numberEl = stepEl.querySelector('.step-number');
+        stepEl.classList.remove('active', 'completed');
+        numberEl.classList.remove('active', 'completed');
+        numberEl.classList.add('inactive');
+      }
+      
+      // Show current and mark previous as completed
+      for (let i = 1; i <= step; i++) {
+        const stepEl = document.getElementById(`deploy-step-${i}`);
+        const numberEl = stepEl.querySelector('.step-number');
+        numberEl.classList.remove('inactive');
+        if (i < step) {
+          stepEl.classList.add('completed');
+          numberEl.classList.add('completed');
+        } else {
+          stepEl.classList.add('active');
+          numberEl.classList.add('active');
+        }
+      }
+      
+      currentDeployStep = step;
+      
+      if (step === 4) {
+        updateDeploySummary();
+      }
+    }
+
+    function validateSiteUrl() {
+      const url = document.getElementById('deploy-site-url').value.trim();
+      const errorEl = document.getElementById('site-url-error');
+      
+      if (!url) {
+        errorEl.textContent = 'Please enter a website URL';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+      
+      try {
+        new URL(url.startsWith('http') ? url : 'https://' + url);
+        deployData.siteUrl = url;
+        errorEl.classList.add('hidden');
+        return true;
+      } catch {
+        errorEl.textContent = 'Please enter a valid URL (e.g., https://example.com)';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+    }
+
+    function validateTelegramToken() {
+      const token = document.getElementById('deploy-telegram-token').value.trim();
+      const errorEl = document.getElementById('telegram-token-error');
+      
+      if (!token) {
+        errorEl.textContent = 'Please enter your Telegram bot token';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+      
+      // Basic telegram token format: digits:alphanumeric
+      if (!/^\d+:[A-Za-z0-9_-]+$/.test(token)) {
+        errorEl.textContent = 'Invalid token format. Should be like: 1234567890:ABCDEFGHIJKLMNOP';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+      
+      deployData.telegramToken = token;
+      errorEl.classList.add('hidden');
+      return true;
+    }
+
+    function validateAnthropicKey() {
+      const key = document.getElementById('deploy-anthropic-key').value.trim();
+      const errorEl = document.getElementById('anthropic-key-error');
+      
+      if (!key) {
+        errorEl.textContent = 'Please enter your Anthropic API key';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+      
+      if (!key.startsWith('sk-ant-')) {
+        errorEl.textContent = 'API key should start with sk-ant-';
+        errorEl.classList.remove('hidden');
+        return false;
+      }
+      
+      deployData.anthropicKey = key;
+      errorEl.classList.add('hidden');
+      return true;
+    }
+
+    function updateDeploySummary() {
+      document.getElementById('summary-site-url').textContent = deployData.siteUrl || '-';
+      document.getElementById('summary-telegram').textContent = deployData.telegramToken ? 'Configured' : '-';
+      document.getElementById('summary-plan').textContent = dashData?.user?.plan || 'Free';
+    }
+
+    async function startDeployment() {
+      document.getElementById('deploy-actions').classList.add('hidden');
+      document.getElementById('deploy-progress').classList.remove('hidden');
+      document.getElementById('deploy-success').classList.add('hidden');
+      document.getElementById('deploy-error').classList.add('hidden');
+      
+      try {
+        // Step 1: Provision agent
+        updateDeployStatus('Provisioning agent...');
+        const provisionRes = await fetch('/dashboard/api/agents/provision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            site_url: deployData.siteUrl,
+            telegram_token: deployData.telegramToken
+          })
+        });
+        
+        if (!provisionRes.ok) {
+          const error = await provisionRes.json();
+          throw new Error(error.error || 'Provisioning failed');
+        }
+        
+        const provisionData = await provisionRes.json();
+        addDeployLog(`✅ Agent provisioned: ${provisionData.agentId}`);
+        
+        // Step 2: Deploy to Hetzner
+        updateDeployStatus('Deploying to server...');
+        const deployRes = await fetch('/dashboard/api/agents/deploy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent_id: provisionData.agentId,
+            anthropic_api_key: deployData.anthropicKey,
+            site_url: deployData.siteUrl,
+            telegram_token: deployData.telegramToken
+          })
+        });
+        
+        if (!deployRes.ok) {
+          const error = await deployRes.json();
+          throw new Error(error.error || 'Deployment failed');
+        }
+        
+        const deployResult = await deployRes.json();
+        addDeployLog(`🚀 Deploying to server: ${deployResult.serverId}`);
+        
+        // Step 3: Poll for completion
+        updateDeployStatus('Starting agent...');
+        pollDeploymentStatus(deployResult.serverId);
+        
+      } catch (err) {
+        showDeployError(err.message);
+      }
+    }
+
+    function pollDeploymentStatus(serverId) {
+      let attempts = 0;
+      const maxAttempts = 60; // 5 minutes
+      
+      deploymentPollingInterval = setInterval(async () => {
+        attempts++;
+        
+        try {
+          const res = await fetch(`/dashboard/api/agents/deploy/${serverId}/verify`);
+          if (!res.ok) {
+            if (attempts >= maxAttempts) {
+              clearInterval(deploymentPollingInterval);
+              showDeployError('Deployment timeout - please check manually');
+            }
+            return;
+          }
+          
+          const status = await res.json();
+          
+          if (status.status === 'running') {
+            clearInterval(deploymentPollingInterval);
+            addDeployLog('✅ Agent is running and ready!');
+            showDeploySuccess(deployData.telegramToken);
+          } else if (status.status === 'failed') {
+            clearInterval(deploymentPollingInterval);
+            showDeployError(status.error || 'Deployment failed');
+          } else {
+            // Still starting
+            addDeployLog(`⏳ Status: ${status.status}...`);
+          }
+          
+        } catch (err) {
+          if (attempts >= maxAttempts) {
+            clearInterval(deploymentPollingInterval);
+            showDeployError('Connection error during verification');
+          }
+        }
+      }, 5000);
+    }
+
+    function updateDeployStatus(message) {
+      document.getElementById('deploy-status').textContent = message;
+    }
+
+    function addDeployLog(message) {
+      const logs = document.getElementById('deploy-logs');
+      const timestamp = new Date().toLocaleTimeString();
+      logs.innerHTML += `<div style="color:var(--text-tertiary);">[${timestamp}] ${message}</div>`;
+      logs.scrollTop = logs.scrollHeight;
+    }
+
+    function showDeploySuccess(telegramToken) {
+      document.getElementById('deploy-progress').classList.add('hidden');
+      document.getElementById('deploy-success').classList.remove('hidden');
+      
+      // Extract bot username from token for Telegram link
+      const botId = telegramToken.split(':')[0];
+      document.getElementById('telegram-bot-link').href = `https://t.me/bot${botId}`;
+      
+      // Refresh agents list
+      setTimeout(() => {
+        loadAgents();
+        resetDeployWizard();
+      }, 3000);
+    }
+
+    function showDeployError(message) {
+      document.getElementById('deploy-progress').classList.add('hidden');
+      document.getElementById('deploy-error').classList.remove('hidden');
+      document.getElementById('deploy-error-message').textContent = message;
+    }
+
+    function retryDeployment() {
+      document.getElementById('deploy-error').classList.add('hidden');
+      document.getElementById('deploy-actions').classList.remove('hidden');
+    }
+
+    function resetDeployWizard() {
+      currentDeployStep = 1;
+      deployData = {};
+      document.getElementById('deploy-site-url').value = '';
+      document.getElementById('deploy-telegram-token').value = '';
+      document.getElementById('deploy-anthropic-key').value = '';
+      document.getElementById('deploy-logs').innerHTML = '';
+      
+      // Reset to step 1
+      deployStep(1);
+      
+      document.getElementById('deploy-actions').classList.remove('hidden');
+      document.getElementById('deploy-progress').classList.add('hidden');
+      document.getElementById('deploy-success').classList.add('hidden');
+      document.getElementById('deploy-error').classList.add('hidden');
+    }
+
+    // ── Google Credentials ──
+    async function loadGoogleCredentials() {
+      try {
+        const res = await fetch('/dashboard/api/google/credentials');
+        if (!res.ok) return;
+        
+        const data = await res.json();
+        document.getElementById('google-creds-section').classList.remove('hidden');
+        
+        const emptyEl = document.getElementById('google-creds-empty');
+        const itemsEl = document.getElementById('google-creds-items');
+        
+        if (!data.credentials || data.credentials.length === 0) {
+          emptyEl.classList.remove('hidden');
+          itemsEl.innerHTML = '';
+          return;
+        }
+        
+        emptyEl.classList.add('hidden');
+        itemsEl.innerHTML = data.credentials.map(cred => {
+          const statusBadge = cred.status === 'active' 
+            ? '<span class="badge badge-active">Active</span>'
+            : '<span class="badge badge-error">Invalid</span>';
+          
+          const properties = cred.discoveredProperties 
+            ? cred.discoveredProperties.map(p => `<span style="font-size:11px; padding:2px 6px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:4px;">${escHtml(p)}</span>`).join(' ')
+            : '';
+          
+          return `<div style="display:flex; align-items:center; justify-content:between; padding:16px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:10px; margin-bottom:12px;">
+            <div style="flex:1;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:13px; font-weight:500;">${escHtml(cred.email || 'Unknown')}</span>
+                ${statusBadge}
+              </div>
+              <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:6px;">
+                Uploaded: ${new Date(cred.createdAt).toLocaleDateString()}
+              </div>
+              <div style="display:flex; gap:4px; flex-wrap:wrap;">${properties}</div>
+            </div>
+            <div style="display:flex; gap:8px; flex-shrink:0;">
+              <button onclick="testGoogleCredential('${cred.id}')" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Test</button>
+              <button onclick="removeGoogleCredential('${cred.id}')" class="btn-danger" style="font-size:12px; padding:6px 12px;">Remove</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (err) {
+        console.error('Failed to load Google credentials:', err);
+      }
+    }
+
+    function handleGoogleFileSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const json = JSON.parse(e.target.result);
+          document.getElementById('google-json-text').value = JSON.stringify(json, null, 2);
+        } catch (err) {
+          alert('Invalid JSON file');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function uploadGoogleCredentials() {
+      const jsonText = document.getElementById('google-json-text').value.trim();
+      if (!jsonText) {
+        alert('Please provide the JSON credentials');
+        return;
+      }
+      
+      try {
+        JSON.parse(jsonText); // Validate JSON
+      } catch {
+        alert('Invalid JSON format');
+        return;
+      }
+      
+      try {
+        const res = await fetch('/dashboard/api/google/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credentials: jsonText })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Upload failed');
+          return;
+        }
+        
+        document.getElementById('google-json-text').value = '';
+        document.getElementById('google-file-input').value = '';
+        loadGoogleCredentials();
+        showToast('Google credentials uploaded successfully');
+        
+      } catch (err) {
+        alert('Upload failed');
+      }
+    }
+
+    async function testGoogleCredential(credId) {
+      try {
+        const res = await fetch(`/dashboard/api/google/credentials/${credId}/validate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          alert(data.error || 'Validation failed');
+          return;
+        }
+        
+        showToast('Google credentials are valid ✅');
+        loadGoogleCredentials();
+        
+      } catch (err) {
+        alert('Validation failed');
+      }
+    }
+
+    async function removeGoogleCredential(credId) {
+      if (!confirm('Remove this Google credential? This cannot be undone.')) return;
+      
+      try {
+        const res = await fetch(`/dashboard/api/google/credentials/${credId}`, {
+          method: 'DELETE'
+        });
+        
+        if (!res.ok) {
+          const data = await res.json();
+          alert(data.error || 'Remove failed');
+          return;
+        }
+        
+        loadGoogleCredentials();
+        showToast('Google credential removed');
+        
+      } catch (err) {
+        alert('Remove failed');
+      }
+    }
+
+    // ── Navigation ──
+    function scrollToSection(sectionId) {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Show deploy section if hidden
+        if (sectionId === 'deploy-section') {
+          element.classList.remove('hidden');
+        }
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('copy-toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.textContent = '✓ Copied';
+      }, 2500);
+    }
+
+    // Show deploy section by default
+    document.getElementById('deploy-section').classList.remove('hidden');
+
+    // ── Drag and Drop for Google Credentials ──
+    const uploadArea = document.querySelector('.upload-area');
+    if (uploadArea) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
+      });
+
+      uploadArea.addEventListener('drop', handleGoogleFileDrop, false);
+    }
+
+    function preventDefaults(e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function handleGoogleFileDrop(e) {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        const file = files[0];
+        if (file.type === 'application/json' || file.name.endsWith('.json')) {
+          const reader = new FileReader();
+          reader.onload = function(event) {
+            try {
+              const json = JSON.parse(event.target.result);
+              document.getElementById('google-json-text').value = JSON.stringify(json, null, 2);
+            } catch (err) {
+              alert('Invalid JSON file');
+            }
+          };
+          reader.readAsText(file);
+        } else {
+          alert('Please drop a JSON file');
+        }
+      }
     }
 
     // ── Helpers ──

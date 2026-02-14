@@ -61,6 +61,22 @@ export const googleTokens = sqliteTable("google_tokens", {
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
 });
 
+export const googleCredentials = sqliteTable("google_credentials", {
+  id: text("id").primaryKey(), // ULID
+  userId: text("user_id").notNull()
+    .references(() => users.id),
+  credentialType: text("credential_type").notNull(), // 'oauth' | 'service_account'
+  encryptedData: text("encrypted_data").notNull(), // AES-256-GCM encrypted JSON
+  email: text("email"), // Service account email or Google email
+  scopes: text("scopes"), // JSON array of scopes
+  gscProperties: text("gsc_properties"), // JSON array of verified GSC properties
+  status: text("status").notNull().default("active"), // active/expired/revoked/error
+  lastValidatedAt: integer("last_validated_at", { mode: "timestamp" }),
+  errorMessage: text("error_message"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});
+
 export const sessions = sqliteTable("sessions", {
   id: text("id").primaryKey(), // ULID — used as cookie value
   userId: text("user_id")

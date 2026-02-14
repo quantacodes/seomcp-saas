@@ -176,6 +176,22 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_user_agent_mappings_user ON user_agent_mappings(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_user_agent_mappings_customer ON user_agent_mappings(agent_customer_id)`,
   `CREATE INDEX IF NOT EXISTS idx_user_agent_mappings_server ON user_agent_mappings(hetzner_server_id)`,
+  // Google Credentials (Service Account support)
+  `CREATE TABLE IF NOT EXISTS google_credentials (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    credential_type TEXT NOT NULL,
+    encrypted_data TEXT NOT NULL,
+    email TEXT,
+    scopes TEXT,
+    gsc_properties TEXT,
+    status TEXT NOT NULL DEFAULT 'active',
+    last_validated_at INTEGER,
+    error_message TEXT,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_google_creds_user ON google_credentials(user_id)`,
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_api_keys_user ON api_keys(user_id)`,
   `CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(key_hash)`,

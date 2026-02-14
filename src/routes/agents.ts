@@ -185,9 +185,12 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     return c.json({ error: "Invalid JSON body" }, 400);
   }
 
-  if (!body.telegram_chat_id || !body.site_url) {
-    return c.json({ error: "telegram_chat_id and site_url are required" }, 400);
+  if (!body.site_url) {
+    return c.json({ error: "site_url is required" }, 400);
   }
+
+  // telegram_chat_id is optional at provision time — dashboard flow provides it at deploy
+  const telegramChatId = body.telegram_chat_id || `pending-${session.userId}`;
 
   // Rate limit
   if (!checkRateLimit(session.userId)) {
@@ -219,7 +222,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
   try {
     // Call Agent SaaS provision endpoint
     const provisionRes = await agentApi("POST", "/api/provision", {
-      telegram_chat_id: body.telegram_chat_id,
+      telegram_chat_id: telegramChatId,
       site_url: body.site_url,
       email: session.email,
       plan: body.plan || "starter",

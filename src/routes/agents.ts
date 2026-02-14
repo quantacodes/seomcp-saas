@@ -253,6 +253,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
 
     // Encrypt the raw key for storage (needed during deploy injection)
     const agentKeyEnc = encryptToken(agentKeyRaw);
+    console.log(`[agent] API key created for ${body.site_url}: ${agentKeyPrefix}`);
 
     // Create local mapping record with API key reference
     const mappingId = ulid();
@@ -324,6 +325,7 @@ agentRoutes.post("/dashboard/api/agents/:id/deprovision", async (c) => {
         .set({ isActive: false })
         .where(eq(schema.apiKeys.id, mapping.agentApiKeyId))
         .run();
+      console.log(`[agent] API key revoked for agent ${agentId}: ${mapping.agentApiKeyId}`);
     }
 
     // Update local mapping status

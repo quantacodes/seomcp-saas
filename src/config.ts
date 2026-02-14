@@ -69,6 +69,13 @@ export const config = {
   // Proxy API (Phase 2)
   maxProxyConcurrentSpawns: parseInt(process.env.MAX_PROXY_CONCURRENT_SPAWNS || "15"),
   proxyTimeoutMs: parseInt(process.env.PROXY_TIMEOUT_MS || "30000"),
+
+  // Agent SaaS integration
+  agentSaas: {
+    apiUrl: process.env.AGENT_SAAS_URL || "http://localhost:4100",
+    apiKey: process.env.AGENT_SAAS_API_KEY || "",
+    platform: "seomcp.dev",
+  },
 };
 
 export type PlanName = "free" | "pro" | "agency" | "enterprise";

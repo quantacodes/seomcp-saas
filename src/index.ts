@@ -27,6 +27,7 @@ import { verifyRoutes } from "./routes/verify";
 import { teamRoutes } from "./routes/teams";
 import { passwordResetRoutes } from "./routes/password-reset";
 import { proxyRoutes } from "./routes/proxy";
+import { agentRoutes } from "./routes/agents";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 import { startScheduler, stopScheduler } from "./scheduler/engine";
@@ -148,6 +149,7 @@ app.route("/", verifyRoutes);
 app.route("/", teamRoutes);
 app.route("/", passwordResetRoutes);
 app.route("/", proxyRoutes);
+app.route("/", agentRoutes);
 // Static SEO files
 app.get("/robots.txt", (c) => {
   return c.text(`User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: https://seomcp.dev/sitemap.xml\n`);

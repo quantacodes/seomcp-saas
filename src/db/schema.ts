@@ -187,3 +187,15 @@ export const rateLimits = sqliteTable("rate_limits", {
   windowStart: integer("window_start").notNull(), // Unix timestamp (start of month)
   callCount: integer("call_count").notNull().default(0),
 });
+
+export const userAgentMappings = sqliteTable("user_agent_mappings", {
+  id: text("id").primaryKey(),           // ulid
+  userId: text("user_id").notNull(),     // references users.id
+  agentCustomerId: text("agent_customer_id").notNull().unique(),  // ID in Agent SaaS DB
+  siteUrl: text("site_url").notNull(),
+  plan: text("plan").notNull().default("starter"),
+  status: text("status").notNull().default("provisioning"),  // provisioning/active/suspended/cancelled
+  hetznerServerId: integer("hetzner_server_id"),
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});

@@ -10,125 +10,213 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-deep: #0C0C0F;
-      --bg-surface: #16161D;
-      --bg-raised: #1E1E28;
-      --border-subtle: #2A2A36;
+      --bg-deep: #0A0A0F;
+      --bg-surface: #131318;
+      --bg-raised: #1A1A22;
+      --bg-hover: #22222D;
+      --border-subtle: #252530;
       --border-active: #3D3D4E;
-      --text-primary: #EDEDF0;
-      --text-secondary: #8E8EA0;
-      --text-tertiary: #5C5C6E;
+      --text-primary: #F0F0F5;
+      --text-secondary: #B8B8CC;
+      --text-tertiary: #7A7A92;
       --amber: #E5A430;
       --amber-hover: #F0B840;
-      --amber-muted: rgba(229,164,48,0.12);
+      --amber-muted: rgba(229,164,48,0.10);
       --sage: #4ADE80;
-      --sage-muted: rgba(74,222,128,0.12);
+      --sage-muted: rgba(74,222,128,0.10);
       --coral: #F87171;
+      --coral-muted: rgba(248,113,113,0.10);
       --blue: #60A5FA;
+      --blue-muted: rgba(96,165,250,0.10);
+      --purple: #A78BFA;
+      --purple-muted: rgba(167,139,250,0.10);
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+      --radius: 12px;
+      --radius-sm: 8px;
     }
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: var(--font-sans); background: var(--bg-deep);
-      color: var(--text-primary); line-height: 1.6; font-size: 14px;
-      -webkit-font-smoothing: antialiased;
+      color: var(--text-primary); line-height: 1.5; font-size: 14px;
+      -webkit-font-smoothing: antialiased; min-height: 100vh;
     }
     a { color: inherit; text-decoration: none; }
     button { font-family: inherit; cursor: pointer; border: none; background: none; }
     code { font-family: var(--font-mono); font-size: 13px; }
 
-    /* Nav */
-    .dash-nav {
-      position: sticky; top: 0; z-index: 40;
-      height: 56px; display: flex; align-items: center;
-      background: rgba(12,12,15,0.9); backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+    /* ── Layout ── */
+    .app-layout { display: flex; min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 240px; flex-shrink: 0;
+      background: var(--bg-surface); border-right: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    }
+    .sidebar-logo {
+      padding: 20px 20px 24px;
+      font-size: 17px; font-weight: 600;
       border-bottom: 1px solid var(--border-subtle);
     }
-    .dash-nav-inner {
+    .sidebar-logo .dot { color: var(--amber); }
+    .sidebar-nav { padding: 12px 10px; flex: 1; }
+    .nav-section-label {
+      font-size: 10px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: var(--text-tertiary);
+      padding: 16px 10px 6px; margin-top: 4px;
+    }
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px; border-radius: var(--radius-sm);
+      font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .nav-item:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .nav-item.active { background: var(--amber-muted); color: var(--amber); font-weight: 500; }
+    .nav-item .nav-icon { font-size: 16px; width: 20px; text-align: center; }
+    .sidebar-footer {
+      padding: 16px 20px; border-top: 1px solid var(--border-subtle);
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    .sidebar-email { font-size: 12px; color: var(--text-tertiary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sidebar-plan { display: inline-flex; padding: 2px 8px; border-radius: 12px; font-size: 10px; font-weight: 600; text-transform: uppercase; background: var(--amber-muted); color: var(--amber); width: fit-content; }
+    .sidebar-logout { font-size: 12px; color: var(--text-tertiary); cursor: pointer; margin-top: 4px; text-align: left; }
+    .sidebar-logout:hover { color: var(--coral); }
+
+    /* ── Main Content ── */
+    .main-content { flex: 1; min-width: 0; overflow-y: auto; }
+    .page-header {
+      padding: 24px 32px 0;
       display: flex; align-items: center; justify-content: space-between;
-      max-width: 1120px; width: 100%; margin: 0 auto; padding: 0 24px;
     }
-    .dash-logo { font-size: 16px; font-weight: 600; }
-    .dash-logo .dot { color: var(--amber); }
-    .dash-right { display: flex; align-items: center; gap: 16px; }
-    .dash-right a, .dash-right span { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
-    .dash-right a:hover { color: var(--text-primary); }
-    .plan-badge {
-      display: none; padding: 3px 10px; border-radius: 20px;
-      font-size: 11px; font-weight: 600; text-transform: uppercase;
-      background: var(--amber-muted); color: var(--amber);
-      border: 1px solid rgba(229,164,48,0.2);
+    .page-title { font-size: 22px; font-weight: 700; }
+    .page-body { padding: 20px 32px 40px; }
+
+    /* ── Tab Panels ── */
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Agent Cards ── */
+    .agent-card {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+      transition: border-color 0.15s;
     }
-    .logout-btn { font-size: 13px; color: var(--text-tertiary); transition: color 0.2s; }
-    .logout-btn:hover { color: var(--text-primary); }
+    .agent-card:hover { border-color: var(--border-active); }
+    .agent-status-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .agent-status-badge.active { background: var(--sage-muted); color: var(--sage); }
+    .agent-status-badge.provisioning { background: var(--amber-muted); color: var(--amber); }
+    .agent-status-badge.error { background: var(--coral-muted); color: var(--coral); }
 
-    /* Content */
-    .dash-content { max-width: 1120px; margin: 0 auto; padding: 32px 24px; }
-    .dash-content > section { margin-bottom: 24px; }
-    .hidden { display: none !important; }
+    /* ── Loading Spinner ── */
+    .loading-spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--border-subtle); border-top-color: var(--amber);
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Cards */
+    /* ── Cards ── */
     .card {
       background: var(--bg-surface); border: 1px solid var(--border-subtle);
-      border-radius: 14px; padding: 28px;
+      border-radius: var(--radius); padding: 24px;
     }
-    .card-title { font-size: 17px; font-weight: 600; margin-bottom: 20px; }
-
-    /* Loading skeleton */
-    .skeleton {
-      border-radius: 14px;
-      background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-raised) 50%, var(--bg-surface) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 1.5s infinite;
+    .card-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 20px;
     }
-    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    .card-title { font-size: 15px; font-weight: 600; color: var(--text-primary); }
+    .card-subtitle { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
 
-    /* Badges */
-    .badge { display: inline-flex; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .badge-active { color: var(--sage); background: var(--sage-muted); border: 1px solid rgba(74,222,128,0.2); }
-    .badge-revoked { color: var(--text-tertiary); background: rgba(92,92,110,0.1); border: 1px solid rgba(92,92,110,0.2); }
-    .badge-success { color: var(--sage); background: var(--sage-muted); }
-    .badge-error { color: var(--coral); background: rgba(248,113,113,0.1); }
-    .badge-rate_limited { color: #FBBF24; background: rgba(251,191,36,0.1); }
+    /* ── Stat Cards ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--bg-surface); border: 1px solid var(--border-subtle);
+      border-radius: var(--radius); padding: 20px;
+    }
+    .stat-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-tertiary); margin-bottom: 8px; }
+    .stat-value { font-size: 28px; font-weight: 700; line-height: 1.1; }
+    .stat-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 6px; }
+    .stat-change { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; padding: 2px 6px; border-radius: 4px; }
+    .stat-change.up { color: var(--sage); background: var(--sage-muted); }
+    .stat-change.down { color: var(--coral); background: var(--coral-muted); }
 
-    /* Status dots */
-    .status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
-    .status-success { background: var(--sage); }
-    .status-error { background: var(--coral); }
-    .status-rate_limited { background: #FBBF24; }
+    /* ── Charts ── */
+    .chart-container { position: relative; }
+    .chart-area {
+      display: flex; align-items: flex-end; gap: 2px; height: 140px;
+      padding: 8px 0; border-bottom: 1px solid var(--border-subtle);
+    }
+    .chart-bar {
+      flex: 1; min-width: 2px; border-radius: 3px 3px 0 0;
+      transition: all 0.2s; cursor: pointer; position: relative;
+    }
+    .chart-bar:hover { opacity: 0.8; }
+    .chart-bar .chart-tooltip {
+      display: none; position: absolute; bottom: calc(100% + 8px); left: 50%;
+      transform: translateX(-50%); padding: 6px 10px; border-radius: 6px;
+      background: var(--bg-raised); border: 1px solid var(--border-subtle);
+      font-size: 11px; color: var(--text-primary); white-space: nowrap; z-index: 10;
+      pointer-events: none;
+    }
+    .chart-bar:hover .chart-tooltip { display: block; }
+    .chart-labels { display: flex; justify-content: space-between; padding-top: 6px; }
+    .chart-labels span { font-size: 10px; color: var(--text-tertiary); }
 
-    /* Buttons */
+    /* ── Tool bars (horizontal) ── */
+    .tool-bar-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(37,37,48,0.5); }
+    .tool-bar-row:last-child { border-bottom: none; }
+    .tool-bar-name { font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); width: 160px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .tool-bar-track { flex: 1; height: 24px; background: var(--bg-raised); border-radius: 6px; overflow: hidden; position: relative; }
+    .tool-bar-fill { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 8px; font-size: 11px; font-weight: 600; color: var(--bg-deep); min-width: 32px; transition: width 0.5s ease; }
+    .tool-bar-count { font-size: 12px; color: var(--text-tertiary); width: 40px; text-align: right; flex-shrink: 0; }
+
+    /* ── Donut Chart ── */
+    .donut-container { display: flex; align-items: center; gap: 24px; }
+    .donut-svg { width: 120px; height: 120px; flex-shrink: 0; }
+    .donut-legend { display: flex; flex-direction: column; gap: 8px; }
+    .legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-secondary); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* ── Grids ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; }
+
+    /* ── Buttons ── */
     .btn-amber {
-      padding: 8px 18px; border-radius: 8px;
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 18px; border-radius: var(--radius-sm);
       background: var(--amber); color: var(--bg-deep);
-      font-weight: 600; font-size: 13px;
-      transition: background 0.2s;
+      font-weight: 600; font-size: 13px; transition: background 0.2s;
     }
     .btn-amber:hover { background: var(--amber-hover); }
     .btn-ghost {
-      padding: 8px 16px; border-radius: 8px;
+      padding: 8px 16px; border-radius: var(--radius-sm);
       background: var(--bg-raised); color: var(--text-secondary);
       font-size: 13px; font-weight: 500;
-      border: 1px solid var(--border-subtle);
-      transition: background 0.2s, color 0.2s;
+      border: 1px solid var(--border-subtle); transition: all 0.2s;
     }
-    .btn-ghost:hover { background: var(--border-subtle); color: var(--text-primary); }
+    .btn-ghost:hover { background: var(--bg-hover); color: var(--text-primary); }
     .btn-danger {
-      padding: 8px 16px; border-radius: 8px;
-      background: rgba(248,113,113,0.1); color: var(--coral);
+      padding: 8px 16px; border-radius: var(--radius-sm);
+      background: var(--coral-muted); color: var(--coral);
       font-size: 13px; font-weight: 500;
-      border: 1px solid rgba(248,113,113,0.15);
-      transition: background 0.2s;
+      border: 1px solid rgba(248,113,113,0.15); transition: background 0.2s;
     }
     .btn-danger:hover { background: rgba(248,113,113,0.2); }
+    .btn-sm { padding: 5px 12px; font-size: 12px; }
 
-    /* Input */
+    /* ── Inputs ── */
     .input {
       width: 100%; padding: 10px 14px;
       background: var(--bg-deep); border: 1px solid var(--border-subtle);
-      border-radius: 8px; color: var(--text-primary);
+      border-radius: var(--radius-sm); color: var(--text-primary);
       font-size: 14px; font-family: var(--font-sans);
       outline: none; transition: border-color 0.2s;
     }
@@ -136,37 +224,43 @@
     .input:focus { border-color: var(--amber); }
     .input-mono { font-family: var(--font-mono); font-size: 13px; }
 
-    /* Tables */
+    /* ── Tables ── */
     table { width: 100%; border-collapse: collapse; }
-    th { text-align: left; padding: 8px 0; font-size: 11px; font-weight: 500; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-subtle); }
-    td { padding: 10px 0; font-size: 13px; border-bottom: 1px solid rgba(42,42,54,0.4); }
+    th { text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-raised); }
+    th:first-child { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+    th:last-child { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(37,37,48,0.5); }
 
-    /* Progress bar */
+    /* ── Badges ── */
+    .badge { display: inline-flex; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .badge-active { color: var(--sage); background: var(--sage-muted); }
+    .badge-revoked { color: var(--text-tertiary); background: rgba(92,92,110,0.1); }
+    .badge-success { color: var(--sage); background: var(--sage-muted); }
+    .badge-error { color: var(--coral); background: var(--coral-muted); }
+    .badge-rate_limited { color: #FBBF24; background: rgba(251,191,36,0.1); }
+
+    /* ── Progress bar ── */
     .progress-track { height: 8px; background: var(--bg-raised); border-radius: 4px; overflow: hidden; }
     .progress-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; background: var(--amber); }
     .progress-fill.warn { background: #FBBF24; }
     .progress-fill.danger { background: var(--coral); }
 
-    /* Bar chart */
-    .bar-chart { display: flex; align-items: flex-end; gap: 2px; height: 80px; }
-    .bar { flex: 1; min-width: 2px; border-radius: 2px 2px 0 0; transition: height 0.3s ease; cursor: pointer; }
-
-    /* Code block */
+    /* ── Code block ── */
     .code-block {
       background: var(--bg-deep); border: 1px solid var(--border-subtle);
-      border-radius: 10px; overflow: hidden;
+      border-radius: var(--radius-sm); overflow: hidden;
     }
     .code-header {
       display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 14px; border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 14px; background: var(--bg-raised);
     }
     .code-filename { font-size: 12px; color: var(--text-tertiary); font-family: var(--font-mono); }
     .code-copy-btn { font-size: 11px; color: var(--amber); cursor: pointer; transition: opacity 0.2s; }
     .code-copy-btn:hover { opacity: 0.8; }
     .code-body { padding: 14px; overflow-x: auto; }
-    .code-body pre { font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: var(--text-secondary); }
+    .code-body pre { font-family: var(--font-mono); font-size: 12px; line-height: 20px; color: var(--text-primary); white-space: pre; }
 
-    /* Modals */
+    /* ── Modals ── */
     .modal-overlay {
       display: none; position: fixed; inset: 0; z-index: 50;
       background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
@@ -180,17 +274,38 @@
       border-radius: 16px; padding: 32px;
     }
 
-    /* Alert banners */
+    /* ── Banners ── */
     .banner-warn {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      padding: 16px 20px; border-radius: 12px;
-      background: rgba(229,164,48,0.08); border: 1px solid rgba(229,164,48,0.2);
-      margin-bottom: 24px;
+      padding: 14px 20px; border-radius: var(--radius);
+      background: rgba(229,164,48,0.06); border: 1px solid rgba(229,164,48,0.15);
+      margin-bottom: 20px;
     }
     .banner-warn-text { font-size: 13px; color: var(--amber); }
     .banner-warn-sub { font-size: 12px; color: var(--text-tertiary); margin-top: 2px; }
 
-    /* Copy toast */
+    /* ── Onboarding ── */
+    .onb-card {
+      background: linear-gradient(135deg, rgba(229,164,48,0.04) 0%, rgba(74,222,128,0.02) 100%);
+      border: 1px solid rgba(229,164,48,0.12); border-radius: var(--radius);
+      padding: 24px; position: relative; margin-bottom: 20px;
+    }
+    .onb-step {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 12px; border-radius: var(--radius-sm);
+      background: rgba(10,10,15,0.4); border: 1px solid rgba(37,37,48,0.5);
+    }
+    .onb-step.done { opacity: 0.45; }
+
+    /* ── Loading Skeleton ── */
+    .skeleton {
+      border-radius: var(--radius);
+      background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-raised) 50%, var(--bg-surface) 75%);
+      background-size: 200% 100%; animation: shimmer 1.5s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── Copy Toast ── */
     .copy-toast {
       position: fixed; bottom: 24px; right: 24px; z-index: 100;
       padding: 10px 20px; border-radius: 10px;
@@ -201,337 +316,305 @@
     }
     .copy-toast.show { transform: translateY(0); opacity: 1; }
 
-    /* Grids */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+    .hidden { display: none !important; }
+    .mb-16 { margin-bottom: 16px; }
+    .mb-20 { margin-bottom: 20px; }
+    .mt-6 { margin-top: 6px; }
 
-    /* Onboarding */
-    .onb-card {
-      background: linear-gradient(135deg, rgba(229,164,48,0.06) 0%, rgba(74,222,128,0.03) 100%);
-      border: 1px solid rgba(229,164,48,0.15); border-radius: 14px;
-      padding: 28px; position: relative;
-    }
-    .onb-step {
-      display: flex; align-items: flex-start; gap: 12px;
-      padding: 12px; border-radius: 10px;
-      background: rgba(12,12,15,0.4); border: 1px solid rgba(42,42,54,0.4);
-    }
-    .onb-step.done { opacity: 0.5; }
+    /* ── Mobile ── */
+    .mobile-header { display: none; }
+    .sidebar-overlay { display: none; }
 
-    /* Agent Cards */
-    .agent-card {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-      transition: border-color 0.2s;
-    }
-    .agent-card:hover { border-color: var(--border-active); }
-    .agent-status-badge {
-      padding: 2px 8px;
-      border-radius: 12px;
-      font-size: 11px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.02em;
-    }
-    .status-provisioning { color: var(--amber); background: var(--amber-muted); border: 1px solid rgba(229,164,48,0.2); }
-    .status-active { color: var(--sage); background: var(--sage-muted); border: 1px solid rgba(74,222,128,0.2); }
-    .status-suspended { color: #FBBF24; background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); }
-    .status-cancelled { color: var(--text-tertiary); background: rgba(92,92,110,0.1); border: 1px solid rgba(92,92,110,0.2); }
-
-    /* Deploy Wizard */
-    .deploy-wizard {
-      display: flex;
-      flex-direction: column;
-      gap: 24px;
-    }
-    .wizard-step {
-      background: var(--bg-surface);
-      border: 1px solid var(--border-subtle);
-      border-radius: 12px;
-      padding: 24px;
-    }
-    .wizard-step.active {
-      border-color: var(--amber);
-      background: linear-gradient(135deg, rgba(229,164,48,0.03) 0%, transparent 100%);
-    }
-    .wizard-step.completed {
-      border-color: var(--sage);
-      background: linear-gradient(135deg, rgba(74,222,128,0.03) 0%, transparent 100%);
-    }
-    .step-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 16px;
-    }
-    .step-number {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    .step-number.active {
-      background: var(--amber);
-      color: var(--bg-deep);
-    }
-    .step-number.completed {
-      background: var(--sage);
-      color: var(--bg-deep);
-    }
-    .step-number.inactive {
-      background: var(--bg-raised);
-      color: var(--text-tertiary);
-      border: 1px solid var(--border-subtle);
-    }
-    .step-title {
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .telegram-instructions {
-      background: var(--bg-deep);
-      border: 1px solid var(--border-subtle);
-      border-radius: 8px;
-      padding: 16px;
-      margin: 12px 0;
-    }
-    .telegram-instructions ol {
-      margin: 0;
-      padding-left: 18px;
-      color: var(--text-secondary);
-    }
-    .telegram-instructions li {
-      margin-bottom: 8px;
-      font-size: 13px;
-    }
-
-    /* Upload Area */
-    .upload-area {
-      border: 2px dashed var(--border-subtle);
-      border-radius: 12px;
-      padding: 32px;
-      text-align: center;
-      background: var(--bg-raised);
-      transition: border-color 0.2s, background 0.2s;
-      cursor: pointer;
-    }
-    .upload-area:hover, .upload-area.dragover {
-      border-color: var(--amber);
-      background: rgba(229,164,48,0.03);
-    }
-    .upload-area input[type="file"] {
-      display: none;
-    }
-    
-    /* Progress Spinner */
-    .spinner {
-      width: 20px;
-      height: 20px;
-      border: 2px solid var(--border-subtle);
-      border-top: 2px solid var(--amber);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Empty States */
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-      color: var(--text-tertiary);
-    }
-    .empty-state-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-      opacity: 0.6;
-    }
-
-    /* Responsive */
     @media (max-width: 768px) {
-      .grid-2, .grid-4 { grid-template-columns: 1fr; }
-      .dash-right .hide-mobile { display: none; }
+      .sidebar { display: none; position: fixed; top: 0; left: 0; z-index: 51; width: 260px; height: 100vh; }
+      .sidebar.open { display: flex; }
+      .sidebar-overlay { display: none; position: fixed; inset: 0; z-index: 50; background: rgba(0,0,0,0.5); }
+      .sidebar-overlay.open { display: block; }
+      .mobile-header {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 20px; background: var(--bg-surface);
+        border-bottom: 1px solid var(--border-subtle);
+        position: sticky; top: 0; z-index: 40;
+      }
+      .mobile-header .logo { font-size: 16px; font-weight: 600; }
+      .mobile-header .logo .dot { color: var(--amber); }
+      .hamburger { font-size: 22px; color: var(--text-secondary); cursor: pointer; padding: 4px; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .page-header { padding: 20px 20px 0; }
+      .page-body { padding: 16px 20px 32px; }
+      .donut-container { flex-direction: column; align-items: flex-start; }
       td.hide-mobile, th.hide-mobile { display: none; }
-      .wizard-step { padding: 16px; }
+      .tool-bar-name { width: 100px; }
     }
   </style>
 </head>
 <body>
-
-  <!-- Top Nav -->
-  <nav class="dash-nav">
-    <div class="dash-nav-inner">
-      <a href="/" class="dash-logo">seomcp<span class="dot">.dev</span></a>
-      <div class="dash-right">
-        <a href="/docs" class="hide-mobile">Docs</a>
-        <a href="/tools" class="hide-mobile">Tools</a>
-        <span id="plan-badge" class="plan-badge"></span>
-        <span id="user-email" class="hide-mobile" style="color:var(--text-tertiary);"></span>
-        <button onclick="handleLogout()" class="logout-btn">Logout</button>
-      </div>
+  <div class="app-layout">
+    <!-- Mobile Header -->
+    <div class="mobile-header">
+      <a href="/" class="logo">seomcp<span class="dot">.dev</span></a>
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
     </div>
-  </nav>
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-  <main class="dash-content">
-
-    <!-- Loading State -->
-    <div id="loading" style="display:flex; flex-direction:column; gap:20px;">
-      <div class="skeleton" style="height:120px;"></div>
-      <div class="skeleton" style="height:200px;"></div>
-      <div class="skeleton" style="height:250px;"></div>
-    </div>
-
-    <!-- Email Verification Banner -->
-    <div id="verify-banner" class="hidden banner-warn">
-      <div>
-        <div class="banner-warn-text">📧 Verify your email to unlock full limits</div>
-        <div class="banner-warn-sub">Unverified accounts are limited to 10 tool calls/month. Verify to get 50.</div>
-      </div>
-      <button onclick="resendVerification()" id="resend-btn" class="btn-ghost" style="flex-shrink:0;">Resend Email</button>
-    </div>
-
-    <!-- Onboarding Checklist -->
-    <section id="onboarding" class="hidden">
-      <div class="onb-card">
-        <button onclick="dismissOnboarding()" style="position:absolute; top:16px; right:16px; color:var(--text-tertiary); font-size:18px;" title="Dismiss">×</button>
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
-          <span style="font-size:17px; font-weight:600;">🚀 Getting Started</span>
-          <span id="onb-progress" class="badge" style="background:var(--amber-muted); color:var(--amber); border:1px solid rgba(229,164,48,0.2);"></span>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-logo"><a href="/">seomcp<span class="dot">.dev</span></a></div>
+      <nav class="sidebar-nav">
+        <div class="nav-item active" data-tab="overview" onclick="switchTab('overview')">
+          <span class="nav-icon">📊</span> Overview
         </div>
-        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Complete these steps to get SEO tools in your AI agent.</p>
-
-        <div style="display:flex; flex-direction:column; gap:8px;" id="onb-steps">
-          <div id="onb-step-account" class="onb-step">
-            <span class="onb-icon" style="font-size:16px;">✅</span>
-            <div>
-              <div style="font-size:13px; font-weight:500;">Create account</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">You're in! Account created.</div>
-            </div>
-          </div>
-          <div id="onb-step-verify" class="onb-step">
-            <span class="onb-icon" style="font-size:16px;">⏳</span>
-            <div>
-              <div style="font-size:13px; font-weight:500;">Verify your email</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Check inbox for the verification link. <button onclick="resendVerification()" style="color:var(--amber); font-size:12px;">Resend</button></div>
-            </div>
-          </div>
-          <div id="onb-step-key" class="onb-step">
-            <span class="onb-icon" style="font-size:16px;">⏳</span>
-            <div style="flex:1; min-width:0;">
-              <div style="font-size:13px; font-weight:500;">Add MCP config to your AI tool</div>
-              <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">Copy this into your AI tool's settings:</div>
-              <div class="code-block">
-                <div class="code-header">
-                  <span class="code-filename">mcp.json</span>
-                  <span class="code-copy-btn" onclick="copyText(document.getElementById('onb-config').textContent)">Copy</span>
-                </div>
-                <div class="code-body">
-                  <pre id="onb-config"></pre>
-                </div>
-              </div>
-              <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Works with Claude Desktop, Cursor, Windsurf, and any MCP client. <a href="/docs" style="color:var(--amber);">Full setup guide →</a></div>
-            </div>
-          </div>
-          <div id="onb-step-google" class="onb-step">
-            <span class="onb-icon" style="font-size:16px;">⏳</span>
-            <div>
-              <div style="font-size:13px; font-weight:500;">Connect Google Search Console & Analytics</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Optional but unlocks GSC + GA4 tools (17 of 35 tools).</div>
-              <button id="onb-google-btn" onclick="scrollTo('#google-section')" class="btn-ghost" style="margin-top:8px; padding:6px 12px; font-size:12px;">Connect Google ↓</button>
-            </div>
-          </div>
-          <div id="onb-step-usage" class="onb-step">
-            <span class="onb-icon" style="font-size:16px;">⏳</span>
-            <div>
-              <div style="font-size:13px; font-weight:500;">Make your first tool call</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Ask your AI: "Run an SEO audit on example.com" or <a href="/playground" style="color:var(--amber);">try the playground</a>.</div>
-            </div>
-          </div>
+        <div class="nav-item" data-tab="keys" onclick="switchTab('keys')">
+          <span class="nav-icon">🔑</span> API Keys
         </div>
+        <div class="nav-item" data-tab="audits" onclick="switchTab('audits')">
+          <span class="nav-icon">📋</span> Audit History
+        </div>
+        <div class="nav-section-label">SEO Agents</div>
+        <div class="nav-item" data-tab="agents" onclick="switchTab('agents')">
+          <span class="nav-icon">🤖</span> My Agents
+        </div>
+        <div class="nav-item" data-tab="deploy" onclick="switchTab('deploy')">
+          <span class="nav-icon">🚀</span> Deploy Agent
+        </div>
+        <div class="nav-item" data-tab="google-creds" onclick="switchTab('google-creds')">
+          <span class="nav-icon">📄</span> Google Credentials
+        </div>
+        <div class="nav-section-label">Settings</div>
+        <div class="nav-item" data-tab="google" onclick="switchTab('google')">
+          <span class="nav-icon">🔗</span> Google Account
+        </div>
+        <!-- Webhooks: hidden until billing is live
+        <div class="nav-item" data-tab="webhooks" onclick="switchTab('webhooks')">
+          <span class="nav-icon">🔔</span> Webhooks
+        </div> -->
+        <div class="nav-item" data-tab="billing" onclick="switchTab('billing')">
+          <span class="nav-icon">💳</span> Billing
+        </div>
+        <div class="nav-item" data-tab="account" onclick="switchTab('account')">
+          <span class="nav-icon">⚙️</span> Account
+        </div>
+        <div style="padding: 16px 10px;">
+          <a href="https://api.seomcp.dev/docs" style="font-size: 12px; color: var(--text-tertiary); display:flex; align-items:center; gap:6px;">📖 Docs ↗</a>
+        </div>
+      </nav>
+      <div class="sidebar-footer">
+        <span id="plan-badge" class="sidebar-plan"></span>
+        <span id="user-email" class="sidebar-email"></span>
+        <button onclick="handleLogout()" class="sidebar-logout">Sign out</button>
       </div>
-    </section>
+    </aside>
 
-    <!-- Usage Overview -->
-    <section id="usage-section" class="hidden">
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <span class="card-title" style="margin-bottom:0;">Usage This Month</span>
+    <!-- Main -->
+    <div class="main-content">
+
+      <!-- Loading -->
+      <div id="loading" style="padding:32px; display:flex; flex-direction:column; gap:16px;">
+        <div class="skeleton" style="height:100px;"></div>
+        <div class="skeleton" style="height:200px;"></div>
+        <div class="skeleton" style="height:250px;"></div>
+      </div>
+
+      <!-- ═══════ OVERVIEW TAB ═══════ -->
+      <div id="tab-overview" class="tab-panel active">
+        <div class="page-header">
+          <h1 class="page-title">Overview</h1>
           <span id="usage-period" style="font-size:13px; color:var(--text-tertiary);"></span>
         </div>
+        <div class="page-body">
 
-        <div class="grid-4" style="margin-bottom:24px;">
-          <div style="grid-column:span 2;">
-            <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:8px;">
-              <span id="usage-used" style="font-size:36px; font-weight:700;"></span>
-              <span style="color:var(--text-tertiary);">/</span>
-              <span id="usage-limit" style="font-size:22px; color:var(--text-secondary);"></span>
-              <span style="font-size:13px; color:var(--text-tertiary);">calls</span>
+          <!-- Verify Banner -->
+          <div id="verify-banner" class="hidden banner-warn">
+            <div>
+              <div class="banner-warn-text">📧 Verify your email to unlock full limits</div>
+              <div class="banner-warn-sub">Unverified accounts are limited to 10 calls/month.</div>
             </div>
-            <div class="progress-track">
-              <div id="usage-bar" class="progress-fill" style="width:0%;"></div>
-            </div>
-            <div id="usage-remaining" style="font-size:13px; color:var(--text-tertiary); margin-top:6px;"></div>
+            <button onclick="resendVerification()" id="resend-btn" class="btn-ghost btn-sm">Resend</button>
           </div>
-          <div>
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Breakdown</div>
-            <div style="display:flex; flex-direction:column; gap:6px;">
-              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
-                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-success"></span> Success</span>
-                <span id="breakdown-success" style="font-weight:500;">0</span>
-              </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
-                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-error"></span> Errors</span>
-                <span id="breakdown-error" style="font-weight:500;">0</span>
-              </div>
-              <div style="display:flex; align-items:center; justify-content:space-between; font-size:13px;">
-                <span style="display:flex; align-items:center; gap:6px;"><span class="status-dot status-rate_limited"></span> Rate limited</span>
-                <span id="breakdown-ratelimited" style="font-weight:500;">0</span>
-              </div>
-            </div>
-          </div>
-          <div>
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Avg Response</div>
-            <div style="display:flex; align-items:baseline; gap:4px;">
-              <span id="avg-duration" style="font-size:24px; font-weight:700;">0</span>
-              <span style="font-size:13px; color:var(--text-tertiary);">ms</span>
-            </div>
-            <div id="upgrade-cta" class="hidden" style="margin-top:12px;">
-              <a href="/#pricing" style="font-size:12px; color:var(--amber); font-weight:500;">Upgrade plan →</a>
-            </div>
-          </div>
-        </div>
 
-        <div>
-          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Daily Calls (Last 30 Days)</div>
-          <div id="daily-chart" class="bar-chart"></div>
+          <!-- Onboarding -->
+          <div id="onboarding" class="hidden">
+            <div class="onb-card">
+              <button onclick="dismissOnboarding()" style="position:absolute; top:14px; right:14px; color:var(--text-tertiary); font-size:18px;" title="Dismiss">×</button>
+              <div style="display:flex; align-items:center; gap:10px; margin-bottom:4px;">
+                <span style="font-size:15px; font-weight:600;">🚀 Getting Started</span>
+                <span id="onb-progress" class="badge" style="background:var(--amber-muted); color:var(--amber);"></span>
+              </div>
+              <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:14px;">Complete these steps to get SEO tools in your AI agent.</p>
+              <div style="display:flex; flex-direction:column; gap:8px;" id="onb-steps">
+                <div id="onb-step-account" class="onb-step">
+                  <span class="onb-icon" style="font-size:16px;">✅</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:500;">Create account</div>
+                    <div style="font-size:12px; color:var(--text-tertiary);">You're in!</div>
+                  </div>
+                </div>
+                <div id="onb-step-verify" class="onb-step">
+                  <span class="onb-icon" style="font-size:16px;">⏳</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:500;">Verify your email</div>
+                    <div style="font-size:12px; color:var(--text-tertiary);">Check inbox. <button onclick="resendVerification()" style="color:var(--amber); font-size:12px;">Resend</button></div>
+                  </div>
+                </div>
+                <div id="onb-step-key" class="onb-step">
+                  <span class="onb-icon" style="font-size:16px;">⏳</span>
+                  <div style="flex:1; min-width:0;">
+                    <div style="font-size:13px; font-weight:500;">Add MCP config to your AI tool</div>
+                    <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:8px;">Copy this into settings:</div>
+                    <div class="code-block">
+                      <div class="code-header"><span class="code-filename">mcp.json</span><span class="code-copy-btn" onclick="copyText(document.getElementById('onb-config').textContent)">Copy</span></div>
+                      <div class="code-body"><pre id="onb-config"></pre></div>
+                    </div>
+                    <div style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">Works with Claude, Cursor, Windsurf. <a href="/docs" style="color:var(--amber);">Setup guide →</a></div>
+                  </div>
+                </div>
+                <div id="onb-step-google" class="onb-step">
+                  <span class="onb-icon" style="font-size:16px;">⏳</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:500;">Connect Google Search Console & Analytics</div>
+                    <div style="font-size:12px; color:var(--text-tertiary);">Optional — unlocks 17 additional tools.</div>
+                    <button id="onb-google-btn" onclick="switchTab('google')" class="btn-ghost btn-sm" style="margin-top:6px;">Connect Google</button>
+                  </div>
+                </div>
+                <div id="onb-step-usage" class="onb-step">
+                  <span class="onb-icon" style="font-size:16px;">⏳</span>
+                  <div>
+                    <div style="font-size:13px; font-weight:500;">Make your first tool call</div>
+                    <div style="font-size:12px; color:var(--text-tertiary);">Ask your AI: "Run an SEO audit on example.com"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stat Cards -->
+          <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">API Calls</div>
+              <div style="display:flex; align-items:baseline; gap:6px;">
+                <span id="stat-used" class="stat-value">0</span>
+                <span style="color:var(--text-tertiary); font-size:14px;">/ <span id="stat-limit">0</span></span>
+              </div>
+              <div class="progress-track mt-6"><div id="usage-bar" class="progress-fill" style="width:0%;"></div></div>
+              <div id="usage-remaining" class="stat-sub"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Success Rate</div>
+              <div id="stat-success-rate" class="stat-value" style="color:var(--sage);">—</div>
+              <div id="stat-success-detail" class="stat-sub"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Avg Response</div>
+              <div style="display:flex; align-items:baseline; gap:4px;">
+                <span id="stat-avg-ms" class="stat-value">0</span>
+                <span style="font-size:14px; color:var(--text-tertiary);">ms</span>
+              </div>
+              <div class="stat-sub">Per tool call</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Top Tool</div>
+              <div id="stat-top-tool" style="font-size:14px; font-weight:600; font-family:var(--font-mono); margin-top:4px; color:var(--amber); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">—</div>
+              <div id="stat-top-tool-count" class="stat-sub"></div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="grid-3 mb-20">
+            <!-- Daily Usage Chart -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Daily Usage</div>
+                  <div class="card-subtitle">Last 30 days</div>
+                </div>
+              </div>
+              <div class="chart-container">
+                <div id="daily-chart" class="chart-area"></div>
+                <div class="chart-labels"><span id="chart-start"></span><span id="chart-end"></span></div>
+              </div>
+            </div>
+            <!-- Status Breakdown Donut -->
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <div class="card-title">Status Breakdown</div>
+                  <div class="card-subtitle">This month</div>
+                </div>
+              </div>
+              <div class="donut-container" id="donut-container">
+                <svg class="donut-svg" viewBox="0 0 42 42" id="donut-chart">
+                  <circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--bg-raised)" stroke-width="4" />
+                </svg>
+                <div class="donut-legend" id="donut-legend"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Tools -->
+          <div class="card mb-20" id="tools-card">
+            <div class="card-header">
+              <div>
+                <div class="card-title">Top Tools Used</div>
+                <div class="card-subtitle">By call volume</div>
+              </div>
+            </div>
+            <div id="top-tools-list">
+              <p style="font-size:13px; color:var(--text-tertiary); text-align:center; padding:20px;">No tool calls yet</p>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Recent Activity</div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table id="activity-table-wrap">
+                <thead>
+                  <tr><th>Time</th><th>Tool</th><th>Status</th><th style="text-align:right;">Duration</th></tr>
+                </thead>
+                <tbody id="activity-table"></tbody>
+              </table>
+            </div>
+            <div id="no-activity" class="hidden" style="text-align:center; padding:32px;">
+              <p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet. Connect your MCP client to get started!</p>
+            </div>
+          </div>
+
+          <div id="upgrade-cta" class="hidden" style="margin-top:16px; text-align:center;">
+            <a href="/#pricing" style="font-size:13px; color:var(--amber); font-weight:500;">Upgrade plan →</a>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Top Tools -->
-    <section id="tools-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Top Tools Used</div>
-        <div id="top-tools-list">
-          <p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet</p>
+      <!-- ═══════ API KEYS TAB ═══════ -->
+      <div id="tab-keys" class="tab-panel">
+        <div class="page-header">
+          <h1 class="page-title">API Keys</h1>
+          <button onclick="openCreateKey()" class="btn-amber">+ New Key</button>
+        </div>
+        <div class="page-body">
+          <div class="card">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+              <span id="keys-count" style="font-size:13px; color:var(--text-tertiary);"></span>
+            </div>
+            <div style="overflow-x:auto;">
+              <table>
+                <thead>
+                  <tr><th>Key</th><th>Name</th><th class="hide-mobile">Status</th><th class="hide-mobile">Last Used</th><th class="hide-mobile">Created</th><th style="text-align:right;">Actions</th></tr>
+                </thead>
+                <tbody id="keys-table"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Audit History -->
-    <section id="audit-section" class="hidden">
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <span class="card-title" style="margin-bottom:0;">Audit History</span>
+      <!-- ═══════ AUDITS TAB ═══════ -->
+      <div id="tab-audits" class="tab-panel">
+        <div class="page-header">
+          <h1 class="page-title">Audit History</h1>
           <div style="display:flex; align-items:center; gap:12px;">
             <select id="audit-site-filter" onchange="loadAudits()" class="input" style="width:auto; padding:6px 12px; font-size:12px;">
               <option value="">All Sites</option>
@@ -539,192 +622,124 @@
             <span id="audit-retention" style="font-size:11px; color:var(--text-tertiary);"></span>
           </div>
         </div>
-
-        <div id="health-trend" class="hidden" style="margin-bottom:20px;">
-          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Health Score Trend</div>
-          <div id="trend-chart" class="bar-chart" style="height:64px;"></div>
-        </div>
-
-        <div style="overflow-x:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Site</th>
-                <th>Tool</th>
-                <th style="text-align:center;">Score</th>
-                <th style="text-align:right;">Duration</th>
-              </tr>
-            </thead>
-            <tbody id="audit-table"></tbody>
-          </table>
-        </div>
-        <div id="no-audits" class="hidden" style="text-align:center; padding:32px;">
-          <p style="font-size:13px; color:var(--text-tertiary);">No audits yet. Run <code style="color:var(--amber);">generate_report</code> to get started!</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- API Keys -->
-    <section id="keys-section" class="hidden">
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <span class="card-title" style="margin-bottom:0;">API Keys</span>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span id="keys-count" style="font-size:13px; color:var(--text-tertiary);"></span>
-            <button onclick="openCreateKey()" class="btn-amber">+ New Key</button>
+        <div class="page-body">
+          <div id="health-trend" class="hidden card mb-20">
+            <div class="card-header"><div class="card-title">Health Score Trend</div></div>
+            <div id="trend-chart" class="chart-area" style="height:80px;"></div>
+          </div>
+          <div class="card">
+            <div style="overflow-x:auto;">
+              <table>
+                <thead><tr><th>Date</th><th>Site</th><th>Tool</th><th style="text-align:center;">Score</th><th style="text-align:right;">Duration</th></tr></thead>
+                <tbody id="audit-table"></tbody>
+              </table>
+            </div>
+            <div id="no-audits" class="hidden" style="text-align:center; padding:40px;">
+              <div style="font-size:32px; margin-bottom:8px;">📋</div>
+              <p style="font-size:13px; color:var(--text-tertiary);">No audits yet. Run <code style="color:var(--amber);">generate_report</code> to get started!</p>
+            </div>
           </div>
         </div>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Key</th>
-                <th>Name</th>
-                <th class="hide-mobile">Status</th>
-                <th class="hide-mobile">Last Used</th>
-                <th class="hide-mobile">Created</th>
-                <th style="text-align:right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="keys-table"></tbody>
-          </table>
-        </div>
       </div>
-    </section>
 
-    <!-- Google Connection -->
-    <section id="google-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Google Account</div>
-        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">Connect your Google account to use Search Console and Analytics tools.</p>
-        <div id="google-status"></div>
-      </div>
-    </section>
-
-    <!-- Billing -->
-    <section id="billing-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Billing</div>
-        <div id="billing-status"></div>
-      </div>
-    </section>
-
-    <!-- Recent Activity -->
-    <section id="activity-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Recent Activity</div>
-        <div style="overflow-x:auto;">
-          <table>
-            <thead>
-              <tr>
-                <th>Time</th>
-                <th>Tool</th>
-                <th>Status</th>
-                <th style="text-align:right;">Duration</th>
-              </tr>
-            </thead>
-            <tbody id="activity-table"></tbody>
-          </table>
-        </div>
-        <div id="no-activity" class="hidden" style="text-align:center; padding:32px;">
-          <p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet. Connect your MCP client to get started!</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Scheduled Audits -->
-    <section id="schedules-section" class="hidden">
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <span class="card-title" style="margin-bottom:0;">Scheduled Audits</span>
+      <!-- ═══════ SCHEDULES TAB ═══════ -->
+      <div id="tab-schedules" class="tab-panel">
+        <div class="page-header">
+          <h1 class="page-title">Scheduled Audits</h1>
           <div style="display:flex; align-items:center; gap:12px;">
             <span id="schedule-limit" style="font-size:11px; color:var(--text-tertiary);"></span>
-            <button onclick="showScheduleModal()" id="add-schedule-btn" class="btn-amber" style="font-size:12px; padding:6px 14px;">+ New Schedule</button>
+            <button onclick="showScheduleModal()" id="add-schedule-btn" class="btn-amber btn-sm">+ New Schedule</button>
           </div>
         </div>
-        <div id="no-schedules" class="hidden" style="text-align:center; padding:40px;">
-          <div style="font-size:32px; margin-bottom:8px;">📅</div>
-          <p style="font-size:13px; color:var(--text-secondary);">No scheduled audits yet.</p>
-          <p style="font-size:12px; color:var(--text-tertiary); margin-top:4px;">Set up automatic SEO monitoring for your sites.</p>
-        </div>
-        <div id="schedules-list" style="display:flex; flex-direction:column; gap:8px;"></div>
-      </div>
-    </section>
-
-    <!-- Webhooks -->
-    <section id="webhooks-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Webhooks</div>
-        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Get notified when audits complete or usage limits are reached.</p>
-        <form onsubmit="saveWebhook(event)" style="display:flex; gap:8px; margin-bottom:16px;">
-          <input type="url" id="webhook-url" required placeholder="https://your-server.com/webhook" class="input input-mono" style="flex:1;">
-          <button type="submit" class="btn-amber">Save</button>
-          <button type="button" onclick="removeWebhook()" class="btn-ghost">Remove</button>
-          <button type="button" onclick="testWebhook()" class="btn-ghost">Test</button>
-        </form>
-        <div id="webhook-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
-        <div id="webhook-success" class="hidden" style="font-size:12px; color:var(--sage); margin-bottom:12px;"></div>
-        <div style="font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:10px;">Recent Deliveries</div>
-        <div id="no-deliveries" class="hidden" style="text-align:center; padding:20px; font-size:13px; color:var(--text-tertiary);">No deliveries yet.</div>
-        <table id="deliveries-table">
-          <thead><tr>
-            <th>Event</th>
-            <th>Status</th>
-            <th class="hide-mobile">Duration</th>
-            <th>Time</th>
-          </tr></thead>
-          <tbody id="deliveries-body"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Agents List -->
-    <section id="agents-section" class="hidden">
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-          <span class="card-title" style="margin-bottom:0;">Your SEO Agents</span>
-          <button onclick="scrollToSection('deploy-section')" class="btn-amber">Deploy New Agent</button>
-        </div>
-        <div id="agents-list"></div>
-        <div id="no-agents" class="empty-state hidden">
-          <div class="empty-state-icon">🤖</div>
-          <p style="font-size:16px; margin-bottom:8px; color:var(--text-secondary);">No agents yet</p>
-          <p style="font-size:13px; margin-bottom:20px;">Deploy your first SEO agent to get started.</p>
-          <button onclick="scrollToSection('deploy-section')" class="btn-amber">Deploy Your First Agent</button>
+        <div class="page-body">
+          <div class="card">
+            <div id="no-schedules" class="hidden" style="text-align:center; padding:40px;">
+              <div style="font-size:32px; margin-bottom:8px;">📅</div>
+              <p style="font-size:13px; color:var(--text-secondary);">No scheduled audits yet.</p>
+              <p style="font-size:12px; color:var(--text-tertiary); margin-top:4px;">Set up automatic SEO monitoring for your sites.</p>
+            </div>
+            <div id="schedules-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+          </div>
         </div>
       </div>
-    </section>
 
-    <!-- Deploy Agent -->
-    <section id="deploy-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Deploy New SEO Agent</div>
-        <div class="deploy-wizard">
+      <!-- ═══════ GOOGLE TAB ═══════ -->
+      <div id="tab-google" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Google Account</h1></div>
+        <div class="page-body">
+          <div class="card">
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px;">Connect your Google account to unlock Search Console and Analytics tools (17 of 37).</p>
+            <div id="google-status"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ WEBHOOKS TAB ═══════ -->
+      <div id="tab-webhooks" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Webhooks</h1></div>
+        <div class="page-body">
+          <div class="card">
+            <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Get notified when audits complete or usage limits are reached.</p>
+            <form onsubmit="saveWebhook(event)" style="display:flex; gap:8px; margin-bottom:16px;">
+              <input type="url" id="webhook-url" required placeholder="https://your-server.com/webhook" class="input input-mono" style="flex:1;">
+              <button type="submit" class="btn-amber">Save</button>
+              <button type="button" onclick="removeWebhook()" class="btn-ghost">Remove</button>
+              <button type="button" onclick="testWebhook()" class="btn-ghost">Test</button>
+            </form>
+            <div id="webhook-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
+            <div id="webhook-success" class="hidden" style="font-size:12px; color:var(--sage); margin-bottom:12px;"></div>
+            <div style="font-size:13px; font-weight:500; color:var(--text-secondary); margin-bottom:10px;">Recent Deliveries</div>
+            <div id="no-deliveries" class="hidden" style="text-align:center; padding:20px; font-size:13px; color:var(--text-tertiary);">No deliveries yet.</div>
+            <table id="deliveries-table">
+              <thead><tr><th>Event</th><th>Status</th><th class="hide-mobile">Duration</th><th>Time</th></tr></thead>
+              <tbody id="deliveries-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ AGENTS TAB ═══════ -->
+      <div id="tab-agents" class="tab-panel">
+        <div class="page-header">
+          <h1 class="page-title">My SEO Agents</h1>
+          <button onclick="switchTab('deploy')" class="btn-amber" style="padding:8px 16px; font-size:13px;">Deploy New Agent</button>
+        </div>
+        <div class="page-body">
+          <div id="agents-list"></div>
+          <div id="no-agents" class="card" style="text-align:center; padding:48px 24px;">
+            <div style="font-size:48px; margin-bottom:12px;">🤖</div>
+            <p style="font-size:16px; margin-bottom:8px;">No agents yet</p>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">Deploy your first SEO agent to get started.</p>
+            <button onclick="switchTab('deploy')" class="btn-amber" style="padding:10px 20px;">Deploy Your First Agent</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══════ DEPLOY TAB ═══════ -->
+      <div id="tab-deploy" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Deploy New SEO Agent</h1></div>
+        <div class="page-body">
           <!-- Step 1: Site URL -->
-          <div id="deploy-step-1" class="wizard-step active">
-            <div class="step-header">
-              <div class="step-number active">1</div>
-              <div class="step-title">Site URL</div>
+          <div class="card" id="deploy-step-1" style="margin-bottom:16px; border: 2px solid var(--amber-muted);">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <span style="width:28px; height:28px; border-radius:50%; background:var(--amber); color:var(--bg-deep); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">1</span>
+              <span style="font-weight:600;">Site URL</span>
             </div>
-            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Enter the website URL you want to monitor with SEO tools.</p>
-            <div style="max-width:400px;">
-              <input type="url" id="deploy-site-url" placeholder="https://example.com" class="input" style="margin-bottom:12px;">
-              <div id="site-url-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
-              <button onclick="deployStep(2)" class="btn-amber">Next</button>
-            </div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:12px;">Enter the website URL you want to monitor with SEO tools.</p>
+            <input type="text" id="deploy-site-url" placeholder="https://example.com" style="width:100%; max-width:400px; padding:10px 14px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); font-size:14px; margin-bottom:12px;">
+            <br><button onclick="nextDeployStep(2)" class="btn-amber" style="padding:8px 16px;">Next</button>
           </div>
 
           <!-- Step 2: Telegram Bot -->
-          <div id="deploy-step-2" class="wizard-step">
-            <div class="step-header">
-              <div class="step-number inactive">2</div>
-              <div class="step-title">Create Telegram Bot</div>
+          <div class="card" id="deploy-step-2" style="margin-bottom:16px; opacity:0.5;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <span style="width:28px; height:28px; border-radius:50%; background:var(--border-subtle); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">2</span>
+              <span style="font-weight:600;">Create Telegram Bot</span>
             </div>
-            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Create a Telegram bot to receive notifications and interact with your agent.</p>
-            <div class="telegram-instructions">
-              <p style="font-size:13px; margin-bottom:12px; color:var(--text-secondary);">Follow these steps:</p>
-              <ol>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:12px;">Create a Telegram bot to receive notifications and interact with your agent.</p>
+            <div style="background:var(--bg-deep); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px;">
+              <p style="font-size:13px; margin-bottom:8px;">Follow these steps:</p>
+              <ol style="font-size:13px; color:var(--text-secondary); padding-left:20px; line-height:2;">
                 <li>Open <a href="https://t.me/BotFather" target="_blank" style="color:var(--amber);">@BotFather</a> on Telegram</li>
                 <li>Send <code>/newbot</code></li>
                 <li>Choose a name (e.g., "My SEO Agent")</li>
@@ -732,160 +747,141 @@
                 <li>Copy the token BotFather gives you</li>
               </ol>
             </div>
-            <div style="max-width:400px;">
-              <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Bot Token</label>
-              <input type="text" id="deploy-telegram-token" placeholder="1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ" class="input input-mono" style="margin-bottom:12px;">
-              <div id="telegram-token-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
-              <div style="display:flex; gap:8px;">
-                <button onclick="deployStep(1)" class="btn-ghost">Back</button>
-                <button onclick="deployStep(3)" class="btn-amber">Next</button>
-              </div>
-            </div>
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Bot Token</label>
+            <input type="text" id="deploy-tg-token" placeholder="1234567890:ABCDEFGHIJKLMNOPQRSTUVWXYZ" style="width:100%; max-width:400px; padding:10px 14px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); font-size:14px; font-family:var(--font-mono); margin-bottom:12px;" disabled>
+            <br>
+            <button onclick="prevDeployStep(1)" class="btn-ghost" style="padding:8px 16px; margin-right:8px;">Back</button>
+            <button onclick="nextDeployStep(3)" class="btn-amber" style="padding:8px 16px;">Next</button>
           </div>
 
-          <!-- Step 3: Anthropic API Key -->
-          <div id="deploy-step-3" class="wizard-step">
-            <div class="step-header">
-              <div class="step-number inactive">3</div>
-              <div class="step-title">Anthropic API Key</div>
+          <!-- Step 3: Anthropic Key -->
+          <div class="card" id="deploy-step-3" style="margin-bottom:16px; opacity:0.5;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <span style="width:28px; height:28px; border-radius:50%; background:var(--border-subtle); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">3</span>
+              <span style="font-weight:600;">Anthropic API Key</span>
             </div>
-            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">
-              Add your Anthropic API key to power the AI agent. 
-              <a href="https://console.anthropic.com/account/keys" target="_blank" style="color:var(--amber);">Get your key here →</a>
-            </p>
-            <div style="max-width:400px;">
-              <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">API Key</label>
-              <input type="password" id="deploy-anthropic-key" placeholder="sk-ant-..." class="input input-mono" style="margin-bottom:12px;">
-              <div id="anthropic-key-error" class="hidden" style="font-size:12px; color:var(--coral); margin-bottom:12px;"></div>
-              <div style="display:flex; gap:8px;">
-                <button onclick="deployStep(2)" class="btn-ghost">Back</button>
-                <button onclick="deployStep(4)" class="btn-amber">Next</button>
-              </div>
-            </div>
+            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:12px;">Add your Anthropic API key to power the AI agent. <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:var(--amber);">Get your key here →</a></p>
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">API Key</label>
+            <input type="password" id="deploy-anthropic-key" placeholder="sk-ant-..." style="width:100%; max-width:400px; padding:10px 14px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); font-size:14px; font-family:var(--font-mono); margin-bottom:12px;" disabled>
+            <br>
+            <button onclick="prevDeployStep(2)" class="btn-ghost" style="padding:8px 16px; margin-right:8px;">Back</button>
+            <button onclick="nextDeployStep(4)" class="btn-amber" style="padding:8px 16px;">Next</button>
           </div>
 
           <!-- Step 4: Deploy -->
-          <div id="deploy-step-4" class="wizard-step">
-            <div class="step-header">
-              <div class="step-number inactive">4</div>
-              <div class="step-title">Deploy</div>
+          <div class="card" id="deploy-step-4" style="margin-bottom:16px; opacity:0.5;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+              <span style="width:28px; height:28px; border-radius:50%; background:var(--border-subtle); color:var(--text-secondary); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:13px;">4</span>
+              <span style="font-weight:600;">Deploy</span>
             </div>
-            <div id="deploy-summary" style="background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:8px; padding:16px; margin-bottom:16px;">
+            <div id="deploy-summary" style="background:var(--bg-deep); border-radius:var(--radius-sm); padding:16px; margin-bottom:16px; font-size:13px;">
               <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:8px;">Deployment Summary</div>
-              <div style="display:flex; flex-direction:column; gap:4px; font-size:13px;">
-                <div><strong>Site URL:</strong> <span id="summary-site-url">-</span></div>
-                <div><strong>Telegram Bot:</strong> <span id="summary-telegram">-</span></div>
-                <div><strong>Plan:</strong> <span id="summary-plan">Free</span></div>
+              <div><strong>Site URL:</strong> <span id="deploy-summary-url">-</span></div>
+              <div><strong>Telegram Bot:</strong> <span id="deploy-summary-bot">-</span></div>
+              <div><strong>Plan:</strong> <span id="deploy-summary-plan">Free</span></div>
+            </div>
+            <button onclick="prevDeployStep(3)" class="btn-ghost" style="padding:8px 16px; margin-right:8px;">Back</button>
+            <button onclick="startDeployment()" id="deploy-btn" class="btn-amber" style="padding:8px 16px; font-weight:600;">Deploy Agent</button>
+            <div id="deploy-progress" class="hidden" style="margin-top:16px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                <div class="loading-spinner" style="width:16px; height:16px; border-width:2px;"></div>
+                <span id="deploy-status-text" style="font-size:13px;">Deploying...</span>
+              </div>
+              <div style="background:var(--bg-deep); border-radius:4px; height:4px; overflow:hidden;">
+                <div id="deploy-progress-bar" style="height:100%; background:var(--amber); width:0%; transition:width 0.5s;"></div>
               </div>
             </div>
-            <div id="deploy-actions">
-              <div style="display:flex; gap:8px; margin-bottom:16px;">
-                <button onclick="deployStep(3)" class="btn-ghost">Back</button>
-                <button onclick="startDeployment()" id="deploy-btn" class="btn-amber" style="font-weight:600;">Deploy Agent</button>
-              </div>
-            </div>
-            <div id="deploy-progress" class="hidden">
-              <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-                <div class="spinner"></div>
-                <span id="deploy-status">Provisioning agent...</span>
-              </div>
-              <div id="deploy-logs" style="background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:8px; padding:12px; max-height:200px; overflow-y:auto; font-family:var(--font-mono); font-size:12px; line-height:1.6;"></div>
-            </div>
-            <div id="deploy-success" class="hidden" style="text-align:center; padding:20px;">
-              <div style="font-size:48px; margin-bottom:16px;">✅</div>
-              <div style="font-size:18px; font-weight:600; margin-bottom:8px;">Agent Deployed Successfully!</div>
-              <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Your SEO agent is now running and ready to help.</p>
-              <a id="telegram-bot-link" href="#" target="_blank" class="btn-amber" style="display:inline-block;">Open Telegram Bot</a>
-            </div>
-            <div id="deploy-error" class="hidden" style="text-align:center; padding:20px;">
-              <div style="font-size:48px; margin-bottom:16px;">❌</div>
-              <div style="font-size:18px; font-weight:600; margin-bottom:8px; color:var(--coral);">Deployment Failed</div>
-              <p id="deploy-error-message" style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;"></p>
-              <button onclick="retryDeployment()" class="btn-amber">Retry</button>
+            <!-- Success state -->
+            <div id="deploy-success" class="hidden" style="margin-top:16px; padding:16px; background:var(--sage-muted); border-radius:var(--radius-sm);">
+              <div style="font-size:15px; font-weight:600; color:var(--sage); margin-bottom:4px;">✅ Agent Deployed!</div>
+              <p style="font-size:13px; margin-bottom:12px;">Your SEO agent is now running. Open Telegram and send a message to get started.</p>
+              <a id="telegram-bot-link" href="#" target="_blank" class="btn-amber" style="display:inline-block; padding:8px 16px; font-size:13px;">Open Telegram Bot</a>
             </div>
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- Google Credentials -->
-    <section id="google-creds-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Google Credentials</div>
-        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">
-          Upload your Google service account JSON to enable GSC/GA4 data access for your agents.
-        </p>
-        
-        <div id="google-upload-area" style="margin-bottom:24px;">
-          <div class="upload-area" onclick="document.getElementById('google-file-input').click();">
-            <input type="file" id="google-file-input" accept=".json" onchange="handleGoogleFileSelect(event)">
-            <div style="font-size:32px; margin-bottom:12px;">📄</div>
-            <div style="font-size:14px; font-weight:500; margin-bottom:4px;">Upload Service Account JSON</div>
-            <div style="font-size:12px; color:var(--text-tertiary);">Click to browse or drag and drop</div>
-          </div>
-          <div style="margin-top:16px;">
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Or Paste JSON</div>
-            <textarea id="google-json-text" placeholder="Paste your Google service account JSON here..." class="input" style="min-height:120px; font-family:var(--font-mono); font-size:12px; line-height:1.4; margin-bottom:12px;"></textarea>
-            <button onclick="uploadGoogleCredentials()" class="btn-amber">Validate & Upload</button>
-          </div>
-        </div>
-
-        <div id="google-credentials-list">
-          <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Uploaded Credentials</div>
-          <div id="google-creds-empty" class="empty-state">
-            <div class="empty-state-icon">🔑</div>
-            <p style="font-size:16px; margin-bottom:8px; color:var(--text-secondary);">No credentials uploaded</p>
-            <p style="font-size:13px;">Upload your Google service account JSON to enable GSC/GA4 data.</p>
-          </div>
-          <div id="google-creds-items"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Account Settings -->
-    <section id="account-section" class="hidden">
-      <div class="card">
-        <div class="card-title">Account Settings</div>
-        <div class="grid-2">
-          <div>
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Account Info</div>
-            <div style="display:flex; flex-direction:column; gap:10px;">
-              <div>
-                <div style="font-size:11px; color:var(--text-tertiary);">Email</div>
-                <div id="account-email" style="font-size:13px; font-family:var(--font-mono);"></div>
-              </div>
-              <div>
-                <div style="font-size:11px; color:var(--text-tertiary);">Plan</div>
-                <div id="account-plan" style="font-size:13px; font-weight:600; text-transform:uppercase;"></div>
-              </div>
-              <div>
-                <div style="font-size:11px; color:var(--text-tertiary);">Agents</div>
-                <div id="account-agents" style="font-size:13px; font-weight:500;"></div>
-              </div>
+      <!-- ═══════ GOOGLE CREDS TAB ═══════ -->
+      <div id="tab-google-creds" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Google Credentials</h1></div>
+        <div class="page-body">
+          <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">Upload your Google service account JSON to enable GSC/GA4 data access for your agents.</p>
+          <div class="card" style="margin-bottom:20px;">
+            <div id="google-creds-dropzone" style="border:2px dashed var(--border-subtle); border-radius:var(--radius-sm); padding:40px; text-align:center; cursor:pointer;" onclick="document.getElementById('google-creds-file').click()">
+              <div style="font-size:36px; margin-bottom:8px;">📄</div>
+              <div style="font-weight:500;">Upload Service Account JSON</div>
+              <div style="font-size:12px; color:var(--text-tertiary);">Click to browse or drag and drop</div>
+              <input type="file" id="google-creds-file" accept=".json" style="display:none;" onchange="handleGoogleCredFile(this)">
             </div>
           </div>
-          <div>
-            <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px;">Change Password</div>
-            <form id="password-form" onsubmit="handlePasswordChange(event)" style="display:flex; flex-direction:column; gap:10px;">
-              <input type="password" id="current-password" required placeholder="Current password" autocomplete="current-password" class="input" style="font-size:13px;">
-              <input type="password" id="new-password" required minlength="8" placeholder="New password (min 8)" autocomplete="new-password" class="input" style="font-size:13px;">
-              <div id="password-error" class="hidden" style="font-size:12px; color:var(--coral);"></div>
-              <div id="password-success" class="hidden" style="font-size:12px; color:var(--sage);"></div>
-              <button type="submit" class="btn-ghost" style="width:fit-content;">Update Password</button>
-            </form>
+          <div class="card" style="margin-bottom:20px;">
+            <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Or Paste JSON</label>
+            <textarea id="google-creds-json" placeholder="Paste your Google service account JSON here..." style="width:100%; min-height:120px; padding:12px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); color:var(--text-primary); font-family:var(--font-mono); font-size:12px; resize:vertical;"></textarea>
+            <div style="margin-top:12px;">
+              <button onclick="uploadGoogleCredentials()" class="btn-amber" style="padding:8px 16px;">Validate & Upload</button>
+            </div>
+          </div>
+          <div class="card-title" style="margin-bottom:12px;">Uploaded Credentials</div>
+          <div id="google-creds-list"></div>
+          <div id="no-google-creds" style="text-align:center; padding:32px;">
+            <div style="font-size:36px; margin-bottom:8px;">🔑</div>
+            <p style="font-size:14px; color:var(--text-secondary); margin-bottom:4px;">No credentials uploaded</p>
+            <p style="font-size:12px; color:var(--text-tertiary);">Upload your Google service account JSON to enable GSC/GA4 data.</p>
           </div>
         </div>
       </div>
-    </section>
 
-  </main>
+      <!-- ═══════ BILLING TAB ═══════ -->
+      <div id="tab-billing" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Billing</h1></div>
+        <div class="page-body">
+          <div class="card"><div id="billing-status"></div></div>
+        </div>
+      </div>
+
+      <!-- ═══════ ACCOUNT TAB ═══════ -->
+      <div id="tab-account" class="tab-panel">
+        <div class="page-header"><h1 class="page-title">Account</h1></div>
+        <div class="page-body">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:16px;">Account Info</div>
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em;">Email</div>
+                  <div id="account-email" style="font-size:13px; font-family:var(--font-mono); margin-top:4px;"></div>
+                </div>
+                <div>
+                  <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em;">Plan</div>
+                  <div id="account-plan" style="font-size:13px; font-weight:600; text-transform:uppercase; margin-top:4px;"></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:16px;">Change Password</div>
+              <form id="password-form" onsubmit="handlePasswordChange(event)" style="display:flex; flex-direction:column; gap:10px;">
+                <input type="password" id="current-password" required placeholder="Current password" autocomplete="current-password" class="input">
+                <input type="password" id="new-password" required minlength="8" placeholder="New password (min 8)" autocomplete="new-password" class="input">
+                <div id="password-error" class="hidden" style="font-size:12px; color:var(--coral);"></div>
+                <div id="password-success" class="hidden" style="font-size:12px; color:var(--sage);"></div>
+                <button type="submit" class="btn-ghost" style="width:fit-content;">Update Password</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══ MODALS ═══ -->
 
   <!-- Create Key Modal -->
   <div id="create-key-modal" class="modal-overlay">
     <div class="modal-card">
       <div id="key-step-1">
         <div style="font-size:17px; font-weight:600; margin-bottom:4px;">Create API Key</div>
-        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Give your key a name and optionally restrict which tools it can access.</p>
+        <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:16px;">Name your key and optionally restrict tool access.</p>
         <form onsubmit="handleCreateKey(event)">
           <input type="text" id="key-name" placeholder="e.g. Claude Desktop, Production" maxlength="50" class="input" style="margin-bottom:12px;">
           <div style="margin-bottom:12px;">
@@ -894,30 +890,14 @@
               <button type="button" onclick="toggleScopes()" style="font-size:12px; color:var(--amber);"><span id="scope-toggle-text">Restrict access</span></button>
             </div>
             <div id="scope-options" class="hidden" style="display:grid; grid-template-columns:repeat(3,1fr); gap:6px;">
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="crawl"> Crawl
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="gsc"> GSC
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="ga4"> GA4
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="schema"> Schema
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="indexnow"> IndexNow
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="report"> Report
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="cwv"> CWV
-              </label>
-              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);">
-                <input type="checkbox" name="scope" value="meta"> Meta
-              </label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="crawl"> Crawl</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="gsc"> GSC</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="ga4"> GA4</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="schema"> Schema</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="indexnow"> IndexNow</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="report"> Report</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="cwv"> CWV</label>
+              <label style="display:flex; align-items:center; gap:6px; padding:8px; background:var(--bg-raised); border-radius:8px; cursor:pointer; font-size:12px; color:var(--text-secondary);"><input type="checkbox" name="scope" value="meta"> Meta</label>
             </div>
             <p id="scope-info" style="font-size:11px; color:var(--text-tertiary); margin-top:6px;">All tools accessible (unrestricted)</p>
           </div>
@@ -956,7 +936,19 @@
     </div>
   </div>
 
-  <!-- Create Schedule Modal -->
+  <!-- Deprovision Modal -->
+  <div id="deprovision-modal" class="modal-overlay">
+    <div class="modal-card" style="max-width:380px;">
+      <div style="font-size:17px; font-weight:600; margin-bottom:8px;">Deprovision Agent?</div>
+      <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:20px;">This will permanently destroy the agent's server and revoke its API key. This action cannot be undone.</p>
+      <div style="display:flex; gap:10px;">
+        <button onclick="document.getElementById('deprovision-modal').classList.remove('active');" class="btn-ghost" style="flex:1;">Cancel</button>
+        <button onclick="confirmDeprovision()" class="btn-danger" style="flex:1;">Deprovision</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Schedule Modal -->
   <div id="schedule-modal" class="modal-overlay">
     <div class="modal-card">
       <div style="font-size:17px; font-weight:600; margin-bottom:20px;">New Scheduled Audit</div>
@@ -968,18 +960,16 @@
         <div>
           <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Tool</label>
           <select id="sched-tool" class="input">
-            <option value="generate_report">Full SEO Report (generate_report)</option>
-            <option value="site_audit">Site Audit (site_audit)</option>
-            <option value="crawl_page">Crawl Page (crawl_page)</option>
+            <option value="generate_report">Full SEO Report</option>
+            <option value="site_audit">Site Audit</option>
+            <option value="crawl_page">Crawl Page</option>
           </select>
         </div>
         <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
           <div>
             <label style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:0.05em; display:block; margin-bottom:4px;">Frequency</label>
             <select id="sched-freq" onchange="updateDayField()" class="input">
-              <option value="daily">Daily</option>
-              <option value="weekly" selected>Weekly</option>
-              <option value="monthly">Monthly</option>
+              <option value="daily">Daily</option><option value="weekly" selected>Weekly</option><option value="monthly">Monthly</option>
             </select>
           </div>
           <div>
@@ -1004,41 +994,38 @@
     </div>
   </div>
 
-  <!-- Deprovision Agent Modal -->
-  <div id="deprovision-modal" class="modal-overlay">
-    <div class="modal-card" style="max-width:400px;">
-      <div style="font-size:17px; font-weight:600; margin-bottom:8px; color:var(--coral);">Deprovision Agent?</div>
-      <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:8px;">This will permanently delete the agent and all its data:</p>
-      <p id="deprovision-agent-url" style="font-size:14px; font-family:var(--font-mono); color:var(--text-secondary); margin-bottom:20px;"></p>
-      <p style="font-size:12px; color:var(--coral); margin-bottom:16px;">⚠️ This action cannot be undone.</p>
-      <div style="display:flex; gap:10px;">
-        <button onclick="closeDeprovisionModal()" class="btn-ghost" style="flex:1;">Cancel</button>
-        <button onclick="confirmDeprovision()" class="btn-danger" style="flex:1;">Deprovision</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Copy Toast -->
   <div id="copy-toast" class="copy-toast">✓ Copied</div>
 
-  <!-- Lemon Squeezy checkout overlay -->
+  <!-- Lemon Squeezy -->
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
-  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
   <script>
-    // ── Config ──
+    // ═══ Config ═══
     const API_BASE = 'https://api.seomcp.dev';
     let clerkInstance = null;
-
-    // ── State ──
     let dashData = null;
     let revokeKeyId = null;
-    let deprovisionAgentId = null;
-    let currentDeployStep = 1;
-    let deployData = {};
-    let deploymentPollingInterval = null;
 
-    // ── Clerk Auth ──
+    // ═══ Tab Navigation ═══
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      const panel = document.getElementById('tab-' + tab);
+      const navItem = document.querySelector('.nav-item[data-tab="' + tab + '"]');
+      if (panel) panel.classList.add('active');
+      if (navItem) navItem.classList.add('active');
+      // Close mobile sidebar
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebar-overlay').classList.remove('open');
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebar-overlay').classList.toggle('open');
+    }
+
+    // ═══ Clerk Auth ═══
     const _origFetch = window.fetch;
     window.fetch = async function(url, opts) {
       opts = opts || {};
@@ -1087,35 +1074,34 @@
       loadDashboard();
     }
 
-    // ── Load Dashboard ──
+    // ═══ Load Dashboard ═══
     async function loadDashboard() {
       try {
         const res = await fetch(API_BASE + '/dashboard/api/overview');
         if (res.status === 401) { window.location.href = '/login'; return; }
         dashData = await res.json();
         render();
-      } catch (err) { console.error('Failed to load dashboard:', err); }
+      } catch (err) { console.error('Failed to load:', err); }
     }
 
-    // ── Render ──
+    // ═══ Render ═══
     function render() {
       const d = dashData;
       document.getElementById('loading').style.display = 'none';
-
       document.getElementById('user-email').textContent = d.user.email;
-      const badge = document.getElementById('plan-badge');
-      badge.textContent = d.user.plan; badge.style.display = '';
-
+      document.getElementById('plan-badge').textContent = d.user.plan;
       if (!d.user.emailVerified) document.getElementById('verify-banner').classList.remove('hidden');
 
       renderOnboarding(d);
-      renderUsage(d.usage);
+      renderStats(d.usage);
+      renderDailyChart(d.usage.dailyUsage);
+      renderDonut(d.usage.breakdown);
       renderTopTools(d.usage.topTools);
-      loadAudits();
+      renderActivity(d.recentCalls);
       renderKeys(d.keys);
       renderGoogle(d.google);
       renderBilling(d.billing, d.user.plan);
-      renderActivity(d.recentCalls);
+      loadAudits();
       loadSchedules();
       loadWebhooks();
       loadAgents();
@@ -1123,81 +1109,147 @@
 
       document.getElementById('account-email').textContent = d.user.email;
       document.getElementById('account-plan').textContent = d.user.plan;
-      
-      // Will be updated by loadAgents()
-      if (!document.getElementById('account-agents').textContent) {
-        document.getElementById('account-agents').textContent = 'Loading...';
-      }
-      
-      document.getElementById('account-section').classList.remove('hidden');
     }
 
-    // ── Usage ──
-    function renderUsage(usage) {
-      document.getElementById('usage-section').classList.remove('hidden');
-      document.getElementById('usage-used').textContent = usage.used;
-      document.getElementById('usage-limit').textContent = usage.limit === 'unlimited' ? '∞' : usage.limit;
+    // ═══ Stats ═══
+    function renderStats(usage) {
+      document.getElementById('stat-used').textContent = usage.used;
+      document.getElementById('stat-limit').textContent = usage.limit === 'unlimited' ? '∞' : usage.limit;
       document.getElementById('usage-period').textContent = usage.period;
 
       const pct = usage.limit === 'unlimited' ? 0 : Math.min(100, (usage.used / usage.limit) * 100);
       const bar = document.getElementById('usage-bar');
       bar.style.width = pct + '%';
       bar.className = 'progress-fill' + (pct > 95 ? ' danger' : pct > 80 ? ' warn' : '');
-
       document.getElementById('usage-remaining').textContent = usage.remaining === 'unlimited' ? 'Unlimited' : usage.remaining + ' remaining';
-      document.getElementById('breakdown-success').textContent = usage.breakdown.success;
-      document.getElementById('breakdown-error').textContent = usage.breakdown.error;
-      document.getElementById('breakdown-ratelimited').textContent = usage.breakdown.rateLimited;
-      document.getElementById('avg-duration').textContent = usage.avgDurationMs;
+
+      // Success rate
+      const total = usage.breakdown.success + usage.breakdown.error + usage.breakdown.rateLimited;
+      const rate = total > 0 ? ((usage.breakdown.success / total) * 100).toFixed(1) : '—';
+      document.getElementById('stat-success-rate').textContent = total > 0 ? rate + '%' : '—';
+      document.getElementById('stat-success-rate').style.color = rate >= 95 ? 'var(--sage)' : rate >= 80 ? '#FBBF24' : 'var(--coral)';
+      document.getElementById('stat-success-detail').textContent = total > 0 ? usage.breakdown.success + ' ok · ' + usage.breakdown.error + ' err · ' + usage.breakdown.rateLimited + ' limited' : 'No calls yet';
+
+      document.getElementById('stat-avg-ms').textContent = usage.avgDurationMs || '0';
+
+      // Top tool
+      if (usage.topTools && usage.topTools.length > 0) {
+        document.getElementById('stat-top-tool').textContent = usage.topTools[0].tool;
+        document.getElementById('stat-top-tool-count').textContent = usage.topTools[0].count + ' calls';
+      }
 
       if (dashData.user.plan === 'free') document.getElementById('upgrade-cta').classList.remove('hidden');
-      renderDailyChart(usage.dailyUsage);
     }
 
+    // ═══ Daily Chart ═══
     function renderDailyChart(daily) {
       const c = document.getElementById('daily-chart');
       c.innerHTML = '';
-      if (!daily || daily.length === 0) { c.innerHTML = '<span style="font-size:13px; color:var(--text-tertiary);">No data yet</span>'; return; }
-      const maxCalls = Math.max(...daily.map(d => d.calls), 1);
-      const today = new Date(); const days = [];
+      const today = new Date();
+      const days = [];
       for (let i = 29; i >= 0; i--) {
         const date = new Date(today); date.setDate(date.getDate() - i);
         const ds = date.toISOString().split('T')[0];
-        const found = daily.find(d => d.date === ds);
+        const found = daily ? daily.find(d => d.date === ds) : null;
         days.push({ date: ds, calls: found ? found.calls : 0 });
       }
+      const maxCalls = Math.max(...days.map(d => d.calls), 1);
+
       days.forEach(day => {
         const h = Math.max(2, (day.calls / maxCalls) * 100);
         const bar = document.createElement('div');
-        bar.className = 'bar';
+        bar.className = 'chart-bar';
         bar.style.height = h + '%';
         bar.style.background = day.calls > 0 ? 'var(--amber)' : 'var(--bg-raised)';
-        bar.title = day.date + ': ' + day.calls + ' calls';
+        bar.innerHTML = '<div class="chart-tooltip">' + day.date + '<br><strong>' + day.calls + ' calls</strong></div>';
         c.appendChild(bar);
       });
+
+      document.getElementById('chart-start').textContent = days[0].date.slice(5);
+      document.getElementById('chart-end').textContent = 'Today';
     }
 
-    // ── Top Tools ──
+    // ═══ Donut Chart ═══
+    function renderDonut(breakdown) {
+      const svg = document.getElementById('donut-chart');
+      const legend = document.getElementById('donut-legend');
+      const total = breakdown.success + breakdown.error + breakdown.rateLimited;
+
+      if (total === 0) {
+        svg.innerHTML = '<circle cx="21" cy="21" r="15.9" fill="none" stroke="var(--bg-raised)" stroke-width="4" /><text x="21" y="22" text-anchor="middle" font-size="5" fill="var(--text-tertiary)">No data</text>';
+        legend.innerHTML = '';
+        return;
+      }
+
+      const segments = [
+        { label: 'Success', count: breakdown.success, color: 'var(--sage)' },
+        { label: 'Errors', count: breakdown.error, color: 'var(--coral)' },
+        { label: 'Rate Limited', count: breakdown.rateLimited, color: '#FBBF24' },
+      ].filter(s => s.count > 0);
+
+      const circumference = 2 * Math.PI * 15.9;
+      let offset = circumference * 0.25; // Start at top
+      let svgHtml = '';
+
+      segments.forEach(seg => {
+        const pct = seg.count / total;
+        const dash = circumference * pct;
+        const gap = circumference - dash;
+        svgHtml += '<circle cx="21" cy="21" r="15.9" fill="none" stroke="' + seg.color + '" stroke-width="4" stroke-dasharray="' + dash.toFixed(2) + ' ' + gap.toFixed(2) + '" stroke-dashoffset="' + offset.toFixed(2) + '" />';
+        offset -= dash;
+      });
+
+      svgHtml += '<text x="21" y="20" text-anchor="middle" font-size="7" font-weight="700" fill="var(--text-primary)">' + total + '</text>';
+      svgHtml += '<text x="21" y="25" text-anchor="middle" font-size="3.5" fill="var(--text-tertiary)">calls</text>';
+      svg.innerHTML = svgHtml;
+
+      legend.innerHTML = segments.map(s =>
+        '<div class="legend-item"><span class="legend-dot" style="background:' + s.color + ';"></span>' + s.label + ': <strong>' + s.count + '</strong> (' + ((s.count / total) * 100).toFixed(0) + '%)</div>'
+      ).join('');
+    }
+
+    // ═══ Top Tools ═══
     function renderTopTools(tools) {
-      document.getElementById('tools-section').classList.remove('hidden');
       const list = document.getElementById('top-tools-list');
-      if (!tools || tools.length === 0) { list.innerHTML = '<p style="font-size:13px; color:var(--text-tertiary);">No tool calls yet</p>'; return; }
+      if (!tools || tools.length === 0) {
+        list.innerHTML = '<p style="font-size:13px; color:var(--text-tertiary); text-align:center; padding:20px;">No tool calls yet</p>';
+        return;
+      }
       const maxCount = Math.max(...tools.map(t => t.count));
-      list.innerHTML = tools.map(t => {
-        const pct = Math.max(3, (t.count / maxCount) * 100);
-        return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:6px;">
-          <span style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary); width:140px; flex-shrink:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${escHtml(t.tool)}</span>
-          <div style="flex:1; height:18px; background:var(--bg-raised); border-radius:9px; overflow:hidden;">
-            <div style="height:100%; width:${pct}%; background:rgba(229,164,48,0.4); border-radius:9px;"></div>
-          </div>
-          <span style="font-size:12px; color:var(--text-tertiary); width:32px; text-align:right;">${t.count}</span>
-        </div>`;
+      const colors = ['var(--amber)', 'var(--blue)', 'var(--purple)', 'var(--sage)', 'var(--coral)', '#FBBF24', '#818CF8', '#FB923C'];
+      list.innerHTML = tools.map((t, i) => {
+        const pct = Math.max(5, (t.count / maxCount) * 100);
+        const color = colors[i % colors.length];
+        return '<div class="tool-bar-row">' +
+          '<span class="tool-bar-name">' + escHtml(t.tool) + '</span>' +
+          '<div class="tool-bar-track"><div class="tool-bar-fill" style="width:' + pct + '%; background:' + color + ';">' + t.count + '</div></div>' +
+          '<span class="tool-bar-count">' + t.count + '</span>' +
+        '</div>';
       }).join('');
     }
 
-    // ── Audit History ──
+    // ═══ Activity ═══
+    function renderActivity(calls) {
+      const tbody = document.getElementById('activity-table');
+      const noActivity = document.getElementById('no-activity');
+      if (!calls || calls.length === 0) {
+        document.getElementById('activity-table-wrap').classList.add('hidden');
+        noActivity.classList.remove('hidden'); return;
+      }
+      noActivity.classList.add('hidden');
+      document.getElementById('activity-table-wrap').classList.remove('hidden');
+      tbody.innerHTML = calls.map(c => {
+        const time = timeAgo(new Date(c.createdAt));
+        const dur = c.durationMs ? c.durationMs + 'ms' : '—';
+        return '<tr><td style="font-size:12px; color:var(--text-tertiary);">' + time + '</td>' +
+          '<td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">' + escHtml(c.tool) + '</td>' +
+          '<td><span class="badge badge-' + c.status + '">' + c.status + '</span></td>' +
+          '<td style="text-align:right; font-size:12px; color:var(--text-tertiary);">' + dur + '</td></tr>';
+      }).join('');
+    }
+
+    // ═══ Audits ═══
     async function loadAudits() {
-      document.getElementById('audit-section').classList.remove('hidden');
       try {
         const sitesRes = await fetch(API_BASE + '/dashboard/api/audits/sites');
         if (sitesRes.ok) {
@@ -1213,11 +1265,11 @@
           });
         }
         const siteFilter = document.getElementById('audit-site-filter').value;
-        const url = API_BASE + (siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20');
+        const url = API_BASE + '/dashboard/api/audits' + (siteFilter ? '?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '?limit=20');
         const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
-        document.getElementById('audit-retention').textContent = data.retention.retentionDays + 'd retention (' + data.retention.plan + ')';
+        document.getElementById('audit-retention').textContent = data.retention.retentionDays + 'd retention';
         const tbody = document.getElementById('audit-table');
         const noAudits = document.getElementById('no-audits');
         if (!data.audits || data.audits.length === 0) {
@@ -1229,20 +1281,19 @@
           const d = new Date(a.createdAt);
           const ds = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
           const sc = a.healthScore != null
-            ? `<span style="padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; ${a.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : a.healthScore >= 60 ? 'color:#FBBF24; background:rgba(251,191,36,0.1);' : 'color:var(--coral); background:rgba(248,113,113,0.1);'}">${a.healthScore}/100</span>`
+            ? '<span style="padding:2px 8px; border-radius:4px; font-size:12px; font-weight:600; ' + (a.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : a.healthScore >= 60 ? 'color:#FBBF24; background:rgba(251,191,36,0.1);' : 'color:var(--coral); background:var(--coral-muted);') + '">' + a.healthScore + '/100</span>'
             : '<span style="color:var(--text-tertiary);">—</span>';
           const dur = a.durationMs ? (a.durationMs / 1000).toFixed(1) + 's' : '—';
-          return `<tr style="cursor:pointer;" onclick="viewAudit(${a.id})">
-            <td style="font-size:12px; color:var(--text-tertiary);">${ds}</td>
-            <td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">${escHtml(a.siteUrl)}</td>
-            <td style="font-size:12px; color:var(--text-tertiary);">${escHtml(a.toolName)}</td>
-            <td style="text-align:center;">${sc}</td>
-            <td style="text-align:right; font-size:12px; color:var(--text-tertiary);">${dur}</td>
-          </tr>`;
+          return '<tr style="cursor:pointer;" onclick="viewAudit(' + a.id + ')">' +
+            '<td style="font-size:12px; color:var(--text-tertiary);">' + ds + '</td>' +
+            '<td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">' + escHtml(a.siteUrl) + '</td>' +
+            '<td style="font-size:12px; color:var(--text-tertiary);">' + escHtml(a.toolName) + '</td>' +
+            '<td style="text-align:center;">' + sc + '</td>' +
+            '<td style="text-align:right; font-size:12px; color:var(--text-tertiary);">' + dur + '</td></tr>';
         }).join('');
         if (siteFilter) loadHealthTrend(siteFilter);
         else document.getElementById('health-trend').classList.add('hidden');
-      } catch (err) { console.error('Failed to load audits:', err); }
+      } catch (err) { console.error('Audits:', err); }
     }
 
     async function loadHealthTrend(siteUrl) {
@@ -1256,10 +1307,10 @@
         s.classList.remove('hidden'); c.innerHTML = '';
         data.dataPoints.forEach(pt => {
           const bar = document.createElement('div');
-          bar.className = 'bar'; bar.style.flex = '1'; bar.style.minWidth = '4px';
+          bar.className = 'chart-bar'; bar.style.flex = '1'; bar.style.minWidth = '4px';
           bar.style.height = pt.healthScore + '%';
           bar.style.background = pt.healthScore >= 80 ? 'var(--sage)' : pt.healthScore >= 60 ? '#FBBF24' : 'var(--coral)';
-          bar.title = new Date(pt.date).toLocaleDateString() + ': ' + pt.healthScore + '/100';
+          bar.innerHTML = '<div class="chart-tooltip">' + new Date(pt.date).toLocaleDateString() + ': ' + pt.healthScore + '/100</div>';
           c.appendChild(bar);
         });
       } catch { document.getElementById('health-trend').classList.add('hidden'); }
@@ -1274,29 +1325,21 @@
           ? data.fullResult.content[0].text : JSON.stringify(data.fullResult, null, 2);
         const modal = document.createElement('div');
         modal.className = 'modal-overlay active'; modal.style.display = 'flex';
-        modal.innerHTML = `<div style="width:100%; max-width:700px; margin:16px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:16px; max-height:80vh; display:flex; flex-direction:column;">
-          <div style="padding:20px 24px; border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-            <div>
-              <div style="font-size:17px; font-weight:600;">${escHtml(data.toolName)}</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">${escHtml(data.siteUrl)} · ${new Date(data.createdAt).toLocaleString()}</div>
-            </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-              ${data.healthScore != null ? `<span style="padding:4px 12px; border-radius:8px; font-size:14px; font-weight:600; ${data.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : 'color:#FBBF24; background:rgba(251,191,36,0.1);'}">${data.healthScore}/100</span>` : ''}
-              <button onclick="this.closest('.modal-overlay').remove()" style="color:var(--text-tertiary); font-size:20px; cursor:pointer;">×</button>
-            </div>
-          </div>
-          <div style="padding:20px 24px; overflow-y:auto; flex:1;">
-            <pre style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary); white-space:pre-wrap; line-height:1.6;">${escHtml(resultText)}</pre>
-          </div>
-        </div>`;
+        modal.innerHTML = '<div style="width:100%; max-width:700px; margin:16px; background:var(--bg-surface); border:1px solid var(--border-subtle); border-radius:16px; max-height:80vh; display:flex; flex-direction:column;">' +
+          '<div style="padding:20px 24px; border-bottom:1px solid var(--border-subtle); display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">' +
+            '<div><div style="font-size:17px; font-weight:600;">' + escHtml(data.toolName) + '</div>' +
+            '<div style="font-size:12px; color:var(--text-tertiary);">' + escHtml(data.siteUrl) + ' · ' + new Date(data.createdAt).toLocaleString() + '</div></div>' +
+            '<div style="display:flex; align-items:center; gap:12px;">' +
+            (data.healthScore != null ? '<span style="padding:4px 12px; border-radius:8px; font-size:14px; font-weight:600; ' + (data.healthScore >= 80 ? 'color:var(--sage); background:var(--sage-muted);' : 'color:#FBBF24; background:rgba(251,191,36,0.1);') + '">' + data.healthScore + '/100</span>' : '') +
+            '<button onclick="this.closest(\'.modal-overlay\').remove()" style="color:var(--text-tertiary); font-size:20px; cursor:pointer;">×</button></div></div>' +
+          '<div style="padding:20px 24px; overflow-y:auto; flex:1;"><pre style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary); white-space:pre-wrap; line-height:1.6;">' + escHtml(resultText) + '</pre></div></div>';
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
-      } catch (err) { console.error('Failed to load audit:', err); }
+      } catch (err) { console.error('Audit view:', err); }
     }
 
-    // ── API Keys ──
+    // ═══ Keys ═══
     function renderKeys(keys) {
-      document.getElementById('keys-section').classList.remove('hidden');
       const activeCount = keys.filter(k => k.isActive).length;
       const planLimit = { free: 1, pro: 5, agency: 20, enterprise: 999 }[dashData.user.plan] || 1;
       document.getElementById('keys-count').textContent = activeCount + ' / ' + planLimit + ' keys';
@@ -1307,78 +1350,93 @@
         const lastUsed = k.lastUsedAt ? timeAgo(new Date(k.lastUsedAt)) : 'Never';
         const created = new Date(k.createdAt).toLocaleDateString();
         const scopeHtml = k.scopes && k.scopes.length > 0
-          ? '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-top:4px;">' + k.scopes.map(s => '<span style="padding:1px 6px; font-size:10px; border-radius:4px; background:var(--amber-muted); color:var(--amber); border:1px solid rgba(229,164,48,0.15);">' + escHtml(s) + '</span>').join('') + '</div>'
-          : '';
-        return `<tr>
-          <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">${escHtml(k.prefix)}...</td>
-          <td><span style="font-size:13px;">${escHtml(k.name)}</span>${scopeHtml}</td>
-          <td class="hide-mobile">${statusBadge}</td>
-          <td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${lastUsed}</td>
-          <td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${created}</td>
-          <td style="text-align:right;">${k.isActive ? '<button onclick="openRevokeModal(\'' + k.id + '\', \'' + escHtml(k.prefix) + '\')" style="font-size:12px; color:var(--coral); cursor:pointer;">Revoke</button>' : ''}</td>
-        </tr>`;
+          ? '<div style="display:flex; flex-wrap:wrap; gap:3px; margin-top:4px;">' + k.scopes.map(s => '<span style="padding:1px 6px; font-size:10px; border-radius:4px; background:var(--amber-muted); color:var(--amber);">' + escHtml(s) + '</span>').join('') + '</div>' : '';
+        return '<tr><td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">' + escHtml(k.prefix) + '...</td>' +
+          '<td><span style="font-size:13px;">' + escHtml(k.name) + '</span>' + scopeHtml + '</td>' +
+          '<td class="hide-mobile">' + statusBadge + '</td>' +
+          '<td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">' + lastUsed + '</td>' +
+          '<td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">' + created + '</td>' +
+          '<td style="text-align:right;">' + (k.isActive ? '<button onclick="openRevokeModal(\'' + k.id + '\', \'' + escHtml(k.prefix) + '\')" style="font-size:12px; color:var(--coral); cursor:pointer;">Revoke</button>' : '') + '</td></tr>';
       }).join('');
     }
 
-    // ── Google ──
+    // ═══ Google ═══
     function renderGoogle(google) {
-      document.getElementById('google-section').classList.remove('hidden');
       const el = document.getElementById('google-status');
       if (google.connected) {
-        el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:12px;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-size:20px;">✅</span>
-            <div>
-              <div style="font-size:14px; font-weight:500;">${escHtml(google.email || 'Connected')}</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">${escHtml(google.scopes || 'GSC + GA4')}</div>
-            </div>
-          </div>
-          <a href="/api/auth/google/disconnect" style="font-size:12px; color:var(--coral);">Disconnect</a>
-        </div>`;
+        el.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:' + 'var(--radius)' + ';"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:20px;">✅</span><div><div style="font-size:14px; font-weight:500;">' + escHtml(google.email || 'Connected') + '</div><div style="font-size:12px; color:var(--text-tertiary);">' + escHtml(google.scopes || 'GSC + GA4') + '</div></div></div><button onclick="disconnectGoogle()" style="font-size:12px; color:var(--coral); background:none; border:none; cursor:pointer;">Disconnect</button></div>';
       } else {
-        el.innerHTML = `<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
-          <div style="display:flex; align-items:center; gap:12px;">
-            <span style="font-size:20px; opacity:0.5;">🔗</span>
-            <div>
-              <div style="font-size:14px; font-weight:500; color:var(--text-secondary);">Not connected</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Required for Search Console and Analytics tools</div>
-            </div>
-          </div>
-          <a href="/api/auth/google/start" style="padding:8px 16px; font-size:13px; font-weight:500; background:var(--text-primary); color:var(--bg-deep); border-radius:8px;">Connect Google</a>
-        </div>`;
+        el.innerHTML = '<div style="display:flex; align-items:center; justify-content:space-between; padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius);"><div style="display:flex; align-items:center; gap:12px;"><span style="font-size:20px; opacity:0.5;">🔗</span><div><div style="font-size:14px; font-weight:500; color:var(--text-secondary);">Not connected</div><div style="font-size:12px; color:var(--text-tertiary);">Required for Search Console and Analytics tools</div></div></div><a href="/api/auth/google/start" class="btn-amber" style="text-decoration:none;">Connect Google</a></div>';
       }
     }
 
-    // ── Activity ──
-    function renderActivity(calls) {
-      document.getElementById('activity-section').classList.remove('hidden');
-      const tbody = document.getElementById('activity-table');
-      const noActivity = document.getElementById('no-activity');
-      if (!calls || calls.length === 0) { tbody.closest('table').classList.add('hidden'); noActivity.classList.remove('hidden'); return; }
-      noActivity.classList.add('hidden'); tbody.closest('table').classList.remove('hidden');
-      tbody.innerHTML = calls.map(c => {
-        const time = timeAgo(new Date(c.createdAt));
-        const dur = c.durationMs ? c.durationMs + 'ms' : '—';
-        return `<tr>
-          <td style="font-size:12px; color:var(--text-tertiary);">${time}</td>
-          <td style="font-family:var(--font-mono); font-size:12px; color:var(--text-secondary);">${escHtml(c.tool)}</td>
-          <td><span class="badge badge-${c.status}">${c.status}</span></td>
-          <td style="text-align:right; font-size:12px; color:var(--text-tertiary);">${dur}</td>
-        </tr>`;
-      }).join('');
+    // ═══ Billing ═══
+    function renderBilling(billing, currentPlan) {
+      const el = document.getElementById('billing-status');
+      if (!billing && currentPlan !== 'free') {
+        // Manually upgraded (no subscription record)
+        const limits = { pro: '2,000', agency: '10,000', enterprise: 'Unlimited' };
+        el.innerHTML = '<div style="padding:20px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:var(--radius);">' +
+          '<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">' +
+            '<span style="font-size:15px; font-weight:600; text-transform:capitalize;">' + escHtml(currentPlan) + ' Plan</span>' +
+            '<span class="badge badge-active">Active</span></div>' +
+          '<p style="font-size:13px; color:var(--text-secondary);">' + (limits[currentPlan] || '2,000') + ' API calls/month · All tools unlocked</p></div>';
+        return;
+      }
+      if (!billing && currentPlan === 'free') {
+        el.innerHTML = '<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You\'re on the <strong>Free</strong> plan (' + (dashData.usage?.limit || 100) + ' calls/mo).</p>' +
+          '<div class="grid-2">' +
+            '<div style="padding:20px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius);">' +
+              '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Pro</span><span style="color:var(--amber); font-weight:700;">$29/mo</span></div>' +
+              '<p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">2,000 calls/mo · 5 sites · 5 API keys</p>' +
+              '<button onclick="handleUpgrade(\'pro\')" class="btn-amber" style="width:100%;">Upgrade to Pro</button></div>' +
+            '<div style="padding:20px; background:var(--bg-raised); border:1px solid rgba(229,164,48,0.2); border-radius:var(--radius);">' +
+              '<div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Agency</span><span style="color:var(--amber); font-weight:700;">$79/mo</span></div>' +
+              '<p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">10,000 calls/mo · Unlimited sites · 20 keys</p>' +
+              '<button onclick="handleUpgrade(\'agency\')" class="btn-amber" style="width:100%;">Upgrade to Agency</button></div></div>';
+      } else if (billing) {
+        const isActive = billing.status === 'active' && !billing.cancelAtPeriodEnd;
+        const isCancelling = billing.cancelAtPeriodEnd;
+        const isPastDue = billing.status === 'past_due';
+        const renewDate = billing.renewsAt ? new Date(billing.renewsAt).toLocaleDateString() : 'N/A';
+        let html = '';
+        if (isPastDue) html += '<div style="padding:16px; background:var(--coral-muted); border:1px solid rgba(248,113,113,0.2); border-radius:var(--radius); margin-bottom:12px;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span>⚠️</span><span style="font-weight:600; color:var(--coral);">Payment Failed</span></div><p style="font-size:13px; color:rgba(248,113,113,0.8);">Please update your payment method.</p>' + (billing.updatePaymentUrl ? '<a href="' + escHtml(billing.updatePaymentUrl) + '" target="_blank" class="btn-danger" style="display:inline-block; margin-top:8px;">Update Payment →</a>' : '') + '</div>';
+        if (isCancelling) html += '<div style="padding:16px; background:var(--amber-muted); border:1px solid rgba(229,164,48,0.2); border-radius:var(--radius);"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">' + escHtml(billing.plan) + ' Plan</span><span class="badge" style="background:var(--amber-muted); color:var(--amber);">Cancelling</span></div><p style="font-size:13px; color:var(--text-tertiary);">Access until ' + renewDate + '</p></div><button onclick="handleResume()" class="btn-amber">Resume</button></div></div>';
+        else if (isActive) html += '<div style="padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:var(--radius);"><div style="display:flex; justify-content:space-between; align-items:center;"><div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">' + escHtml(billing.plan) + ' Plan</span><span class="badge badge-active">Active</span></div><p style="font-size:13px; color:var(--text-tertiary);">Renews ' + renewDate + '</p></div><div style="display:flex; gap:8px;">' + (billing.portalUrl ? '<a href="' + escHtml(billing.portalUrl) + '" target="_blank" class="btn-ghost btn-sm">Manage →</a>' : '') + '<button onclick="handleCancel()" class="btn-danger btn-sm">Cancel</button></div></div></div>';
+        else html += '<div style="padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius);"><div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;"><span style="font-weight:600; text-transform:capitalize;">' + escHtml(billing.plan) + ' Plan</span><span class="badge badge-revoked">' + escHtml(billing.status) + '</span></div><button onclick="handleUpgrade(\'' + billing.plan + '\')" class="btn-amber">Resubscribe</button></div>';
+        el.innerHTML = html;
+      }
     }
 
-    // ── Scheduled Audits ──
+    async function handleUpgrade(plan) {
+      try {
+        const res = await fetch(API_BASE + '/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
+        const data = await res.json();
+        if (!res.ok) { alert(data.error || 'Failed'); return; }
+        if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) LemonSqueezy.Url.Open(data.url);
+        else window.open(data.url, '_blank');
+      } catch { alert('Failed to start checkout'); }
+    }
+
+    async function handleCancel() {
+      if (!confirm('Cancel? You\'ll keep access until period end.')) return;
+      try { const res = await fetch(API_BASE + '/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); if (res.ok) loadDashboard(); else { const d = await res.json(); alert(d.error); } } catch { alert('Failed'); }
+    }
+
+    async function handleResume() {
+      try { const res = await fetch(API_BASE + '/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); if (res.ok) loadDashboard(); else { const d = await res.json(); alert(d.error); } } catch { alert('Failed'); }
+    }
+
+    // ═══ Schedules ═══
     async function loadSchedules() {
       try {
         const res = await fetch(API_BASE + '/dashboard/api/schedules', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        document.getElementById('schedules-section').classList.remove('hidden');
         const limitEl = document.getElementById('schedule-limit');
         const max = data.limits.max === 'unlimited' ? '∞' : data.limits.max;
         limitEl.textContent = data.limits.used + '/' + max + ' schedules';
-        if (data.limits.max === 0) { document.getElementById('add-schedule-btn').disabled = true; document.getElementById('add-schedule-btn').title = 'Upgrade to Pro'; }
+        if (data.limits.max === 0) { document.getElementById('add-schedule-btn').disabled = true; }
         const list = document.getElementById('schedules-list');
         const noSched = document.getElementById('no-schedules');
         if (data.schedules.length === 0) { noSched.classList.remove('hidden'); list.innerHTML = ''; return; }
@@ -1388,23 +1446,16 @@
           const nextRun = s.isActive && s.nextRunAt ? new Date(s.nextRunAt).toLocaleString() : '—';
           const lastRun = s.lastRunAt ? new Date(s.lastRunAt).toLocaleString() : 'Never';
           const error = s.lastError ? '<span style="font-size:11px; color:var(--coral); margin-left:8px;">' + escHtml(s.lastError) + '</span>' : '';
-          return `<div style="display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:10px; gap:12px; flex-wrap:wrap;">
-            <div style="flex:1; min-width:200px;">
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-                <span style="font-size:13px; font-weight:500;">${escHtml(s.siteUrl)}</span>
-                ${statusBadge}
-              </div>
-              <div style="font-size:11px; color:var(--text-tertiary);">${escHtml(s.description)} · ${s.toolName} · ${s.runCount} runs${error}</div>
-              <div style="font-size:11px; color:var(--text-tertiary); margin-top:2px;">Next: ${nextRun} · Last: ${lastRun}</div>
-            </div>
-            <div style="display:flex; gap:6px; flex-shrink:0;">
-              <button onclick="toggleSchedule('${s.id}', ${!s.isActive})" class="btn-ghost" style="padding:4px 10px; font-size:11px;">${s.isActive ? 'Pause' : 'Resume'}</button>
-              <button onclick="runScheduleNow('${s.id}')" class="btn-ghost" style="padding:4px 10px; font-size:11px;" ${!s.isActive ? 'disabled' : ''}>Run Now</button>
-              <button onclick="deleteSchedule('${s.id}')" class="btn-danger" style="padding:4px 10px; font-size:11px;">Delete</button>
-            </div>
-          </div>`;
+          return '<div style="display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:var(--radius-sm); gap:12px; flex-wrap:wrap;">' +
+            '<div style="flex:1; min-width:200px;"><div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span style="font-size:13px; font-weight:500;">' + escHtml(s.siteUrl) + '</span>' + statusBadge + '</div>' +
+            '<div style="font-size:11px; color:var(--text-tertiary);">' + escHtml(s.description) + ' · ' + s.toolName + ' · ' + s.runCount + ' runs' + error + '</div>' +
+            '<div style="font-size:11px; color:var(--text-tertiary); margin-top:2px;">Next: ' + nextRun + ' · Last: ' + lastRun + '</div></div>' +
+            '<div style="display:flex; gap:6px; flex-shrink:0;">' +
+            '<button onclick="toggleSchedule(\'' + s.id + '\', ' + !s.isActive + ')" class="btn-ghost btn-sm">' + (s.isActive ? 'Pause' : 'Resume') + '</button>' +
+            '<button onclick="runScheduleNow(\'' + s.id + '\')" class="btn-ghost btn-sm" ' + (!s.isActive ? 'disabled' : '') + '>Run Now</button>' +
+            '<button onclick="deleteSchedule(\'' + s.id + '\')" class="btn-danger btn-sm">Delete</button></div></div>';
         }).join('');
-      } catch (err) { console.error('Failed to load schedules:', err); }
+      } catch (err) { console.error('Schedules:', err); }
     }
 
     function showScheduleModal() { document.getElementById('schedule-modal').classList.add('active'); }
@@ -1442,31 +1493,16 @@
       } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
     }
 
-    async function toggleSchedule(id, isActive) {
-      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) });
-      loadSchedules();
-    }
+    async function toggleSchedule(id, isActive) { await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) }); loadSchedules(); }
+    async function runScheduleNow(id) { await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); showToast('🚀 Audit triggered!'); }
+    async function deleteSchedule(id) { if (!confirm('Delete this scheduled audit?')) return; await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); loadSchedules(); }
 
-    async function runScheduleNow(id) {
-      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      const toast = document.getElementById('copy-toast');
-      toast.textContent = '🚀 Audit triggered!'; toast.classList.add('show');
-      setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 2500);
-    }
-
-    async function deleteSchedule(id) {
-      if (!confirm('Delete this scheduled audit?')) return;
-      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      loadSchedules();
-    }
-
-    // ── Webhooks ──
+    // ═══ Webhooks ═══
     async function loadWebhooks() {
       try {
         const res = await fetch(API_BASE + '/dashboard/api/webhook', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
-        document.getElementById('webhooks-section').classList.remove('hidden');
         if (data.webhook.url) document.getElementById('webhook-url').value = data.webhook.url;
         const tbody = document.getElementById('deliveries-body');
         const noD = document.getElementById('no-deliveries');
@@ -1477,10 +1513,10 @@
           tbody.innerHTML = data.deliveries.map(d => {
             const cls = d.success ? 'color:var(--sage);' : 'color:var(--coral);';
             const st = d.success ? (d.statusCode || 'OK') : (d.error || 'Failed');
-            return `<tr><td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">${escHtml(d.event)}</td><td style="font-size:12px; ${cls}">${escHtml(st)}</td><td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">${d.durationMs ? d.durationMs + 'ms' : '—'}</td><td style="font-size:12px; color:var(--text-tertiary);">${new Date(d.createdAt).toLocaleString()}</td></tr>`;
+            return '<tr><td style="font-size:12px; font-family:var(--font-mono); color:var(--text-secondary);">' + escHtml(d.event) + '</td><td style="font-size:12px; ' + cls + '">' + escHtml(st) + '</td><td class="hide-mobile" style="font-size:12px; color:var(--text-tertiary);">' + (d.durationMs ? d.durationMs + 'ms' : '—') + '</td><td style="font-size:12px; color:var(--text-tertiary);">' + new Date(d.createdAt).toLocaleString() + '</td></tr>';
           }).join('');
         }
-      } catch (err) { console.error('Failed to load webhooks:', err); }
+      } catch (err) { console.error('Webhooks:', err); }
     }
 
     async function saveWebhook(e) {
@@ -1489,9 +1525,8 @@
       errEl.classList.add('hidden'); sucEl.classList.add('hidden');
       try {
         const res = await fetch(API_BASE + '/dashboard/api/webhook', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: document.getElementById('webhook-url').value }) });
-        const data = await res.json();
-        if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
-        sucEl.textContent = 'Webhook URL saved ✓'; sucEl.classList.remove('hidden');
+        if (!res.ok) { const data = await res.json(); errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
+        sucEl.textContent = 'Webhook saved ✓'; sucEl.classList.remove('hidden');
         setTimeout(() => sucEl.classList.add('hidden'), 3000);
       } catch { errEl.textContent = 'Request failed'; errEl.classList.remove('hidden'); }
     }
@@ -1499,118 +1534,28 @@
     async function removeWebhook() {
       await fetch(API_BASE + '/dashboard/api/webhook/remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       document.getElementById('webhook-url').value = '';
-      const s = document.getElementById('webhook-success'); s.textContent = 'Webhook removed'; s.classList.remove('hidden');
-      setTimeout(() => s.classList.add('hidden'), 3000);
+      showToast('Webhook removed');
     }
 
     async function testWebhook() {
       const res = await fetch(API_BASE + '/dashboard/api/webhook/test', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      const data = await res.json();
-      if (!res.ok) { document.getElementById('webhook-error').textContent = data.error; document.getElementById('webhook-error').classList.remove('hidden'); return; }
-      const s = document.getElementById('webhook-success'); s.textContent = 'Test webhook sent!'; s.classList.remove('hidden');
-      setTimeout(() => { s.classList.add('hidden'); loadWebhooks(); }, 2000);
+      if (!res.ok) { const d = await res.json(); document.getElementById('webhook-error').textContent = d.error; document.getElementById('webhook-error').classList.remove('hidden'); return; }
+      showToast('Test webhook sent!'); setTimeout(loadWebhooks, 2000);
     }
 
-    // ── Billing ──
-    function renderBilling(billing, currentPlan) {
-      document.getElementById('billing-section').classList.remove('hidden');
-      const el = document.getElementById('billing-status');
-      if (!billing && currentPlan === 'free') {
-        el.innerHTML = `<p style="font-size:14px; color:var(--text-secondary); margin-bottom:16px;">You're on the <span style="font-weight:500; color:var(--text-primary);">Free</span> plan (50 calls/mo).</p>
-          <div class="grid-2">
-            <div style="padding:20px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Pro</span><span style="color:var(--amber); font-weight:700;">$29/mo</span></div>
-              <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">2,000 calls/mo · 5 sites · 5 API keys</p>
-              <button onclick="handleUpgrade('pro')" class="btn-amber" style="width:100%;">Upgrade to Pro</button>
-            </div>
-            <div style="padding:20px; background:var(--bg-raised); border:1px solid rgba(229,164,48,0.2); border-radius:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:8px;"><span style="font-weight:600;">Agency</span><span style="color:var(--amber); font-weight:700;">$79/mo</span></div>
-              <p style="font-size:12px; color:var(--text-tertiary); margin-bottom:12px;">10,000 calls/mo · Unlimited sites · 20 keys</p>
-              <button onclick="handleUpgrade('agency')" class="btn-amber" style="width:100%;">Upgrade to Agency</button>
-            </div>
-          </div>`;
-      } else if (billing) {
-        const isActive = billing.status === 'active' && !billing.cancelAtPeriodEnd;
-        const isCancelling = billing.cancelAtPeriodEnd;
-        const isPastDue = billing.status === 'past_due';
-        const renewDate = billing.renewsAt ? new Date(billing.renewsAt).toLocaleDateString() : 'N/A';
-        let html = '';
-        if (isPastDue) {
-          html += `<div style="padding:16px; background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:12px; margin-bottom:12px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;"><span>⚠️</span><span style="font-weight:600; color:var(--coral);">Payment Failed</span></div>
-            <p style="font-size:13px; color:rgba(248,113,113,0.8);">Please update your payment method to keep access.</p>
-            ${billing.updatePaymentUrl ? '<a href="' + escHtml(billing.updatePaymentUrl) + '" target="_blank" class="btn-danger" style="display:inline-block; margin-top:8px;">Update Payment →</a>' : ''}
-          </div>`;
-        }
-        if (isCancelling) {
-          html += `<div style="padding:16px; background:rgba(229,164,48,0.06); border:1px solid rgba(229,164,48,0.2); border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge" style="background:rgba(229,164,48,0.1); color:var(--amber); border:1px solid rgba(229,164,48,0.2);">Cancelling</span></div><p style="font-size:13px; color:var(--text-tertiary);">Access until ${renewDate}</p></div>
-              <button onclick="handleResume()" class="btn-amber">Resume</button>
-            </div>
-          </div>`;
-        } else if (isActive) {
-          html += `<div style="padding:16px; background:var(--sage-muted); border:1px solid rgba(74,222,128,0.2); border-radius:12px;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <div><div style="display:flex; align-items:center; gap:8px; margin-bottom:2px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge badge-active">Active</span></div><p style="font-size:13px; color:var(--text-tertiary);">Renews ${renewDate}</p></div>
-              <div style="display:flex; gap:8px;">
-                ${billing.portalUrl ? '<a href="' + escHtml(billing.portalUrl) + '" target="_blank" class="btn-ghost" style="font-size:12px;">Manage →</a>' : ''}
-                <button onclick="handleCancel()" style="font-size:12px; color:var(--coral); padding:8px 12px; border:1px solid rgba(248,113,113,0.15); border-radius:8px; cursor:pointer;">Cancel</button>
-              </div>
-            </div>
-          </div>`;
-          if (billing.plan === 'pro') html += `<div style="margin-top:10px; padding:10px 14px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:8px; display:flex; justify-content:space-between; align-items:center;"><span style="font-size:13px; color:var(--text-tertiary);">Need more? Agency: 10K calls, unlimited sites</span><button onclick="handleUpgrade('agency')" style="font-size:12px; color:var(--amber); padding:6px 12px; background:var(--amber-muted); border-radius:6px; cursor:pointer;">Upgrade →</button></div>`;
-        } else {
-          html += `<div style="padding:16px; background:var(--bg-raised); border:1px solid var(--border-subtle); border-radius:12px;">
-            <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;"><span style="font-weight:600; text-transform:capitalize;">${escHtml(billing.plan)} Plan</span><span class="badge badge-revoked">${escHtml(billing.status)}</span></div>
-            <p style="font-size:13px; color:var(--text-tertiary); margin-bottom:12px;">Your subscription has ended.</p>
-            <button onclick="handleUpgrade('${billing.plan}')" class="btn-amber">Resubscribe</button>
-          </div>`;
-        }
-        el.innerHTML = html;
-      }
-    }
-
-    async function handleUpgrade(plan) {
-      try {
-        const res = await fetch(API_BASE + '/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
-        const data = await res.json();
-        if (!res.ok) { alert(data.error || 'Failed to create checkout'); return; }
-        if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) LemonSqueezy.Url.Open(data.url);
-        else window.open(data.url, '_blank');
-      } catch { alert('Failed to start checkout'); }
-    }
-
-    async function handleCancel() {
-      if (!confirm('Cancel? You\'ll keep access until the end of your billing period.')) return;
-      try {
-        const res = await fetch(API_BASE + '/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-        if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
-      } catch { alert('Failed to cancel'); }
-    }
-
-    async function handleResume() {
-      try {
-        const res = await fetch(API_BASE + '/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-        if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
-      } catch { alert('Failed to resume'); }
-    }
-
-    // ── Key Management ──
+    // ═══ Key Management ═══
     function toggleScopes() {
       const opts = document.getElementById('scope-options');
       const txt = document.getElementById('scope-toggle-text');
-      if (opts.classList.contains('hidden')) { opts.classList.remove('hidden'); opts.style.display = 'grid'; txt.textContent = 'Allow all tools'; }
+      if (opts.classList.contains('hidden')) { opts.classList.remove('hidden'); opts.style.display = 'grid'; txt.textContent = 'Allow all'; }
       else { opts.classList.add('hidden'); opts.style.display = ''; document.querySelectorAll('input[name="scope"]').forEach(cb => cb.checked = false); document.getElementById('scope-info').textContent = 'All tools accessible (unrestricted)'; txt.textContent = 'Restrict access'; }
     }
-
     document.addEventListener('change', (e) => {
       if (e.target.name === 'scope') {
         const checked = Array.from(document.querySelectorAll('input[name="scope"]:checked')).map(cb => cb.value);
         document.getElementById('scope-info').textContent = checked.length === 0 ? 'All tools accessible (unrestricted)' : 'Restricted to: ' + checked.join(', ');
       }
     });
-
     function openCreateKey() {
       document.getElementById('create-key-modal').classList.add('active');
       document.getElementById('key-step-1').classList.remove('hidden'); document.getElementById('key-step-1').style.display = '';
@@ -1622,9 +1567,7 @@
       document.querySelectorAll('input[name="scope"]').forEach(cb => cb.checked = false);
       setTimeout(() => document.getElementById('key-name').focus(), 100);
     }
-
     function closeCreateKey() { document.getElementById('create-key-modal').classList.remove('active'); }
-
     async function handleCreateKey(e) {
       e.preventDefault();
       const btn = document.getElementById('key-create-btn'); const errEl = document.getElementById('key-create-error');
@@ -1642,24 +1585,15 @@
       } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
       finally { btn.textContent = 'Create Key'; btn.disabled = false; }
     }
-
-    function openRevokeModal(keyId, keyPrefix) {
-      revokeKeyId = keyId;
-      document.getElementById('revoke-key-prefix').textContent = keyPrefix + '...';
-      document.getElementById('revoke-modal').classList.add('active');
-    }
+    function openRevokeModal(keyId, keyPrefix) { revokeKeyId = keyId; document.getElementById('revoke-key-prefix').textContent = keyPrefix + '...'; document.getElementById('revoke-modal').classList.add('active'); }
     function closeRevokeModal() { document.getElementById('revoke-modal').classList.remove('active'); revokeKeyId = null; }
-
     async function confirmRevoke() {
       if (!revokeKeyId) return;
-      try {
-        const res = await fetch(API_BASE + '/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-        if (!res.ok) { const data = await res.json(); alert(data.error || 'Failed'); return; }
-        closeRevokeModal(); loadDashboard();
-      } catch { alert('Failed to revoke key'); }
+      try { const res = await fetch(API_BASE + '/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) }); if (!res.ok) { const d = await res.json(); alert(d.error); return; } closeRevokeModal(); loadDashboard(); }
+      catch { alert('Failed to revoke key'); }
     }
 
-    // ── Password ──
+    // ═══ Password ═══
     async function handlePasswordChange(e) {
       e.preventDefault();
       const errEl = document.getElementById('password-error'); const sucEl = document.getElementById('password-success');
@@ -1673,21 +1607,14 @@
       } catch (err) { errEl.textContent = err.message; errEl.classList.remove('hidden'); }
     }
 
-    // ── Logout ──
-    async function handleLogout() {
-      await fetch(API_BASE + '/dashboard/logout', { method: 'POST' });
-      if (clerkInstance) { try { await clerkInstance.signOut(); } catch(e) {} }
-      window.location.href = '/login';
-    }
-
-    // ── Onboarding ──
+    // ═══ Onboarding ═══
     function renderOnboarding(d) {
       if (localStorage.getItem('onboarding-dismissed')) return;
       const steps = { account: true, verify: d.user.emailVerified === true, key: true, google: d.google.connected === true, usage: d.usage.used > 0 };
       const completed = Object.values(steps).filter(Boolean).length;
       const total = Object.keys(steps).length;
       if (completed === total) { localStorage.setItem('onboarding-dismissed', '1'); return; }
-      document.getElementById('onb-progress').textContent = completed + '/' + total + ' complete';
+      document.getElementById('onb-progress').textContent = completed + '/' + total;
       for (const [step, done] of Object.entries(steps)) {
         const el = document.getElementById('onb-step-' + step);
         if (!el) continue;
@@ -1701,625 +1628,32 @@
       if (steps.google) { const btn = document.getElementById('onb-google-btn'); if (btn) btn.style.display = 'none'; }
       document.getElementById('onboarding').classList.remove('hidden');
     }
-
     function dismissOnboarding() { localStorage.setItem('onboarding-dismissed', '1'); document.getElementById('onboarding').classList.add('hidden'); }
-    function scrollTo(sel) { const el = document.querySelector(sel); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+
+    // ═══ Auth ═══
+    async function handleLogout() {
+      if (clerkInstance) { await clerkInstance.signOut({ redirectUrl: '/' }); return; }
+      await fetch(API_BASE + '/dashboard/logout', { method: 'POST' }); window.location.href = '/login';
+    }
 
     async function resendVerification() {
       const btn = document.getElementById('resend-btn');
       btn.disabled = true; btn.textContent = 'Sending...';
       try {
         const res = await fetch(API_BASE + '/api/auth/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: dashData.user.email }) });
-        if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000); }
-        else { const data = await res.json(); btn.textContent = data.error || 'Failed'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
-      } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
+        if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend'; btn.disabled = false; }, 5000); }
+        else { btn.textContent = 'Failed'; setTimeout(() => { btn.textContent = 'Resend'; btn.disabled = false; }, 3000); }
+      } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend'; btn.disabled = false; }, 3000); }
     }
 
-    // ── Agents ──
-    async function loadAgents() {
+    // ═══ Helpers ═══
+    async function disconnectGoogle() {
+      if (!confirm('Disconnect Google account?')) return;
       try {
-        const res = await fetch(API_BASE + '/dashboard/api/agents');
-        if (!res.ok) return;
-        const data = await res.json();
-        
-        document.getElementById('agents-section').classList.remove('hidden');
-        const agentsList = document.getElementById('agents-list');
-        const noAgents = document.getElementById('no-agents');
-        
-        // Update account section with agent count
-        const agentCountEl = document.getElementById('account-agents');
-        if (agentCountEl) {
-          agentCountEl.textContent = `${data.agents.length} active`;
-        }
-        
-        if (!data.agents || data.agents.length === 0) {
-          agentsList.innerHTML = '';
-          noAgents.classList.remove('hidden');
-          return;
-        }
-        
-        noAgents.classList.add('hidden');
-        agentsList.innerHTML = data.agents.map(agent => {
-          const statusClass = `status-${agent.status}`;
-          const createdDate = new Date(agent.createdAt).toLocaleDateString();
-          const hasApiKeyIndicator = agent.hasApiKey 
-            ? '<span style="color:var(--sage); font-size:12px;">🔑</span>' 
-            : '<span style="color:var(--text-tertiary); font-size:12px;">🔑</span>';
-          
-          return `<div class="agent-card">
-            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:12px;">
-              <div style="flex:1;">
-                <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
-                  <span style="font-size:15px; font-weight:600;">${escHtml(agent.siteUrl)}</span>
-                  <span class="agent-status-badge ${statusClass}">${agent.status}</span>
-                  ${hasApiKeyIndicator}
-                </div>
-                <div style="font-size:12px; color:var(--text-tertiary);">
-                  Plan: ${escHtml(agent.plan || 'Free')} • Created: ${createdDate}
-                </div>
-              </div>
-              <div style="display:flex; gap:8px; flex-shrink:0;">
-                <button onclick="viewAgentDetails('${agent.id}')" class="btn-ghost" style="font-size:12px; padding:6px 12px;">View Details</button>
-                <button onclick="openDeprovisionModal('${agent.id}', '${escHtml(agent.siteUrl)}')" class="btn-danger" style="font-size:12px; padding:6px 12px;">Deprovision</button>
-              </div>
-            </div>
-          </div>`;
-        }).join('');
-      } catch (err) {
-        console.error('Failed to load agents:', err);
-      }
+        const res = await fetch(API_BASE + '/api/auth/google/disconnect', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        if (res.ok) { showToast('✅ Google disconnected'); loadDashboard(); } else { const d = await res.json(); showToast('❌ ' + (d.error || 'Failed')); }
+      } catch { showToast('❌ Request failed'); }
     }
-
-    async function viewAgentDetails(agentId) {
-      try {
-        const res = await fetch(API_BASE + `/dashboard/api/agents/${agentId}`);
-        if (!res.ok) return;
-        const agent = await res.json();
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal-overlay active';
-        modal.style.display = 'flex';
-        modal.innerHTML = `<div class="modal-card" style="max-width:600px;">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px;">
-            <div>
-              <div style="font-size:17px; font-weight:600;">${escHtml(agent.siteUrl)}</div>
-              <div style="font-size:12px; color:var(--text-tertiary);">Agent Details</div>
-            </div>
-            <button onclick="this.closest('.modal-overlay').remove()" style="color:var(--text-tertiary); font-size:20px;">×</button>
-          </div>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-            <div>
-              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Status</div>
-              <span class="agent-status-badge status-${agent.status}">${agent.status}</span>
-            </div>
-            <div>
-              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Plan</div>
-              <div style="font-size:13px;">${escHtml(agent.plan || 'Free')}</div>
-            </div>
-            <div>
-              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">Created</div>
-              <div style="font-size:13px;">${new Date(agent.createdAt).toLocaleString()}</div>
-            </div>
-            <div>
-              <div style="font-size:11px; color:var(--text-tertiary); text-transform:uppercase; margin-bottom:8px;">API Key</div>
-              <div style="font-size:13px;">${agent.hasApiKey ? '✅ Configured' : '❌ Missing'}</div>
-            </div>
-          </div>
-        </div>`;
-        modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-        document.body.appendChild(modal);
-      } catch (err) {
-        console.error('Failed to load agent details:', err);
-      }
-    }
-
-    function openDeprovisionModal(agentId, siteUrl) {
-      deprovisionAgentId = agentId;
-      document.getElementById('deprovision-agent-url').textContent = siteUrl;
-      document.getElementById('deprovision-modal').classList.add('active');
-    }
-
-    function closeDeprovisionModal() {
-      document.getElementById('deprovision-modal').classList.remove('active');
-      deprovisionAgentId = null;
-    }
-
-    async function confirmDeprovision() {
-      if (!deprovisionAgentId) return;
-      try {
-        const res = await fetch(API_BASE + `/dashboard/api/agents/${deprovisionAgentId}/deprovision`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        if (!res.ok) {
-          const data = await res.json();
-          alert(data.error || 'Failed to deprovision agent');
-          return;
-        }
-        closeDeprovisionModal();
-        loadAgents();
-        showToast('Agent deprovisioned successfully');
-      } catch (err) {
-        alert('Failed to deprovision agent');
-      }
-    }
-
-    // ── Deploy Wizard ──
-    function deployStep(step) {
-      if (step === 2 && !validateSiteUrl()) return;
-      if (step === 3 && !validateTelegramToken()) return;
-      if (step === 4 && !validateAnthropicKey()) return;
-      
-      // Hide all steps
-      for (let i = 1; i <= 4; i++) {
-        const stepEl = document.getElementById(`deploy-step-${i}`);
-        const numberEl = stepEl.querySelector('.step-number');
-        stepEl.classList.remove('active', 'completed');
-        numberEl.classList.remove('active', 'completed');
-        numberEl.classList.add('inactive');
-      }
-      
-      // Show current and mark previous as completed
-      for (let i = 1; i <= step; i++) {
-        const stepEl = document.getElementById(`deploy-step-${i}`);
-        const numberEl = stepEl.querySelector('.step-number');
-        numberEl.classList.remove('inactive');
-        if (i < step) {
-          stepEl.classList.add('completed');
-          numberEl.classList.add('completed');
-        } else {
-          stepEl.classList.add('active');
-          numberEl.classList.add('active');
-        }
-      }
-      
-      currentDeployStep = step;
-      
-      if (step === 4) {
-        updateDeploySummary();
-      }
-    }
-
-    function validateSiteUrl() {
-      const url = document.getElementById('deploy-site-url').value.trim();
-      const errorEl = document.getElementById('site-url-error');
-      
-      if (!url) {
-        errorEl.textContent = 'Please enter a website URL';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-      
-      try {
-        new URL(url.startsWith('http') ? url : 'https://' + url);
-        deployData.siteUrl = url;
-        errorEl.classList.add('hidden');
-        return true;
-      } catch {
-        errorEl.textContent = 'Please enter a valid URL (e.g., https://example.com)';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-    }
-
-    function validateTelegramToken() {
-      const token = document.getElementById('deploy-telegram-token').value.trim();
-      const errorEl = document.getElementById('telegram-token-error');
-      
-      if (!token) {
-        errorEl.textContent = 'Please enter your Telegram bot token';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-      
-      // Basic telegram token format: digits:alphanumeric
-      if (!/^\d+:[A-Za-z0-9_-]+$/.test(token)) {
-        errorEl.textContent = 'Invalid token format. Should be like: 1234567890:ABCDEFGHIJKLMNOP';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-      
-      deployData.telegramToken = token;
-      errorEl.classList.add('hidden');
-      return true;
-    }
-
-    function validateAnthropicKey() {
-      const key = document.getElementById('deploy-anthropic-key').value.trim();
-      const errorEl = document.getElementById('anthropic-key-error');
-      
-      if (!key) {
-        errorEl.textContent = 'Please enter your Anthropic API key';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-      
-      if (!key.startsWith('sk-ant-')) {
-        errorEl.textContent = 'API key should start with sk-ant-';
-        errorEl.classList.remove('hidden');
-        return false;
-      }
-      
-      deployData.anthropicKey = key;
-      errorEl.classList.add('hidden');
-      return true;
-    }
-
-    function updateDeploySummary() {
-      document.getElementById('summary-site-url').textContent = deployData.siteUrl || '-';
-      document.getElementById('summary-telegram').textContent = deployData.telegramToken ? 'Configured' : '-';
-      document.getElementById('summary-plan').textContent = dashData?.user?.plan || 'Free';
-    }
-
-    async function startDeployment() {
-      document.getElementById('deploy-actions').classList.add('hidden');
-      document.getElementById('deploy-progress').classList.remove('hidden');
-      document.getElementById('deploy-success').classList.add('hidden');
-      document.getElementById('deploy-error').classList.add('hidden');
-      
-      try {
-        // Step 1: Provision agent
-        updateDeployStatus('Provisioning agent...');
-        const provisionRes = await fetch(API_BASE + '/dashboard/api/agents/provision', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            site_url: deployData.siteUrl,
-            telegram_token: deployData.telegramToken
-          })
-        });
-        
-        if (!provisionRes.ok) {
-          const error = await provisionRes.json();
-          throw new Error(error.error || 'Provisioning failed');
-        }
-        
-        const provisionData = await provisionRes.json();
-        addDeployLog(`✅ Agent provisioned: ${provisionData.agentId}`);
-        
-        // Step 2: Deploy to Hetzner
-        updateDeployStatus('Deploying to server...');
-        const deployRes = await fetch(API_BASE + '/dashboard/api/agents/deploy', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            agent_id: provisionData.agentId,
-            anthropic_api_key: deployData.anthropicKey,
-            site_url: deployData.siteUrl,
-            telegram_token: deployData.telegramToken
-          })
-        });
-        
-        if (!deployRes.ok) {
-          const error = await deployRes.json();
-          throw new Error(error.error || 'Deployment failed');
-        }
-        
-        const deployResult = await deployRes.json();
-        addDeployLog(`🚀 Deploying to server: ${deployResult.serverId}`);
-        
-        // Step 3: Poll for completion
-        updateDeployStatus('Starting agent...');
-        pollDeploymentStatus(deployResult.serverId);
-        
-      } catch (err) {
-        showDeployError(err.message);
-      }
-    }
-
-    function pollDeploymentStatus(serverId) {
-      let attempts = 0;
-      const maxAttempts = 60; // 5 minutes
-      
-      deploymentPollingInterval = setInterval(async () => {
-        attempts++;
-        
-        try {
-          const res = await fetch(API_BASE + `/dashboard/api/agents/deploy/${serverId}/verify`);
-          if (!res.ok) {
-            if (attempts >= maxAttempts) {
-              clearInterval(deploymentPollingInterval);
-              showDeployError('Deployment timeout - please check manually');
-            }
-            return;
-          }
-          
-          const status = await res.json();
-          
-          if (status.status === 'running') {
-            clearInterval(deploymentPollingInterval);
-            addDeployLog('✅ Agent is running and ready!');
-            showDeploySuccess(deployData.telegramToken);
-          } else if (status.status === 'failed') {
-            clearInterval(deploymentPollingInterval);
-            showDeployError(status.error || 'Deployment failed');
-          } else {
-            // Still starting
-            addDeployLog(`⏳ Status: ${status.status}...`);
-          }
-          
-        } catch (err) {
-          if (attempts >= maxAttempts) {
-            clearInterval(deploymentPollingInterval);
-            showDeployError('Connection error during verification');
-          }
-        }
-      }, 5000);
-    }
-
-    function updateDeployStatus(message) {
-      document.getElementById('deploy-status').textContent = message;
-    }
-
-    function addDeployLog(message) {
-      const logs = document.getElementById('deploy-logs');
-      const timestamp = new Date().toLocaleTimeString();
-      logs.innerHTML += `<div style="color:var(--text-tertiary);">[${timestamp}] ${message}</div>`;
-      logs.scrollTop = logs.scrollHeight;
-    }
-
-    function showDeploySuccess(telegramToken) {
-      document.getElementById('deploy-progress').classList.add('hidden');
-      document.getElementById('deploy-success').classList.remove('hidden');
-      
-      // Extract bot username from token for Telegram link
-      const botId = telegramToken.split(':')[0];
-      document.getElementById('telegram-bot-link').href = `https://t.me/bot${botId}`;
-      
-      // Clear sensitive data from memory after success
-      deployData = {};
-      
-      // Refresh agents list
-      setTimeout(() => {
-        loadAgents();
-        resetDeployWizard();
-      }, 3000);
-    }
-
-    function showDeployError(message) {
-      document.getElementById('deploy-progress').classList.add('hidden');
-      document.getElementById('deploy-error').classList.remove('hidden');
-      document.getElementById('deploy-error-message').textContent = message;
-    }
-
-    function retryDeployment() {
-      document.getElementById('deploy-error').classList.add('hidden');
-      document.getElementById('deploy-actions').classList.remove('hidden');
-    }
-
-    function resetDeployWizard() {
-      currentDeployStep = 1;
-      deployData = {};
-      document.getElementById('deploy-site-url').value = '';
-      document.getElementById('deploy-telegram-token').value = '';
-      document.getElementById('deploy-anthropic-key').value = '';
-      document.getElementById('deploy-logs').innerHTML = '';
-      
-      // Reset to step 1
-      deployStep(1);
-      
-      document.getElementById('deploy-actions').classList.remove('hidden');
-      document.getElementById('deploy-progress').classList.add('hidden');
-      document.getElementById('deploy-success').classList.add('hidden');
-      document.getElementById('deploy-error').classList.add('hidden');
-    }
-
-    // ── Google Credentials ──
-    async function loadGoogleCredentials() {
-      try {
-        const res = await fetch(API_BASE + '/dashboard/api/google/credentials');
-        if (!res.ok) return;
-        
-        const data = await res.json();
-        document.getElementById('google-creds-section').classList.remove('hidden');
-        
-        const emptyEl = document.getElementById('google-creds-empty');
-        const itemsEl = document.getElementById('google-creds-items');
-        
-        if (!data.credentials || data.credentials.length === 0) {
-          emptyEl.classList.remove('hidden');
-          itemsEl.innerHTML = '';
-          return;
-        }
-        
-        emptyEl.classList.add('hidden');
-        itemsEl.innerHTML = data.credentials.map(cred => {
-          const statusBadge = cred.status === 'active' 
-            ? '<span class="badge badge-active">Active</span>'
-            : '<span class="badge badge-error">Invalid</span>';
-          
-          const properties = cred.discoveredProperties 
-            ? cred.discoveredProperties.map(p => `<span style="font-size:11px; padding:2px 6px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:4px;">${escHtml(p)}</span>`).join(' ')
-            : '';
-          
-          return `<div style="display:flex; align-items:center; justify-content:between; padding:16px; background:var(--bg-deep); border:1px solid var(--border-subtle); border-radius:10px; margin-bottom:12px;">
-            <div style="flex:1;">
-              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
-                <span style="font-size:13px; font-weight:500;">${escHtml(cred.email || 'Unknown')}</span>
-                ${statusBadge}
-              </div>
-              <div style="font-size:12px; color:var(--text-tertiary); margin-bottom:6px;">
-                Uploaded: ${new Date(cred.createdAt).toLocaleDateString()}
-              </div>
-              <div style="display:flex; gap:4px; flex-wrap:wrap;">${properties}</div>
-            </div>
-            <div style="display:flex; gap:8px; flex-shrink:0;">
-              <button onclick="testGoogleCredential('${cred.id}')" class="btn-ghost" style="font-size:12px; padding:6px 12px;">Test</button>
-              <button onclick="removeGoogleCredential('${cred.id}')" class="btn-danger" style="font-size:12px; padding:6px 12px;">Remove</button>
-            </div>
-          </div>`;
-        }).join('');
-      } catch (err) {
-        console.error('Failed to load Google credentials:', err);
-      }
-    }
-
-    function handleGoogleFileSelect(event) {
-      const file = event.target.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const json = JSON.parse(e.target.result);
-          document.getElementById('google-json-text').value = JSON.stringify(json, null, 2);
-        } catch (err) {
-          alert('Invalid JSON file');
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    async function uploadGoogleCredentials() {
-      const jsonText = document.getElementById('google-json-text').value.trim();
-      if (!jsonText) {
-        alert('Please provide the JSON credentials');
-        return;
-      }
-      
-      try {
-        JSON.parse(jsonText); // Validate JSON
-      } catch {
-        alert('Invalid JSON format');
-        return;
-      }
-      
-      try {
-        const res = await fetch(API_BASE + '/dashboard/api/google/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ credentials: jsonText })
-        });
-        
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || 'Upload failed');
-          return;
-        }
-        
-        document.getElementById('google-json-text').value = '';
-        document.getElementById('google-file-input').value = '';
-        loadGoogleCredentials();
-        showToast('Google credentials uploaded successfully');
-        
-      } catch (err) {
-        alert('Upload failed');
-      }
-    }
-
-    async function testGoogleCredential(credId) {
-      try {
-        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}/validate`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' }
-        });
-        
-        const data = await res.json();
-        if (!res.ok) {
-          alert(data.error || 'Validation failed');
-          return;
-        }
-        
-        showToast('Google credentials are valid ✅');
-        loadGoogleCredentials();
-        
-      } catch (err) {
-        alert('Validation failed');
-      }
-    }
-
-    async function removeGoogleCredential(credId) {
-      if (!confirm('Remove this Google credential? This cannot be undone.')) return;
-      
-      try {
-        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}`, {
-          method: 'DELETE'
-        });
-        
-        if (!res.ok) {
-          const data = await res.json();
-          alert(data.error || 'Remove failed');
-          return;
-        }
-        
-        loadGoogleCredentials();
-        showToast('Google credential removed');
-        
-      } catch (err) {
-        alert('Remove failed');
-      }
-    }
-
-    // ── Navigation ──
-    function scrollToSection(sectionId) {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        // Show deploy section if hidden
-        if (sectionId === 'deploy-section') {
-          element.classList.remove('hidden');
-        }
-      }
-    }
-
-    function showToast(message) {
-      const toast = document.getElementById('copy-toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-        toast.textContent = '✓ Copied';
-      }, 2500);
-    }
-
-    // Show deploy section by default
-    document.getElementById('deploy-section').classList.remove('hidden');
-
-    // ── Drag and Drop for Google Credentials ──
-    const uploadArea = document.querySelector('.upload-area');
-    if (uploadArea) {
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, preventDefaults, false);
-      });
-
-      ['dragenter', 'dragover'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragover'), false);
-      });
-
-      ['dragleave', 'drop'].forEach(eventName => {
-        uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragover'), false);
-      });
-
-      uploadArea.addEventListener('drop', handleGoogleFileDrop, false);
-    }
-
-    function preventDefaults(e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-
-    function handleGoogleFileDrop(e) {
-      const files = e.dataTransfer.files;
-      if (files.length > 0) {
-        const file = files[0];
-        if (file.type === 'application/json' || file.name.endsWith('.json')) {
-          const reader = new FileReader();
-          reader.onload = function(event) {
-            try {
-              const json = JSON.parse(event.target.result);
-              document.getElementById('google-json-text').value = JSON.stringify(json, null, 2);
-            } catch (err) {
-              alert('Invalid JSON file');
-            }
-          };
-          reader.readAsText(file);
-        } else {
-          alert('Please drop a JSON file');
-        }
-      }
-    }
-
-    // ── Helpers ──
     function escHtml(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
     function timeAgo(date) {
       const s = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -2328,14 +1662,10 @@
       const h = Math.floor(m / 60); if (h < 24) return h + 'h ago';
       return Math.floor(h / 24) + 'd ago';
     }
-    function copyText(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        const t = document.getElementById('copy-toast'); t.classList.add('show');
-        setTimeout(() => t.classList.remove('show'), 2000);
-      });
-    }
+    function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('✓ Copied')); }
+    function showToast(msg) { const t = document.getElementById('copy-toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 2500); }
 
-    // ── Modal handlers ──
+    // ═══ Modal handlers ═══
     document.querySelectorAll('.modal-overlay').forEach(modal => {
       modal.addEventListener('click', (e) => { if (e.target === e.currentTarget) modal.classList.remove('active'); });
     });
@@ -2343,17 +1673,257 @@
       if (e.key === 'Escape') document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
     });
 
-    // ── Init ──
+    // ═══ Agents ═══
+    let deprovisionAgentId = null;
+    let currentDeployStep = 1;
+    let deployData = {};
+    let deploymentPollingInterval = null;
+
+    async function loadAgents() {
+      try {
+        const res = await fetch(API_BASE + '/dashboard/api/agents');
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = document.getElementById('agents-list');
+        const noAgents = document.getElementById('no-agents');
+        if (!data.agents || data.agents.length === 0) {
+          list.innerHTML = '';
+          noAgents.style.display = '';
+          return;
+        }
+        noAgents.style.display = 'none';
+        list.innerHTML = data.agents.map(a => `
+          <div class="agent-card">
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+              <div>
+                <div style="font-weight:600; font-size:15px; margin-bottom:4px;">${a.site_url || 'SEO Agent'}</div>
+                <div style="font-size:12px; color:var(--text-tertiary);">Server: ${a.server_name || '-'} • IP: ${a.server_ip || '-'}</div>
+              </div>
+              <span class="agent-status-badge ${a.status === 'active' ? 'active' : a.status === 'provisioning' ? 'provisioning' : 'error'}">
+                <span class="status-dot" style="background:currentColor;"></span>
+                ${a.status}
+              </span>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button onclick="showAgentDetail('${a.id}')" class="btn-ghost" style="padding:6px 12px; font-size:12px;">Details</button>
+              <button onclick="deprovisionAgentId='${a.id}'; document.getElementById('deprovision-modal').classList.add('active');" class="btn-ghost" style="padding:6px 12px; font-size:12px; color:var(--coral);">Deprovision</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { console.error('loadAgents error:', e); }
+    }
+
+    async function showAgentDetail(agentId) {
+      try {
+        const res = await fetch(API_BASE + `/dashboard/api/agents/${agentId}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        alert(JSON.stringify(data, null, 2)); // TODO: proper modal
+      } catch (e) { console.error(e); }
+    }
+
+    async function confirmDeprovision() {
+      if (!deprovisionAgentId) return;
+      try {
+        const res = await fetch(API_BASE + `/dashboard/api/agents/${deprovisionAgentId}/deprovision`, { method: 'POST' });
+        if (res.ok) { showToast('Agent deprovisioned'); loadAgents(); }
+        else { const d = await res.json(); alert(d.error || 'Failed'); }
+      } catch (e) { alert('Failed: ' + e.message); }
+      deprovisionAgentId = null;
+      document.getElementById('deprovision-modal').classList.remove('active');
+    }
+
+    // ═══ Deploy Wizard ═══
+    function nextDeployStep(step) {
+      if (step === 2) {
+        const url = document.getElementById('deploy-site-url').value.trim();
+        if (!url) { alert('Please enter a site URL'); return; }
+        deployData.siteUrl = url;
+      }
+      if (step === 3) {
+        const token = document.getElementById('deploy-tg-token').value.trim();
+        if (!token) { alert('Please enter the Telegram bot token'); return; }
+        deployData.tgToken = token;
+      }
+      if (step === 4) {
+        const key = document.getElementById('deploy-anthropic-key').value.trim();
+        if (!key) { alert('Please enter your Anthropic API key'); return; }
+        deployData.anthropicKey = key;
+        // Update summary
+        document.getElementById('deploy-summary-url').textContent = deployData.siteUrl;
+        document.getElementById('deploy-summary-bot').textContent = deployData.tgToken ? '✓ Token provided' : '-';
+        document.getElementById('deploy-summary-plan').textContent = dashData?.user?.plan || 'Free';
+      }
+      currentDeployStep = step;
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('deploy-step-' + i);
+        if (i < step) { el.style.opacity = '0.5'; el.querySelectorAll('input').forEach(inp => inp.disabled = true); }
+        else if (i === step) {
+          el.style.opacity = '1'; el.style.borderColor = 'var(--amber-muted)';
+          el.querySelectorAll('input').forEach(inp => inp.disabled = false);
+          el.querySelector('span:first-child').style.background = 'var(--amber)';
+          el.querySelector('span:first-child').style.color = 'var(--bg-deep)';
+        }
+        else { el.style.opacity = '0.5'; el.querySelectorAll('input').forEach(inp => inp.disabled = true); }
+      }
+    }
+
+    function prevDeployStep(step) { nextDeployStep(step); }
+
+    async function startDeployment() {
+      const btn = document.getElementById('deploy-btn');
+      btn.disabled = true; btn.textContent = 'Deploying...';
+      document.getElementById('deploy-progress').classList.remove('hidden');
+      document.getElementById('deploy-status-text').textContent = 'Creating server...';
+      document.getElementById('deploy-progress-bar').style.width = '10%';
+
+      try {
+        const provisionRes = await fetch(API_BASE + '/dashboard/api/agents/provision', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ site_url: deployData.siteUrl })
+        });
+        if (!provisionRes.ok) { const d = await provisionRes.json(); throw new Error(d.error || 'Provision failed'); }
+        const provision = await provisionRes.json();
+        document.getElementById('deploy-progress-bar').style.width = '30%';
+        document.getElementById('deploy-status-text').textContent = 'Deploying to cloud...';
+
+        const deployRes = await fetch(API_BASE + '/dashboard/api/agents/deploy', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent_id: provision.agentId,
+            telegram_token: deployData.tgToken,
+            anthropic_key: deployData.anthropicKey,
+            bot_name: 'SEO Agent',
+            site_url: deployData.siteUrl
+          })
+        });
+        if (!deployRes.ok) { const d = await deployRes.json(); throw new Error(d.error || 'Deploy failed'); }
+        const deploy = await deployRes.json();
+        document.getElementById('deploy-progress-bar').style.width = '50%';
+        document.getElementById('deploy-status-text').textContent = 'Waiting for server to come online...';
+
+        // Poll for completion
+        let attempts = 0;
+        const serverId = deploy.server_id;
+        deploymentPollingInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const res = await fetch(API_BASE + `/dashboard/api/agents/deploy/${serverId}/verify`);
+            const data = await res.json();
+            const pct = Math.min(50 + attempts * 5, 95);
+            document.getElementById('deploy-progress-bar').style.width = pct + '%';
+            if (data.ready || data.server_status === 'running') {
+              clearInterval(deploymentPollingInterval);
+              document.getElementById('deploy-progress-bar').style.width = '100%';
+              document.getElementById('deploy-progress').classList.add('hidden');
+              document.getElementById('deploy-success').classList.remove('hidden');
+              if (deploy.bot_username) {
+                document.getElementById('telegram-bot-link').href = 'https://t.me/' + deploy.bot_username;
+              }
+              btn.textContent = 'Deployed ✓'; btn.disabled = true;
+              loadAgents();
+            }
+            if (data.deploy_state === 'deploy_timeout' || data.deploy_state === 'deploy_failed') {
+              clearInterval(deploymentPollingInterval);
+              throw new Error('Deployment ' + data.deploy_state);
+            }
+          } catch (e) {
+            if (attempts > 30) { clearInterval(deploymentPollingInterval); alert('Deploy verification timed out. Check agents list.'); loadAgents(); }
+          }
+        }, 5000);
+      } catch (e) {
+        alert('Deploy failed: ' + e.message);
+        btn.disabled = false; btn.textContent = 'Deploy Agent';
+        document.getElementById('deploy-progress').classList.add('hidden');
+      }
+    }
+
+    // ═══ Google Credentials ═══
+    async function loadGoogleCredentials() {
+      try {
+        const res = await fetch(API_BASE + '/dashboard/api/google/credentials');
+        if (!res.ok) return;
+        const data = await res.json();
+        const list = document.getElementById('google-creds-list');
+        const noCreds = document.getElementById('no-google-creds');
+        if (!data.credentials || data.credentials.length === 0) {
+          list.innerHTML = '';
+          noCreds.style.display = '';
+          return;
+        }
+        noCreds.style.display = 'none';
+        list.innerHTML = data.credentials.map(c => `
+          <div class="card" style="margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <div style="font-weight:500;">${c.email || 'Service Account'}</div>
+                <div style="font-size:12px; color:var(--text-tertiary);">${c.credential_type || 'service_account'} • Added ${new Date(c.created_at).toLocaleDateString()}</div>
+                ${c.discovered_properties ? '<div style="font-size:11px; color:var(--sage); margin-top:4px;">Properties: ' + c.discovered_properties.join(', ') + '</div>' : ''}
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button onclick="validateGoogleCred('${c.id}')" class="btn-ghost" style="padding:4px 10px; font-size:11px;">Validate</button>
+                <button onclick="deleteGoogleCred('${c.id}')" class="btn-ghost" style="padding:4px 10px; font-size:11px; color:var(--coral);">Delete</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) { console.error('loadGoogleCredentials error:', e); }
+    }
+
+    function handleGoogleCredFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => { document.getElementById('google-creds-json').value = e.target.result; };
+      reader.readAsText(file);
+    }
+
+    async function uploadGoogleCredentials() {
+      const json = document.getElementById('google-creds-json').value.trim();
+      if (!json) { alert('Please paste or upload a JSON file'); return; }
+      try {
+        JSON.parse(json);
+      } catch { alert('Invalid JSON'); return; }
+      try {
+        const res = await fetch(API_BASE + '/dashboard/api/google/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ credential_json: json })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast('✅ Credentials uploaded' + (data.discoveredProperties ? ' — ' + data.discoveredProperties.length + ' properties found' : ''));
+          document.getElementById('google-creds-json').value = '';
+          loadGoogleCredentials();
+        } else { alert(data.error || 'Upload failed'); }
+      } catch (e) { alert('Upload failed: ' + e.message); }
+    }
+
+    async function validateGoogleCred(credId) {
+      try {
+        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}/validate`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) { showToast('✅ Credential is valid'); loadGoogleCredentials(); }
+        else { alert(data.error || 'Validation failed'); }
+      } catch (e) { alert('Validation failed'); }
+    }
+
+    async function deleteGoogleCred(credId) {
+      if (!confirm('Delete this credential?')) return;
+      try {
+        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}`, { method: 'DELETE' });
+        if (res.ok) { showToast('Credential deleted'); loadGoogleCredentials(); }
+        else { const d = await res.json(); alert(d.error || 'Delete failed'); }
+      } catch (e) { alert('Delete failed'); }
+    }
+
+    // ═══ Init ═══
     if (new URLSearchParams(window.location.search).get('upgraded') === 'true') {
       history.replaceState(null, '', '/dashboard');
-      setTimeout(() => {
-        const t = document.getElementById('copy-toast');
-        t.textContent = '🎉 Plan upgraded!'; t.classList.add('show');
-        setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 3000);
-      }, 1000);
+      setTimeout(() => showToast('🎉 Plan upgraded!'), 1000);
     }
-    // Dashboard loads via onClerkReady() after Clerk initializes
-    // Fallback: loads via error handler if Clerk fails
   </script>
 </body>
 </html>

@@ -212,6 +212,8 @@ export const userAgentMappings = sqliteTable("user_agent_mappings", {
   plan: text("plan").notNull().default("starter"),
   status: text("status").notNull().default("provisioning"),  // provisioning/active/suspended/cancelled
   hetznerServerId: integer("hetzner_server_id"),
+  agentApiKeyId: text("agent_api_key_id"),       // references api_keys.id — for revocation
+  agentApiKeyEnc: text("agent_api_key_enc"),     // AES-256-GCM encrypted raw key — for deploy injection
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });

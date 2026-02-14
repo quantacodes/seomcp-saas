@@ -212,6 +212,9 @@ const alterMigrations = [
   `ALTER TABLE users ADD COLUMN reset_sent_at INTEGER`,
   // Clerk integration
   `ALTER TABLE users ADD COLUMN clerk_user_id TEXT`,
+  // Agent API key tracking
+  `ALTER TABLE user_agent_mappings ADD COLUMN agent_api_key_id TEXT`,
+  `ALTER TABLE user_agent_mappings ADD COLUMN agent_api_key_enc TEXT`,
 ];
 
 export function runMigrations() {

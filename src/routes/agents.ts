@@ -3,6 +3,8 @@ import { eq, and } from "drizzle-orm";
 import { db, schema } from "../db/index";
 import { config } from "../config";
 import { ulid } from "../utils/ulid";
+import { generateApiKey } from "../auth/keys";
+import { encryptToken, decryptToken } from "../crypto/tokens";
 import { getClerkSession, type ClerkSessionData } from "../auth/clerk";
 import { getCookie } from "hono/cookie";
 import { validateSession, SESSION_COOKIE_NAME, type SessionData } from "../auth/session";
@@ -132,6 +134,7 @@ agentRoutes.get("/dashboard/api/agents", async (c) => {
         plan: mapping.plan,
         status: mapping.status,
         hetznerServerId: mapping.hetznerServerId,
+        hasApiKey: !!mapping.agentApiKeyId,
         createdAt: mapping.createdAt.toISOString(),
         updatedAt: mapping.updatedAt.toISOString(),
         agentDetails: agentDetails || null,
@@ -145,6 +148,7 @@ agentRoutes.get("/dashboard/api/agents", async (c) => {
         plan: mapping.plan,
         status: mapping.status,
         hetznerServerId: mapping.hetznerServerId,
+        hasApiKey: !!mapping.agentApiKeyId,
         createdAt: mapping.createdAt.toISOString(),
         updatedAt: mapping.updatedAt.toISOString(),
         agentDetails: null,
@@ -230,7 +234,27 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
 
     const provisionData = await provisionRes.json();
 
-    // Create local mapping record
+    // Auto-create a dedicated API key for this agent
+    const { raw: agentKeyRaw, hash: agentKeyHash, prefix: agentKeyPrefix } = generateApiKey();
+    const agentKeyId = ulid();
+
+    db.insert(schema.apiKeys)
+      .values({
+        id: agentKeyId,
+        userId: session.userId,
+        keyHash: agentKeyHash,
+        keyPrefix: agentKeyPrefix,
+        name: `Agent — ${body.site_url}`,
+        isActive: true,
+        scopes: null, // Full access — agent needs all tools
+        createdAt: new Date(),
+      })
+      .run();
+
+    // Encrypt the raw key for storage (needed during deploy injection)
+    const agentKeyEnc = encryptToken(agentKeyRaw);
+
+    // Create local mapping record with API key reference
     const mappingId = ulid();
     db.insert(schema.userAgentMappings)
       .values({
@@ -240,6 +264,8 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
         siteUrl: body.site_url,
         plan: body.plan || "starter",
         status: "provisioning",
+        agentApiKeyId: agentKeyId,
+        agentApiKeyEnc: agentKeyEnc,
         createdAt: new Date(),
         updatedAt: new Date(),
       })
@@ -248,6 +274,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     return c.json({
       id: mappingId,
       agentCustomerId: provisionData.customer_id,
+      agentApiKeyPrefix: agentKeyPrefix,
       ...provisionData,
     }, 201);
   } catch (error) {
@@ -291,10 +318,19 @@ agentRoutes.post("/dashboard/api/agents/:id/deprovision", async (c) => {
       return c.json({ error: sanitizeUpstreamError(errorData, "Deprovisioning failed") }, deprovisionRes.status as any);
     }
 
+    // Revoke the agent's API key
+    if (mapping.agentApiKeyId) {
+      db.update(schema.apiKeys)
+        .set({ isActive: false })
+        .where(eq(schema.apiKeys.id, mapping.agentApiKeyId))
+        .run();
+    }
+
     // Update local mapping status
     db.update(schema.userAgentMappings)
       .set({ 
         status: "cancelled",
+        agentApiKeyEnc: null, // Clear encrypted key
         updatedAt: new Date(),
       })
       .where(eq(schema.userAgentMappings.id, agentId))
@@ -421,10 +457,31 @@ agentRoutes.post("/dashboard/api/agents/deploy", async (c) => {
   }
 
   try {
+    // Look up agent's seomcp API key for injection
+    let seomcpApiKey: string | undefined;
+    if (body.site_url) {
+      const mapping = db
+        .select({ agentApiKeyEnc: schema.userAgentMappings.agentApiKeyEnc })
+        .from(schema.userAgentMappings)
+        .where(
+          and(
+            eq(schema.userAgentMappings.userId, session.userId),
+            eq(schema.userAgentMappings.siteUrl, body.site_url)
+          )
+        )
+        .limit(1)
+        .all()[0];
+
+      if (mapping?.agentApiKeyEnc) {
+        seomcpApiKey = decryptToken(mapping.agentApiKeyEnc);
+      }
+    }
+
     // Call Agent SaaS deploy endpoint
     const deployRes = await agentApi("POST", "/api/deploy", {
       ...body,
       platform: config.agentSaas.platform,
+      ...(seomcpApiKey ? { seomcp_api_key: seomcpApiKey } : {}),
     });
 
     if (!deployRes.ok) {

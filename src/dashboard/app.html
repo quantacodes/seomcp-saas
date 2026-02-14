@@ -1024,7 +1024,12 @@
   <!-- Lemon Squeezy checkout overlay -->
   <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
 
+  <script src="https://app.lemonsqueezy.com/js/lemon.js" defer></script>
   <script>
+    // ── Config ──
+    const API_BASE = 'https://api.seomcp.dev';
+    let clerkInstance = null;
+
     // ── State ──
     let dashData = null;
     let revokeKeyId = null;
@@ -1033,11 +1038,60 @@
     let deployData = {};
     let deploymentPollingInterval = null;
 
+    // ── Clerk Auth ──
+    const _origFetch = window.fetch;
+    window.fetch = async function(url, opts) {
+      opts = opts || {};
+      if (typeof url === 'string' && url.startsWith(API_BASE)) {
+        opts.credentials = 'include';
+        if (clerkInstance && clerkInstance.session) {
+          try {
+            var token = await clerkInstance.session.getToken();
+            if (token) { opts.headers = opts.headers || {}; opts.headers['Authorization'] = 'Bearer ' + token; }
+          } catch (e) {}
+        }
+      }
+      var response = await _origFetch.call(this, url, opts);
+      if (typeof url === 'string' && url.startsWith(API_BASE) && response.status === 401) {
+        window.location.href = '/login';
+      }
+      return response;
+    };
+
+    (function() {
+      var pk = 'pk_live_Y2xlcmsuc2VvbWNwLmRldiQ';
+      var s = document.createElement('script');
+      s.setAttribute('data-clerk-publishable-key', pk);
+      s.src = 'https://clerk.seomcp.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+      s.addEventListener('load', function() {
+        var attempts = 0;
+        var interval = setInterval(function() {
+          attempts++;
+          var c = window.Clerk;
+          if (c && c.loaded !== undefined) { clearInterval(interval); onClerkReady(c); }
+          else if (attempts > 100) { clearInterval(interval); loadDashboard(); }
+        }, 100);
+      });
+      s.addEventListener('error', function() { loadDashboard(); });
+      document.head.appendChild(s);
+    })();
+
+    async function onClerkReady(clerk) {
+      try {
+        if (!clerk.loaded) await clerk.load();
+        clerkInstance = clerk;
+        if (!clerk.user) { window.location.href = '/login'; return; }
+        var emailEl = document.getElementById('user-email');
+        if (emailEl) emailEl.textContent = clerk.user.primaryEmailAddress?.emailAddress || '';
+      } catch (e) { console.warn('Clerk auth failed:', e); }
+      loadDashboard();
+    }
+
     // ── Load Dashboard ──
     async function loadDashboard() {
       try {
-        const res = await fetch('/dashboard/api/overview');
-        if (res.status === 401) { window.location.href = '/dashboard/login'; return; }
+        const res = await fetch(API_BASE + '/dashboard/api/overview');
+        if (res.status === 401) { window.location.href = '/login'; return; }
         dashData = await res.json();
         render();
       } catch (err) { console.error('Failed to load dashboard:', err); }
@@ -1145,7 +1199,7 @@
     async function loadAudits() {
       document.getElementById('audit-section').classList.remove('hidden');
       try {
-        const sitesRes = await fetch('/dashboard/api/audits/sites');
+        const sitesRes = await fetch(API_BASE + '/dashboard/api/audits/sites');
         if (sitesRes.ok) {
           const sitesData = await sitesRes.json();
           const sel = document.getElementById('audit-site-filter');
@@ -1159,7 +1213,7 @@
           });
         }
         const siteFilter = document.getElementById('audit-site-filter').value;
-        const url = siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20';
+        const url = API_BASE + (siteFilter ? '/dashboard/api/audits?site_url=' + encodeURIComponent(siteFilter) + '&limit=20' : '/dashboard/api/audits?limit=20');
         const res = await fetch(url);
         if (!res.ok) return;
         const data = await res.json();
@@ -1193,7 +1247,7 @@
 
     async function loadHealthTrend(siteUrl) {
       try {
-        const res = await fetch('/dashboard/api/audits/trend?site_url=' + encodeURIComponent(siteUrl) + '&days=30');
+        const res = await fetch(API_BASE + '/dashboard/api/audits/trend?site_url=' + encodeURIComponent(siteUrl) + '&days=30');
         if (!res.ok) return;
         const data = await res.json();
         const c = document.getElementById('trend-chart');
@@ -1213,7 +1267,7 @@
 
     async function viewAudit(auditId) {
       try {
-        const res = await fetch('/dashboard/api/audits/' + auditId);
+        const res = await fetch(API_BASE + '/dashboard/api/audits/' + auditId);
         if (!res.ok) return;
         const data = await res.json();
         const resultText = typeof data.fullResult === 'object' && data.fullResult.content?.[0]?.text
@@ -1317,7 +1371,7 @@
     // ── Scheduled Audits ──
     async function loadSchedules() {
       try {
-        const res = await fetch('/dashboard/api/schedules', { credentials: 'include' });
+        const res = await fetch(API_BASE + '/dashboard/api/schedules', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('schedules-section').classList.remove('hidden');
@@ -1381,7 +1435,7 @@
       const body = { siteUrl: document.getElementById('sched-site').value, toolName: document.getElementById('sched-tool').value, schedule: freq, hour: parseInt(document.getElementById('sched-hour').value) };
       if (freq !== 'daily') body.day = parseInt(document.getElementById('sched-day').value);
       try {
-        const res = await fetch('/dashboard/api/schedules', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+        const res = await fetch(API_BASE + '/dashboard/api/schedules', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
         closeScheduleModal(); document.getElementById('schedule-form').reset(); loadSchedules();
@@ -1389,12 +1443,12 @@
     }
 
     async function toggleSchedule(id, isActive) {
-      await fetch('/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/update', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ isActive }) });
       loadSchedules();
     }
 
     async function runScheduleNow(id) {
-      await fetch('/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/run', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const toast = document.getElementById('copy-toast');
       toast.textContent = '🚀 Audit triggered!'; toast.classList.add('show');
       setTimeout(() => { toast.classList.remove('show'); toast.textContent = '✓ Copied'; }, 2500);
@@ -1402,14 +1456,14 @@
 
     async function deleteSchedule(id) {
       if (!confirm('Delete this scheduled audit?')) return;
-      await fetch('/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      await fetch(API_BASE + '/dashboard/api/schedules/' + id + '/delete', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       loadSchedules();
     }
 
     // ── Webhooks ──
     async function loadWebhooks() {
       try {
-        const res = await fetch('/dashboard/api/webhook', { credentials: 'include' });
+        const res = await fetch(API_BASE + '/dashboard/api/webhook', { credentials: 'include' });
         if (!res.ok) return;
         const data = await res.json();
         document.getElementById('webhooks-section').classList.remove('hidden');
@@ -1434,7 +1488,7 @@
       const errEl = document.getElementById('webhook-error'); const sucEl = document.getElementById('webhook-success');
       errEl.classList.add('hidden'); sucEl.classList.add('hidden');
       try {
-        const res = await fetch('/dashboard/api/webhook', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: document.getElementById('webhook-url').value }) });
+        const res = await fetch(API_BASE + '/dashboard/api/webhook', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ url: document.getElementById('webhook-url').value }) });
         const data = await res.json();
         if (!res.ok) { errEl.textContent = data.error; errEl.classList.remove('hidden'); return; }
         sucEl.textContent = 'Webhook URL saved ✓'; sucEl.classList.remove('hidden');
@@ -1443,14 +1497,14 @@
     }
 
     async function removeWebhook() {
-      await fetch('/dashboard/api/webhook/remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      await fetch(API_BASE + '/dashboard/api/webhook/remove', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       document.getElementById('webhook-url').value = '';
       const s = document.getElementById('webhook-success'); s.textContent = 'Webhook removed'; s.classList.remove('hidden');
       setTimeout(() => s.classList.add('hidden'), 3000);
     }
 
     async function testWebhook() {
-      const res = await fetch('/dashboard/api/webhook/test', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+      const res = await fetch(API_BASE + '/dashboard/api/webhook/test', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       const data = await res.json();
       if (!res.ok) { document.getElementById('webhook-error').textContent = data.error; document.getElementById('webhook-error').classList.remove('hidden'); return; }
       const s = document.getElementById('webhook-success'); s.textContent = 'Test webhook sent!'; s.classList.remove('hidden');
@@ -1519,7 +1573,7 @@
 
     async function handleUpgrade(plan) {
       try {
-        const res = await fetch('/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
+        const res = await fetch(API_BASE + '/api/billing/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ plan }) });
         const data = await res.json();
         if (!res.ok) { alert(data.error || 'Failed to create checkout'); return; }
         if (typeof LemonSqueezy !== 'undefined' && LemonSqueezy.Url) LemonSqueezy.Url.Open(data.url);
@@ -1530,14 +1584,14 @@
     async function handleCancel() {
       if (!confirm('Cancel? You\'ll keep access until the end of your billing period.')) return;
       try {
-        const res = await fetch('/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        const res = await fetch(API_BASE + '/api/billing/cancel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
       } catch { alert('Failed to cancel'); }
     }
 
     async function handleResume() {
       try {
-        const res = await fetch('/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        const res = await fetch(API_BASE + '/api/billing/resume', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (res.ok) loadDashboard(); else { const data = await res.json(); alert(data.error || 'Failed'); }
       } catch { alert('Failed to resume'); }
     }
@@ -1579,7 +1633,7 @@
       const scopes = checkedScopes.length > 0 ? checkedScopes : undefined;
       btn.textContent = 'Creating...'; btn.disabled = true; errEl.classList.add('hidden');
       try {
-        const res = await fetch('/dashboard/api/keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, scopes }) });
+        const res = await fetch(API_BASE + '/dashboard/api/keys', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, scopes }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         document.getElementById('new-key-display').value = data.key;
@@ -1599,7 +1653,7 @@
     async function confirmRevoke() {
       if (!revokeKeyId) return;
       try {
-        const res = await fetch('/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+        const res = await fetch(API_BASE + '/dashboard/api/keys/' + revokeKeyId + '/revoke', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
         if (!res.ok) { const data = await res.json(); alert(data.error || 'Failed'); return; }
         closeRevokeModal(); loadDashboard();
       } catch { alert('Failed to revoke key'); }
@@ -1611,7 +1665,7 @@
       const errEl = document.getElementById('password-error'); const sucEl = document.getElementById('password-success');
       errEl.classList.add('hidden'); sucEl.classList.add('hidden');
       try {
-        const res = await fetch('/dashboard/api/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: document.getElementById('current-password').value, newPassword: document.getElementById('new-password').value }) });
+        const res = await fetch(API_BASE + '/dashboard/api/password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ currentPassword: document.getElementById('current-password').value, newPassword: document.getElementById('new-password').value }) });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Failed');
         sucEl.textContent = '✓ Password updated'; sucEl.classList.remove('hidden');
@@ -1620,7 +1674,11 @@
     }
 
     // ── Logout ──
-    async function handleLogout() { await fetch('/dashboard/logout', { method: 'POST' }); window.location.href = '/dashboard/login'; }
+    async function handleLogout() {
+      await fetch(API_BASE + '/dashboard/logout', { method: 'POST' });
+      if (clerkInstance) { try { await clerkInstance.signOut(); } catch(e) {} }
+      window.location.href = '/login';
+    }
 
     // ── Onboarding ──
     function renderOnboarding(d) {
@@ -1651,7 +1709,7 @@
       const btn = document.getElementById('resend-btn');
       btn.disabled = true; btn.textContent = 'Sending...';
       try {
-        const res = await fetch('/api/auth/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: dashData.user.email }) });
+        const res = await fetch(API_BASE + '/api/auth/resend-verification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: dashData.user.email }) });
         if (res.ok) { btn.textContent = '✓ Sent!'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 5000); }
         else { const data = await res.json(); btn.textContent = data.error || 'Failed'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
       } catch { btn.textContent = 'Error'; setTimeout(() => { btn.textContent = 'Resend Email'; btn.disabled = false; }, 3000); }
@@ -1660,7 +1718,7 @@
     // ── Agents ──
     async function loadAgents() {
       try {
-        const res = await fetch('/dashboard/api/agents');
+        const res = await fetch(API_BASE + '/dashboard/api/agents');
         if (!res.ok) return;
         const data = await res.json();
         
@@ -1714,7 +1772,7 @@
 
     async function viewAgentDetails(agentId) {
       try {
-        const res = await fetch(`/dashboard/api/agents/${agentId}`);
+        const res = await fetch(API_BASE + `/dashboard/api/agents/${agentId}`);
         if (!res.ok) return;
         const agent = await res.json();
         
@@ -1769,7 +1827,7 @@
     async function confirmDeprovision() {
       if (!deprovisionAgentId) return;
       try {
-        const res = await fetch(`/dashboard/api/agents/${deprovisionAgentId}/deprovision`, {
+        const res = await fetch(API_BASE + `/dashboard/api/agents/${deprovisionAgentId}/deprovision`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -1902,7 +1960,7 @@
       try {
         // Step 1: Provision agent
         updateDeployStatus('Provisioning agent...');
-        const provisionRes = await fetch('/dashboard/api/agents/provision', {
+        const provisionRes = await fetch(API_BASE + '/dashboard/api/agents/provision', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1921,7 +1979,7 @@
         
         // Step 2: Deploy to Hetzner
         updateDeployStatus('Deploying to server...');
-        const deployRes = await fetch('/dashboard/api/agents/deploy', {
+        const deployRes = await fetch(API_BASE + '/dashboard/api/agents/deploy', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1957,7 +2015,7 @@
         attempts++;
         
         try {
-          const res = await fetch(`/dashboard/api/agents/deploy/${serverId}/verify`);
+          const res = await fetch(API_BASE + `/dashboard/api/agents/deploy/${serverId}/verify`);
           if (!res.ok) {
             if (attempts >= maxAttempts) {
               clearInterval(deploymentPollingInterval);
@@ -2049,7 +2107,7 @@
     // ── Google Credentials ──
     async function loadGoogleCredentials() {
       try {
-        const res = await fetch('/dashboard/api/google/credentials');
+        const res = await fetch(API_BASE + '/dashboard/api/google/credentials');
         if (!res.ok) return;
         
         const data = await res.json();
@@ -2127,7 +2185,7 @@
       }
       
       try {
-        const res = await fetch('/dashboard/api/google/upload', {
+        const res = await fetch(API_BASE + '/dashboard/api/google/upload', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ credentials: jsonText })
@@ -2151,7 +2209,7 @@
 
     async function testGoogleCredential(credId) {
       try {
-        const res = await fetch(`/dashboard/api/google/credentials/${credId}/validate`, {
+        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}/validate`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' }
         });
@@ -2174,7 +2232,7 @@
       if (!confirm('Remove this Google credential? This cannot be undone.')) return;
       
       try {
-        const res = await fetch(`/dashboard/api/google/credentials/${credId}`, {
+        const res = await fetch(API_BASE + `/dashboard/api/google/credentials/${credId}`, {
           method: 'DELETE'
         });
         
@@ -2294,7 +2352,8 @@
         setTimeout(() => { t.classList.remove('show'); t.textContent = '✓ Copied'; }, 3000);
       }, 1000);
     }
-    loadDashboard();
+    // Dashboard loads via onClerkReady() after Clerk initializes
+    // Fallback: loads via error handler if Clerk fails
   </script>
 </body>
 </html>

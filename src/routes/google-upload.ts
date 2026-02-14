@@ -11,6 +11,26 @@ import { createSign } from "crypto";
 
 export const googleUploadRoutes = new Hono();
 
+// ── Rate limiting: simple in-memory per-user limiter ──
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT_WINDOW_MS = 3600_000; // 1 hour
+const RATE_LIMIT_MAX = 20; // max 20 credential operations per hour per user
+
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now >= entry.resetAt) {
+    rateLimitMap.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT_MAX) return false;
+  entry.count++;
+  return true;
+}
+
+// ── Google API timeout ──
+const GOOGLE_API_TIMEOUT = 10_000;
+
 // ── Session middleware (hybrid: Clerk Bearer token OR cookie session) ──
 async function getSessionHybrid(c: any): Promise<SessionData | ClerkSessionData | null> {
   // Try Clerk first (Bearer token from dashboard SPA)
@@ -52,7 +72,7 @@ function createServiceAccountJWT(serviceAccount: any): string {
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString("base64url");
   const signInput = `${headerB64}.${payloadB64}`;
   
-  const sign = createSign("RSA-SHA256");
+  const sign = createSign("sha256");
   sign.update(signInput);
   const signature = sign.sign(serviceAccount.private_key, "base64url");
   
@@ -66,7 +86,7 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${jwt}`,
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(GOOGLE_API_TIMEOUT),
   });
   const data = await res.json() as any;
   if (!res.ok) throw new Error(data.error_description || "Token exchange failed");
@@ -77,7 +97,7 @@ async function getAccessToken(serviceAccount: any): Promise<string> {
 async function listGSCProperties(accessToken: string): Promise<string[]> {
   const res = await fetch("https://www.googleapis.com/webmasters/v3/sites", {
     headers: { Authorization: `Bearer ${accessToken}` },
-    signal: AbortSignal.timeout(10_000),
+    signal: AbortSignal.timeout(GOOGLE_API_TIMEOUT),
   });
   if (!res.ok) throw new Error(`GSC API error: ${res.status}`);
   const data = await res.json() as any;
@@ -93,6 +113,11 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
   const session = await getSessionHybrid(c);
   if (!session) {
     return c.json({ error: "Not authenticated" }, 401);
+  }
+
+  // Rate limit
+  if (!checkRateLimit(session.userId)) {
+    return c.json({ error: "Too many requests. Please wait." }, 429);
   }
 
   const jsonError = requireJson(c);
@@ -124,12 +149,22 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
     }
   }
 
-  if (!sa.client_email.match(/.*@.*\.iam\.gserviceaccount\.com$/)) {
-    return c.json({ error: "Invalid service account: client_email must match *@*.iam.gserviceaccount.com" }, 400);
+  // Strict email validation: alphanumeric/hyphens only, proper domain
+  const saEmailRegex = /^[a-zA-Z0-9][a-zA-Z0-9\-_.]{0,61}[a-zA-Z0-9]?@[a-zA-Z0-9][a-zA-Z0-9\-]{0,61}[a-zA-Z0-9]?\.iam\.gserviceaccount\.com$/;
+  if (!saEmailRegex.test(sa.client_email)) {
+    return c.json({ error: "Invalid service account: client_email format invalid" }, 400);
   }
 
-  if (!sa.private_key.startsWith("-----BEGIN PRIVATE KEY-----")) {
-    return c.json({ error: "Invalid service account: private_key must start with '-----BEGIN PRIVATE KEY-----'" }, 400);
+  // Validate project_id format
+  if (typeof sa.project_id !== "string" || sa.project_id.length > 30 || !/^[a-z][a-z0-9\-]*$/.test(sa.project_id)) {
+    return c.json({ error: "Invalid service account: project_id format invalid" }, 400);
+  }
+
+  // Full PEM key validation
+  const privateKeyTrimmed = sa.private_key.trim();
+  if (!privateKeyTrimmed.startsWith("-----BEGIN PRIVATE KEY-----") || 
+      !privateKeyTrimmed.endsWith("-----END PRIVATE KEY-----")) {
+    return c.json({ error: "Invalid service account: private_key must be valid PEM format" }, 400);
   }
 
   if (sa.auth_uri !== "https://accounts.google.com/o/oauth2/auth") {
@@ -148,10 +183,13 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
   try {
     // Encrypt the service account JSON
     const encryptedData = encryptToken(JSON.stringify(sa));
+    const now = new Date();
+    const credentialId = ulid();
 
-    // Upsert into googleCredentials table (replace if user already has service_account)
+    // Atomic upsert: check + insert/update in single synchronous block
+    // SQLite is single-writer so this is safe within a single process
     const existingCred = db
-      .select()
+      .select({ id: schema.googleCredentials.id })
       .from(schema.googleCredentials)
       .where(
         and(
@@ -162,13 +200,10 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
       .limit(1)
       .all()[0];
 
-    const now = new Date();
-    const credentialId = existingCred?.id || ulid();
+    const finalId = existingCred?.id || credentialId;
 
     if (existingCred) {
-      // Update existing
-      db
-        .update(schema.googleCredentials)
+      db.update(schema.googleCredentials)
         .set({
           encryptedData,
           email: sa.client_email,
@@ -181,11 +216,9 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
         .where(eq(schema.googleCredentials.id, existingCred.id))
         .run();
     } else {
-      // Insert new
-      db
-        .insert(schema.googleCredentials)
+      db.insert(schema.googleCredentials)
         .values({
-          id: credentialId,
+          id: finalId,
           userId: session.userId,
           credentialType: "service_account",
           encryptedData,
@@ -201,10 +234,15 @@ googleUploadRoutes.post("/dashboard/api/google/upload", async (c) => {
     return c.json({ 
       success: true, 
       email: sa.client_email, 
-      credential_id: credentialId 
+      credential_id: finalId 
     });
   } catch (error) {
-    console.error("Error storing service account:", error);
+    // NEVER log the full error — could contain private key material
+    console.error("Error storing service account:", {
+      userId: session.userId,
+      email: sa.client_email,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return c.json({ error: "Failed to store service account" }, 500);
   }
 });
@@ -284,6 +322,11 @@ googleUploadRoutes.post("/dashboard/api/google/credentials/:id/validate", async 
     return c.json({ error: "Not authenticated" }, 401);
   }
 
+  // Rate limit validation attempts
+  if (!checkRateLimit(session.userId)) {
+    return c.json({ error: "Too many requests. Please wait." }, 429);
+  }
+
   const credentialId = c.req.param("id");
   if (!credentialId) {
     return c.json({ error: "Missing credential ID" }, 400);
@@ -333,15 +376,20 @@ googleUploadRoutes.post("/dashboard/api/google/credentials/:id/validate", async 
       properties 
     });
   } catch (error) {
-    // Update credential with error status
-    const errorMessage = error instanceof Error ? error.message : "Validation failed";
+    // Sanitize error — never expose internal details or IPs
+    const rawMsg = error instanceof Error ? error.message : "Validation failed";
+    const sanitizedError = rawMsg
+      .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, "[REDACTED]")
+      .replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, "[REDACTED]")
+      .slice(0, 200);
+
     const now = new Date();
     
     db
       .update(schema.googleCredentials)
       .set({
         status: "error",
-        errorMessage,
+        errorMessage: sanitizedError,
         updatedAt: now,
       })
       .where(eq(schema.googleCredentials.id, credentialId))
@@ -349,7 +397,7 @@ googleUploadRoutes.post("/dashboard/api/google/credentials/:id/validate", async 
 
     return c.json({ 
       valid: false, 
-      error: errorMessage 
+      error: sanitizedError 
     });
   }
 });

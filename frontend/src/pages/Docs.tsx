@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Copy, Check } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 
 export default function Docs() {
   const [copied, setCopied] = useState<string | null>(null);
@@ -11,6 +11,11 @@ export default function Docs() {
     setCopied(id);
     setTimeout(() => setCopied(null), 2000);
   };
+
+  useLayoutEffect(() => {
+    // Scroll to top on mount (synchronously before paint)
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {

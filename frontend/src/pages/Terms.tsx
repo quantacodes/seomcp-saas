@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
 
 export default function Terms() {
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-deep)' }}>
       {/* Header */}

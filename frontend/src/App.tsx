@@ -2,10 +2,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { SignedIn, SignedOut } from '@clerk/clerk-react';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './pages/Dashboard';
+import Docs from './pages/Docs';
 import Terms from './pages/Terms';
 import Privacy from './pages/Privacy';
 import Refund from './pages/Refund';
-import Docs from './pages/Docs';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ScrollToTop } from './components/ScrollToTop';
 import './index.css';
@@ -27,19 +27,27 @@ function App() {
     <Router>
       <ScrollToTop />
       <Routes>
+        {/* Landing page with React - keep the beautiful design */}
         <Route path="/" element={<LandingPage />} />
+
+        {/* Documentation */}
+        <Route path="/docs" element={<Docs />} />
+
+        {/* Legal pages - React in dev, static HTML in production */}
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/refund" element={<Refund />} />
-        <Route path="/docs" element={<Docs />} />
-        <Route 
-          path="/dashboard/*" 
+
+        {/* Dashboard */}
+        <Route
+          path="/dashboard/*"
           element={
             <ProtectedRoute>
               <Dashboard />
             </ProtectedRoute>
-          } 
+          }
         />
+
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>

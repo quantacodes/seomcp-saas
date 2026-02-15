@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useLayoutEffect } from 'react';
 
 export default function Refund() {
+  useLayoutEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-deep)' }}>
       {/* Header */}
@@ -10,7 +15,7 @@ export default function Refund() {
         background: 'rgba(12, 12, 15, 0.8)', backdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border-subtle)',
       }}>
-        <div style={{ 
+        <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           width: '100%', maxWidth: '1120px', margin: '0 auto', padding: '0 24px'
         }}>
@@ -30,18 +35,27 @@ export default function Refund() {
             Refund Policy
           </h1>
           <p style={{ color: 'var(--text-tertiary)', marginBottom: '48px' }}>
-            Last updated: February 15, 2026
+            Last updated: February 16, 2026
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', color: 'var(--text-secondary)' }}>
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
+                Our Commitment
+              </h2>
+              <p>
+                We want you to be completely satisfied with seomcp.dev. If our service doesn't meet
+                your expectations, we offer a straightforward refund policy.
+              </p>
+            </section>
+
+            <section>
+              <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
                 14-Day Money-Back Guarantee
               </h2>
               <p>
-                We offer a 14-day money-back guarantee for all paid subscriptions. If you're 
-                not satisfied with our service, you can request a full refund within 14 days 
-                of your initial purchase. No questions asked.
+                If you're not satisfied with seomcp.dev, you can request a full refund within 14 days
+                of your purchase.
               </p>
             </section>
 
@@ -50,19 +64,18 @@ export default function Refund() {
                 How to Request a Refund
               </h2>
               <p>
-                To request a refund, email us at support@seomcp.dev with your account email address.
-                We process refunds within 5-10 business days.
+                Email us at <a href="mailto:support@seomcp.dev" style={{ color: 'var(--amber)', textDecoration: 'none' }}>support@seomcp.dev</a> with
+                your account email. Refunds are processed through Paddle, our payment provider, within 5-10 business days.
               </p>
             </section>
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                Subscription Cancellations
+                Cancellation
               </h2>
               <p>
-                You can cancel your subscription at any time from your dashboard. 
-                Cancellation takes effect at the end of your current billing period. 
-                You will continue to have access until the period ends.
+                You can cancel your subscription at any time from your account settings or by contacting us.
+                You'll retain access until the end of your current billing period.
               </p>
             </section>
 
@@ -71,7 +84,11 @@ export default function Refund() {
                 Contact Us
               </h2>
               <p>
-                For refund requests or billing questions, contact us at: support@seomcp.dev
+                Have questions about refunds or cancellations? We're here to help.
+              </p>
+              <p style={{ marginTop: '12px' }}>
+                <strong>Email:</strong> <a href="mailto:support@seomcp.dev" style={{ color: 'var(--amber)', textDecoration: 'none' }}>support@seomcp.dev</a><br />
+                <strong>Response time:</strong> Within 24 hours on business days
               </p>
             </section>
           </div>

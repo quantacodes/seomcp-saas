@@ -1,0 +1,9 @@
+# Cloudflare Pages redirect rules
+# Static HTML for legal pages (crawler-accessible)
+# Everything else goes to React SPA
+
+# Legal pages are static HTML (served as-is by Cloudflare)
+# /terms.html, /privacy.html, /refund.html - no redirect needed
+
+# Everything else (including /dashboard) goes to React SPA
+/*               /index.html              200

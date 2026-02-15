@@ -7,3 +7,8 @@ dist/
 tmp/
 seo-mcp-server
 *.log
+
+# SSH keys
+id_rsa_hetzner
+id_rsa_hetzner.pub
+*.pem

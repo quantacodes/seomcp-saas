@@ -252,7 +252,7 @@ function HeroSection() {
         }}>
           <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>✓ No credit card</span>
           <span style={{ color: 'var(--amber)', fontWeight: 600 }}>·</span>
-          <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>✓ 100 free calls/mo</span>
+          <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>✓ 1,000 free calls/mo</span>
           <span style={{ color: 'var(--amber)', fontWeight: 600 }}>·</span>
           <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>✓ 39 tools</span>
           <span style={{ color: 'var(--amber)', fontWeight: 600 }}>·</span>
@@ -447,7 +447,7 @@ function PricingSection() {
               Perfect for trying it out. No strings attached.
             </div>
             <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: '28px' }}>
-              {['All 39 SEO tools', '100 tool calls per month', 'All MCP clients supported', '1 API key', 'Google Search Console', 'Core Web Vitals & PageSpeed', 'IndexNow instant indexing'].map((feat, i) => (
+              {['All 39 SEO tools', '1,000 tool calls per month', 'All MCP clients supported', '1 API key', 'Google Search Console', 'Core Web Vitals & PageSpeed', 'IndexNow instant indexing'].map((feat, i) => (
                 <li key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -525,7 +525,7 @@ function PricingSection() {
               Replace $200+/mo in API subscriptions. Cancel anytime.
             </div>
             <ul style={{ listStyle: 'none', textAlign: 'left', marginBottom: '28px' }}>
-              {['All 39 SEO tools', '2,000 tool calls/month', 'All MCP clients supported', '5 API keys', 'Google Search Console + Analytics', 'Core Web Vitals & PageSpeed', 'IndexNow instant indexing', 'Audit history & scheduling', 'Rate limit handling built-in', 'Priority support'].map((feat, i) => (
+              {['All 39 SEO tools', '10,000 tool calls/month', 'All MCP clients supported', '5 API keys', 'Google Search Console + Analytics', 'Core Web Vitals & PageSpeed', 'IndexNow instant indexing', 'Audit history & scheduling', 'Rate limit handling built-in', 'Priority support'].map((feat, i) => (
                 <li key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -574,7 +574,7 @@ function FAQSection() {
     },
     {
       q: 'Is there a free tier?',
-      a: 'Yes. Free tier includes 100 tool calls per month with access to all 39 tools. No credit card required.',
+      a: 'Yes. Free tier includes 1,000 tool calls per month with access to all 39 tools. No credit card required.',
     },
     {
       q: 'Can I use this with my AI framework?',

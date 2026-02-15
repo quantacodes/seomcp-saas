@@ -76,8 +76,8 @@ export default function Terms() {
                 4. API Usage and Rate Limits
               </h2>
               <p>
-                Each plan has specific API call limits. Free plans receive 100 calls/month, 
-                Pro plans receive 2,000 calls/month. Rate limiting is enforced per API key. 
+                Each plan has specific API call limits. Free plans receive 1,000 calls/month,
+                Pro plans receive 10,000 calls/month. Rate limiting is enforced per API key.
                 We reserve the right to throttle or suspend access if usage patterns indicate abuse.
               </p>
             </section>

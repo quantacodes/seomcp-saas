@@ -577,7 +577,7 @@ export default function Docs() {
             }}>
               <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
                 📧 <strong>Email verification required for full limits.</strong> Unverified free accounts are limited to 10 calls/month. 
-                Verify your email to unlock the full 100 calls/month. Check your inbox after signup.
+                Verify your email to unlock the full 1,000 calls/month. Check your inbox after signup.
               </p>
             </div>
 
@@ -599,7 +599,7 @@ export default function Docs() {
                 </tr>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-primary)' }}>Pro ($29/mo)</td>
-                  <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>2,000</td>
+                  <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>10,000</td>
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>5</td>
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>5</td>
                 </tr>

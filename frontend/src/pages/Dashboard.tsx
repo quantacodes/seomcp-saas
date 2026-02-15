@@ -413,9 +413,9 @@ function OverviewTab() {
           </p>
           <p style={{ fontSize: '14px', color: 'var(--text-tertiary)', marginBottom: '16px' }}>
             {stats?.plan === 'free' 
-              ? '100 calls/month' 
+              ? '1,000 calls/month' 
               : stats?.plan === 'pro' 
-                ? '2,000 calls/month'
+                ? '10,000 calls/month'
                 : 'Unlimited calls'
             }
           </p>

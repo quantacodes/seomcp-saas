@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "bash -c 'source .env && npm run build && cd .. && npx wrangler pages deploy frontend/dist --project-name seomcp --branch main --commit-dirty=true'"
+    "deploy": "bash -c 'export $(grep -v \"^#\" .env | xargs) && npm run build && cd .. && npx wrangler pages deploy frontend/dist --project-name seomcp --branch main --commit-dirty=true'"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.60.1",

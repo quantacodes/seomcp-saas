@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "VITE_CLERK_PUBLISHABLE_KEY=pk_test_cmFwaWQtZmVsaW5lLTc3LmNsZXJrLmFjY291bnRzLmRldiQ npm run build && cd .. && CLOUDFLARE_ACCOUNT_ID=198474fc7e41e35922ada1f340d7b3dd npx wrangler pages deploy seo-mcp-saas/frontend/dist --project-name seomcp --branch main"
+    "deploy": "bash -c 'source .env && npm run build && cd .. && npx wrangler pages deploy seo-mcp-saas/frontend/dist --project-name seomcp --branch main'"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.60.1",

@@ -36,9 +36,10 @@ export default function Terms() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', color: 'var(--text-secondary)' }}>
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                1. Acceptance of Terms
+                1. Legal Entity
               </h2>
               <p>
+                This Service is operated by QUANTACODES SOLUTIONS ("we", "us", or "our"). 
                 By accessing or using seomcp.dev ("the Service"), you agree to be bound by these Terms of Service. 
                 If you disagree with any part of the terms, you may not access the Service.
               </p>

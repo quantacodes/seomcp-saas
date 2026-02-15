@@ -36,7 +36,17 @@ export default function Privacy() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', color: 'var(--text-secondary)' }}>
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                1. Information We Collect
+                1. Legal Entity
+              </h2>
+              <p style={{ marginBottom: '16px' }}>
+                This Privacy Policy applies to services provided by QUANTACODES SOLUTIONS ("we", "us", or "our") 
+                through seomcp.dev.
+              </p>
+            </section>
+
+            <section>
+              <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
+                2. Information We Collect
               </h2>
               <p style={{ marginBottom: '16px' }}>
                 We collect minimal data necessary to provide our service:
@@ -55,7 +65,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                2. What We Don't Collect
+                3. What We Don't Collect
               </h2>
               <p style={{ marginBottom: '16px' }}>
                 Your privacy is important to us. We explicitly do not:
@@ -73,7 +83,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                3. How We Use Your Data
+                4. How We Use Your Data
               </h2>
               <ul style={{ marginLeft: '24px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <li>To provide and maintain our SEO MCP service</li>
@@ -86,7 +96,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                4. Data Security
+                5. Data Security
               </h2>
               <p>
                 We implement industry-standard security measures:
@@ -102,7 +112,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                5. Third-Party Services
+                6. Third-Party Services
               </h2>
               <p>
                 We use trusted third-party services:
@@ -117,7 +127,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                6. Data Retention
+                7. Data Retention
               </h2>
               <p>
                 We retain your data as long as your account is active. You can delete your account 
@@ -128,7 +138,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                7. Your Rights
+                8. Your Rights
               </h2>
               <p>You have the right to:</p>
               <ul style={{ marginLeft: '24px', marginTop: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -142,7 +152,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                8. Cookies
+                9. Cookies
               </h2>
               <p>
                 We use minimal cookies: essential session cookies for authentication and 
@@ -153,7 +163,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                9. Children's Privacy
+                10. Children's Privacy
               </h2>
               <p>
                 Our service is not intended for users under 13. We do not knowingly collect 
@@ -164,7 +174,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                10. Changes to This Policy
+                11. Changes to This Policy
               </h2>
               <p>
                 We may update this Privacy Policy periodically. We will notify users of 
@@ -175,7 +185,7 @@ export default function Privacy() {
 
             <section>
               <h2 style={{ fontSize: '24px', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '16px' }}>
-                11. Contact Us
+                12. Contact Us
               </h2>
               <p>
                 For privacy-related questions or requests, contact us at: privacy@seomcp.dev

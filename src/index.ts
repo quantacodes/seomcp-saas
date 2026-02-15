@@ -43,16 +43,23 @@ const app = new Hono();
 app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
 
 app.use("*", cors({
-  origin: [
-    "https://seomcp.dev",
-    "https://www.seomcp.dev", 
-    "https://api.seomcp.dev",
-    "http://localhost:3000",
-    "http://localhost:3456",
-    "http://localhost:5173",  // Vite dev server
-    "https://pinchy-waitlist.pages.dev",
-    "https://pinchyseo.com"
-  ],
+  origin: (origin) => {
+    const allowed = [
+      "https://seomcp.dev",
+      "https://www.seomcp.dev",
+      "https://api.seomcp.dev",
+      "http://localhost:3000",
+      "http://localhost:3456",
+      "http://localhost:5173",  // Vite dev server
+      "https://pinchy-waitlist.pages.dev",
+      "https://pinchyseo.com"
+    ];
+    // Allow all Cloudflare Pages deployments
+    if (origin?.endsWith(".seomcp.pages.dev")) {
+      return origin;
+    }
+    return allowed.includes(origin || "") ? origin : allowed[0];
+  },
   credentials: true, // Allow cookies for Clerk session
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],

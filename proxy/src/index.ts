@@ -34,8 +34,8 @@ USAGE
 ENVIRONMENT VARIABLES
   SEOMCP_API_KEY            (required) API key (sk_live_REDACTED format)
   GOOGLE_SERVICE_ACCOUNT    (required) Path to Google service account JSON
-  GSC_PROPERTY              (optional) Google Search Console property
-  GA4_PROPERTY              (optional) GA4 property ID
+  GSC_PROPERTIES            (required for GSC) Comma-separated domain names
+  GA4_PROPERTIES            (required for GA4) Comma-separated propertyID:domain
   SEOMCP_API_URL            (optional) Override API URL (default: https://api.seomcp.dev)
   SEOMCP_TIMEOUT            (optional) Request timeout in ms (default: 30000)
 
@@ -50,14 +50,14 @@ SETUP
            "env": {
              "SEOMCP_API_KEY": "sk_live_...",
              "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
-             "GSC_PROPERTY": "sc-domain:example.com",
-             "GA4_PROPERTY": "properties/123456"
+             "GSC_PROPERTIES": "example.com,blog.example.com",
+             "GA4_PROPERTIES": "123:example.com,456:blog.example.com"
            }
          }
        }
      }
 
-  3. Start using 37 SEO tools in your AI assistant!
+  3. Start using 38 SEO tools in your AI assistant!
 
 DOCS
   https://seomcp.dev/docs

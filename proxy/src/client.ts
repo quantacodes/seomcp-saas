@@ -150,8 +150,8 @@ export async function callTool(
     arguments: args,
     credentials: {
       google_service_account: credentials,
-      ...(gscProperty ? { gsc_property: gscProperty } : {}),
-      ...(ga4Property ? { ga4_property: ga4Property } : {}),
+      ...(gscProperty ? { gsc_properties: gscProperty } : {}),
+      ...(ga4Property ? { ga4_properties: ga4Property } : {}),
     },
   });
 

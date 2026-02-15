@@ -4,6 +4,7 @@ import { db, schema } from "../db/index";
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
+import { generateToken, verifyToken } from "../auth/jwt";
 import {
   generateVerificationToken,
   buildVerificationUrl,
@@ -102,6 +103,13 @@ authRoutes.post("/api/auth/signup", async (c) => {
     console.error("Failed to send verification email:", err);
   });
 
+  // Generate JWT token for immediate login
+  const token = generateToken({
+    userId,
+    email: normalizedEmail,
+    plan: "free",
+  });
+
   return c.json(
     {
       user: {
@@ -112,6 +120,7 @@ authRoutes.post("/api/auth/signup", async (c) => {
       },
       apiKey: raw, // Only shown once!
       apiKeyPrefix: prefix,
+      token,
       message: "Save your API key — it won't be shown again. Check your email to verify your account and unlock full limits.",
     },
     201,
@@ -153,6 +162,13 @@ authRoutes.post("/api/auth/login", async (c) => {
     return c.json({ error: "Invalid credentials" }, 401);
   }
 
+  // Generate JWT token
+  const token = generateToken({
+    userId: user.id,
+    email: user.email,
+    plan: user.plan,
+  });
+
   return c.json({
     user: {
       id: user.id,
@@ -160,5 +176,43 @@ authRoutes.post("/api/auth/login", async (c) => {
       plan: user.plan,
       emailVerified: user.emailVerified,
     },
+    token,
+  });
+});
+
+/**
+ * GET /api/user/me
+ * Get current user info from JWT token
+ */
+authRoutes.get("/api/user/me", async (c) => {
+  const authHeader = c.req.header("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  const token = authHeader.slice(7);
+  const payload = verifyToken(token);
+
+  if (!payload) {
+    return c.json({ error: "Invalid or expired token" }, 401);
+  }
+
+  // Get fresh user data from DB
+  const user = db
+    .select()
+    .from(schema.users)
+    .where(eq(schema.users.id, payload.userId))
+    .limit(1)
+    .all()[0];
+
+  if (!user) {
+    return c.json({ error: "User not found" }, 404);
+  }
+
+  return c.json({
+    id: user.id,
+    email: user.email,
+    plan: user.plan,
+    emailVerified: user.emailVerified,
   });
 });

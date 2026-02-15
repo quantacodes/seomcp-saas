@@ -55,24 +55,206 @@ function escapeToml(str: string): string {
 }
 
 /**
+ * Parse comma-separated GSC property string into array.
+ * Supports formats:
+ *   - "example.com,blog.example.com" (domains - auto-adds sc-domain:)
+ *   - "sc-domain:example.com,https://example.com/" (full property URLs)
+ * Returns normalized GSC property format.
+ */
+function parseGscProperties(value?: string): string[] {
+  if (!value) return [];
+  
+  return value.split(",").map(p => p.trim()).filter(Boolean).map(item => {
+    // Already has prefix
+    if (item.startsWith("sc-domain:") || item.startsWith("http://") || item.startsWith("https://")) {
+      return item;
+    }
+    // Plain domain - add sc-domain: prefix
+    return `sc-domain:${item}`;
+  });
+}
+
+/**
+ * Parse GA4 properties with optional domain mapping.
+ * Supports formats:
+ *   - "properties/123,properties/456" (legacy, position-based)
+ *   - "123:example.com,456:blog.example.com" (explicit mapping)
+ *   - "properties/123:example.com,properties/456:blog.example.com" (explicit mapping)
+ * Returns array of { propertyId, domain? }
+ */
+function parseGa4Properties(value?: string): Array<{ propertyId: string; domain?: string }> {
+  if (!value) return [];
+  
+  return value.split(",").map(p => p.trim()).filter(Boolean).map(item => {
+    // Check for explicit domain mapping with ':' separator
+    const colonIndex = item.indexOf(':');
+    if (colonIndex > 0) {
+      const propertyPart = item.slice(0, colonIndex).trim();
+      const domainPart = item.slice(colonIndex + 1).trim();
+      
+      // Normalize property ID (ensure properties/ prefix)
+      const propertyId = propertyPart.startsWith('properties/') 
+        ? propertyPart 
+        : `properties/${propertyPart}`;
+      
+      return { propertyId, domain: domainPart };
+    }
+    
+    // No domain mapping - legacy format
+    const propertyId = item.startsWith('properties/') ? item : `properties/${item}`;
+    return { propertyId };
+  });
+}
+
+/**
+ * Validate property configuration and return any issues found.
+ * Returns array of error/warning messages.
+ */
+export function validatePropertyConfig(credentials: Credentials): { valid: boolean; errors: string[]; warnings: string[] } {
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  
+  const gscProps = parseGscProperties(credentials.gsc_property);
+  const ga4Props = parseGa4Properties(credentials.ga4_property);
+  
+  // Check if using old singular env vars
+  if (credentials.gsc_property && !credentials.gsc_property.includes(',') && !ga4Props.length) {
+    warnings.push("Using legacy GSC_PROPERTY format. Consider using GSC_PROPERTIES for multiple properties.");
+  }
+  
+  // Check if GA4 properties have domain mapping
+  if (ga4Props.length > 0) {
+    const withoutMapping = ga4Props.filter(p => !p.domain);
+    if (withoutMapping.length > 0) {
+      errors.push(
+        `GA4 properties missing domain mapping: ${withoutMapping.map(p => p.propertyId).join(', ')}. ` +
+        `Use format: "propertyID:domain" (e.g., "123456789:example.com")`
+      );
+    }
+    
+    // Check for mismatched domains between GSC and GA4
+    if (gscProps.length > 0) {
+      const gscDomains = gscProps.map(gsc => {
+        if (gsc.startsWith('sc-domain:')) return gsc.slice('sc-domain:'.length);
+        try {
+          return new URL(gsc).hostname;
+        } catch {
+          return gsc;
+        }
+      });
+      
+      const ga4Domains = ga4Props.map(ga4 => ga4.domain).filter(Boolean);
+      
+      // Check for GA4 domains not in GSC
+      for (const ga4Domain of ga4Domains) {
+        if (!gscDomains.includes(ga4Domain)) {
+          warnings.push(
+            `Domain "${ga4Domain}" in GA4_PROPERTIES not found in GSC_PROPERTIES. ` +
+            `Make sure to add "${ga4Domain}" to GSC_PROPERTIES if you want GSC data for this site.`
+          );
+        }
+      }
+      
+      // Check for GSC domains not in GA4
+      for (const gscDomain of gscDomains) {
+        if (!ga4Domains.includes(gscDomain)) {
+          warnings.push(
+            `Domain "${gscDomain}" in GSC_PROPERTIES not found in GA4_PROPERTIES. ` +
+            `Add "propertyID:${gscDomain}" to GA4_PROPERTIES to enable GA4 data for this site.`
+          );
+        }
+      }
+    }
+  }
+  
+  // Check count mismatch
+  if (gscProps.length > 0 && ga4Props.length > 0 && gscProps.length !== ga4Props.length) {
+    warnings.push(
+      `Property count mismatch: ${gscProps.length} GSC properties, ${ga4Props.length} GA4 properties. ` +
+      `Make sure each domain has both GSC and GA4 configured.`
+    );
+  }
+  
+  // Check for empty properties
+  if (credentials.gsc_property && gscProps.length === 0) {
+    errors.push("GSC_PROPERTIES is set but contains no valid properties.");
+  }
+  if (credentials.ga4_property && ga4Props.length === 0) {
+    errors.push("GA4_PROPERTIES is set but contains no valid properties.");
+  }
+  
+  // Check property ID format
+  for (const ga4 of ga4Props) {
+    const id = ga4.propertyId.replace('properties/', '');
+    if (!/^\d+$/.test(id)) {
+      errors.push(`Invalid GA4 property ID "${id}". Property ID should be numeric (e.g., 123456789).`);
+    }
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
+/**
  * Build TOML config string for the Rust binary.
+ * Supports explicit domain mapping with format: propertyId:domain
  */
 function buildToml(saFilePath: string, credentials: Credentials): string {
-  const domain = extractDomain(credentials.gsc_property);
   const lines: string[] = [
     "[credentials]",
     `google_service_account = "${escapeToml(saFilePath)}"`,
     "",
-    "[[sites]]",
-    `name = "proxy-request"`,
-    `domain = "${escapeToml(domain)}"`,
   ];
 
-  if (credentials.gsc_property) {
-    lines.push(`gsc_property = "${escapeToml(credentials.gsc_property)}"`);
-  }
-  if (credentials.ga4_property) {
-    lines.push(`ga4_property_id = "${escapeToml(credentials.ga4_property)}"`);
+  // Parse properties
+  const gscProps = parseGscProperties(credentials.gsc_property);
+  const ga4Props = parseGa4Properties(credentials.ga4_property);
+  
+  // Build sites - use explicit mapping or fall back to position-based pairing
+  const maxSites = Math.max(gscProps.length, ga4Props.length, 1);
+  
+  for (let i = 0; i < maxSites; i++) {
+    const gscProp = gscProps[i];
+    const ga4Prop = ga4Props[i];
+    
+    // Determine domain:
+    // 1. Use explicit domain from GA4 mapping if available
+    // 2. Extract from GSC property
+    // 3. Extract from GA4 property ID (as fallback)
+    let domain: string;
+    let siteName: string;
+    
+    if (ga4Prop?.domain) {
+      // Explicit domain mapping: "522355930:happeningnownext.com"
+      domain = ga4Prop.domain;
+      siteName = ga4Prop.domain;
+    } else if (gscProp) {
+      // Extract from GSC property
+      domain = extractDomain(gscProp);
+      siteName = domain;
+    } else if (ga4Prop) {
+      // Fallback to property ID for naming
+      domain = `property-${i + 1}`;
+      siteName = domain;
+    } else {
+      domain = `site-${i + 1}`;
+      siteName = domain;
+    }
+    
+    lines.push("[[sites]]");
+    lines.push(`name = "${escapeToml(siteName)}"`);
+    lines.push(`domain = "${escapeToml(domain)}"`);
+    
+    if (gscProp) {
+      lines.push(`gsc_property = "${escapeToml(gscProp)}"`);
+    }
+    if (ga4Prop) {
+      lines.push(`ga4_property_id = "${escapeToml(ga4Prop.propertyId)}"`);
+    }
+    lines.push("");
   }
 
   return lines.join("\n") + "\n";

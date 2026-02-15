@@ -15,8 +15,9 @@ import { checkAndIncrementRateLimit, getRateLimitStatus } from "../ratelimit/mid
 import { isToolAllowed } from "../auth/scopes";
 import { TOOLS, TOOL_COUNT } from "../tools-catalog";
 import { VERSION, config } from "../config";
-import { spawnForProxyRequest } from "../services/proxy-spawner";
+import { spawnForProxyRequest, validatePropertyConfig } from "../services/proxy-spawner";
 import { ConcurrencyPool } from "../services/concurrency-pool";
+import { logUsage } from "../usage/tracker";
 
 // ── Concurrency pool (global, shared across requests) ──
 export const proxyPool = new ConcurrencyPool(config.maxProxyConcurrentSpawns);
@@ -135,6 +136,34 @@ proxyRoutes.post("/v1/tools/call", authMiddleware, async (c) => {
     );
   }
 
+  // Validate property configuration before spawning
+  const gscProps = creds.gsc_properties || creds.gsc_property;
+  const ga4Props = creds.ga4_properties || creds.ga4_property;
+  
+  if (gscProps || ga4Props) {
+    const validation = validatePropertyConfig({
+      google_service_account: sa,
+      gsc_property: gscProps,
+      ga4_property: ga4Props,
+    });
+    
+    if (!validation.valid) {
+      return c.json({
+        error: "Invalid property configuration",
+        code: "INVALID_PROPERTIES",
+        details: validation.errors,
+        message: "Please fix your GSC_PROPERTIES and GA4_PROPERTIES configuration. Use format: GA4_PROPERTIES='propertyID:domain' (e.g., '123456789:example.com')"
+      }, 400);
+    }
+    
+    // Include warnings in response headers for debugging
+    if (validation.warnings.length > 0) {
+      c.header("X-Property-Warnings", validation.warnings.join("; "));
+    }
+  }
+
+  const startTime = Date.now();
+  
   try {
     // Spawn binary
     const result = await spawnForProxyRequest(
@@ -142,21 +171,32 @@ proxyRoutes.post("/v1/tools/call", authMiddleware, async (c) => {
       body.arguments ?? {},
       {
         google_service_account: sa,
-        gsc_property: creds.gsc_property,
-        ga4_property: creds.ga4_property,
+        gsc_property: gscProps,
+        ga4_property: ga4Props,
       },
       config.proxyTimeoutMs,
     );
 
+    const durationMs = Date.now() - startTime;
+
     if (result.ok) {
+      // Log successful usage
+      logUsage(auth, toolName, "success", durationMs);
       return c.json({ content: result.content }, 200);
     }
 
+    // Log error usage
+    logUsage(auth, toolName, "error", durationMs);
+    
     // Map spawner error to HTTP response
     return c.json(
       { error: result.error, code: result.code },
       result.status as 400 | 401 | 403 | 422 | 500,
     );
+  } catch (error) {
+    const durationMs = Date.now() - startTime;
+    logUsage(auth, toolName, "error", durationMs);
+    throw error;
   } finally {
     release?.();
   }

@@ -215,8 +215,8 @@
       "env": {
         "SEOMCP_API_KEY": "sk_live_REDACTED_key_here",
         "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
-        "GSC_PROPERTY": "sc-domain:example.com",
-        "GA4_PROPERTY": "properties/123456"
+        "GSC_PROPERTIES": "example.com,blog.example.com",
+        "GA4_PROPERTIES": "123456789:example.com,987654321:blog.example.com"
       }
     }
   }
@@ -407,13 +407,14 @@
           <li><strong class="text-slate-300">Google Analytics:</strong> Go to GA4 → Admin → Property → Property Access Management → Add user (Viewer role)</li>
         </ul>
 
-        <h3 class="doc-subheading">Step 5: Find your property IDs</h3>
-        <div class="code-block mb-4"><pre class="font-mono text-slate-300"># GSC property (one of these formats):
-GSC_PROPERTY="sc-domain:example.com"          # Domain property
-GSC_PROPERTY="https://www.example.com/"       # URL-prefix property
+        <h3 class="doc-subheading">Step 5: Configure your properties</h3>
+        <div class="code-block mb-4"><pre class="font-mono text-slate-300"># GSC properties - just domain names (we auto-add sc-domain:):
+GSC_PROPERTIES="example.com,blog.example.com"
 
-# GA4 property ID (find in GA4 → Admin → Property Details):
-GA4_PROPERTY="properties/123456789"</pre></div>
+# GA4 properties - use propertyID:domain format:
+GA4_PROPERTIES="123456789:example.com,987654321:blog.example.com"
+
+# Find GA4 Property ID in GA4 → Admin → Property Details</pre></div>
 
         <h3 class="doc-subheading">Security</h3>
         <ul class="text-sm text-slate-300 space-y-1 list-disc list-inside">

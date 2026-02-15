@@ -102,16 +102,17 @@ async function handleToolsCall(
 
   // Forward to cloud
   const args = params.arguments ?? {};
-  const gscProperty = process.env.GSC_PROPERTY;
-  const ga4Property = process.env.GA4_PROPERTY;
+  // Support both old singular and new plural env vars (comma-separated for multiple)
+  const gscProperties = process.env.GSC_PROPERTIES || process.env.GSC_PROPERTY;
+  const ga4Properties = process.env.GA4_PROPERTIES || process.env.GA4_PROPERTY;
 
   const result = await callTool(
     apiKey!,
     toolName,
     args,
     credResult.credentials,
-    gscProperty,
-    ga4Property,
+    gscProperties,
+    ga4Properties,
   );
 
   if (!result.ok) {

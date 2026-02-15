@@ -14,6 +14,7 @@ import {
 import { generateApiKey } from "../auth/keys";
 import { ulid } from "../utils/ulid";
 import { checkIpRateLimit, getClientIp } from "../middleware/rate-limit-ip";
+import { getRateLimitStatus } from "../ratelimit/middleware";
 import { validateScopes, describeScopeAccess, parseScopes } from "../auth/scopes";
 import { getUserWebhookUrl, setUserWebhookUrl, validateWebhookUrl } from "../webhooks/user-webhooks";
 import { readFileSync } from "fs";
@@ -293,7 +294,19 @@ dashboardRoutes.get("/dashboard/api/overview", async (c) => {
     .all();
 
   const planLimits = config.plans[session.plan];
-  const used = usageResult?.totalCalls || 0;
+  
+  // Get actual rate limit status (this is what blocks requests)
+  const rateLimitStatus = getRateLimitStatus({
+    userId: session.userId,
+    email: session.email,
+    plan: session.plan,
+    apiKeyId: "", // Dashboard doesn't need this
+    scopes: ["*"],
+    emailVerified: session.emailVerified,
+  });
+  
+  // For breakdown stats, use usage_logs
+  const loggedCalls = usageResult?.totalCalls || 0;
   const limit = planLimits?.callsPerMonth ?? 50;
 
   return c.json({
@@ -304,9 +317,13 @@ dashboardRoutes.get("/dashboard/api/overview", async (c) => {
       emailVerified: session.emailVerified,
     },
     usage: {
-      used,
-      limit: limit === Infinity ? "unlimited" : limit,
-      remaining: limit === Infinity ? "unlimited" : Math.max(0, limit - used),
+      // Use rate limit status for blocking (what actually counts)
+      used: rateLimitStatus.used,
+      limit: rateLimitStatus.limit === Infinity ? "unlimited" : rateLimitStatus.limit,
+      remaining: rateLimitStatus.remaining === Infinity ? "unlimited" : rateLimitStatus.remaining,
+      // Also show logged calls for transparency
+      loggedCalls,
+      plan: session.plan,
       period: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`,
       breakdown: {
         success: usageResult?.successCalls || 0,
@@ -354,6 +371,32 @@ dashboardRoutes.get("/dashboard/api/overview", async (c) => {
         }
       : null,
   });
+});
+
+/**
+ * GET /dashboard/api/keys — List API keys
+ */
+dashboardRoutes.get("/dashboard/api/keys", async (c) => {
+  const session = await getSessionHybrid(c);
+  if (!session) {
+    return c.json({ error: "Not authenticated" }, 401);
+  }
+
+  const keys = db
+    .select({
+      id: schema.apiKeys.id,
+      prefix: schema.apiKeys.keyPrefix,
+      name: schema.apiKeys.name,
+      isActive: schema.apiKeys.isActive,
+      scopes: schema.apiKeys.scopes,
+      lastUsedAt: schema.apiKeys.lastUsedAt,
+      createdAt: schema.apiKeys.createdAt,
+    })
+    .from(schema.apiKeys)
+    .where(eq(schema.apiKeys.userId, session.userId))
+    .all();
+
+  return c.json(keys);
 });
 
 /**

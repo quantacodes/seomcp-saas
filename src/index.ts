@@ -29,6 +29,7 @@ import { passwordResetRoutes } from "./routes/password-reset";
 import { proxyRoutes } from "./routes/proxy";
 import { agentRoutes } from "./routes/agents";
 import { googleUploadRoutes } from "./routes/google-upload";
+import { waitlistRoutes } from "./routes/waitlist";
 import { binaryPool } from "./mcp/binary";
 import { stopIpRateLimitCleanup } from "./middleware/rate-limit-ip";
 import { startScheduler, stopScheduler } from "./scheduler/engine";
@@ -42,7 +43,16 @@ const app = new Hono();
 app.use("*", bodyLimit({ maxSize: 1024 * 1024 })); // 1MB max request body
 
 app.use("*", cors({
-  origin: ["https://seomcp.dev", "https://www.seomcp.dev", "https://api.seomcp.dev", "http://localhost:3000", "http://localhost:3456"],
+  origin: [
+    "https://seomcp.dev",
+    "https://www.seomcp.dev", 
+    "https://api.seomcp.dev",
+    "http://localhost:3000",
+    "http://localhost:3456",
+    "http://localhost:5173",  // Vite dev server
+    "https://pinchy-waitlist.pages.dev",
+    "https://pinchyseo.com"
+  ],
   credentials: true, // Allow cookies for Clerk session
   allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowHeaders: ["Content-Type", "Authorization", "Accept", "Mcp-Session-Id"],
@@ -152,6 +162,7 @@ app.route("/", passwordResetRoutes);
 app.route("/", proxyRoutes);
 app.route("/", agentRoutes);
 app.route("/", googleUploadRoutes);
+app.route("/", waitlistRoutes);
 // Static SEO files
 app.get("/robots.txt", (c) => {
   return c.text(`User-agent: *\nAllow: /\nDisallow: /dashboard\nDisallow: /api/\n\nSitemap: https://seomcp.dev/sitemap.xml\n`);

@@ -199,6 +199,14 @@ const migrations = [
   `CREATE INDEX IF NOT EXISTS idx_usage_logs_key ON usage_logs(api_key_id, created_at)`,
   `CREATE INDEX IF NOT EXISTS idx_usage_logs_user ON usage_logs(user_id, created_at)`,
   // rate_limits PK is user_id, no extra index needed
+  // Waitlist
+  `CREATE TABLE IF NOT EXISTS waitlist (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    source TEXT NOT NULL DEFAULT 'unknown',
+    created_at INTEGER NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS idx_waitlist_email ON waitlist(email)`,
 ];
 
 // ALTER TABLE migrations that may fail if already applied (SQLite lacks IF NOT EXISTS for columns)

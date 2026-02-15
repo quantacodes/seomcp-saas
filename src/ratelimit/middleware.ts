@@ -28,7 +28,7 @@ function getEffectiveLimit(auth: AuthContext): number {
 
 /**
  * Atomic check-and-increment rate limit for a user.
- * Uses a SQLite transaction to prevent TOCTOU race conditions.
+ * Uses usage_logs table as single source of truth.
  * Rate limits are per-USER (not per-key) to prevent multi-key bypass.
  */
 export function checkAndIncrementRateLimit(auth: AuthContext): {
@@ -49,59 +49,43 @@ export function checkAndIncrementRateLimit(auth: AuthContext): {
 
   const windowStart = getCurrentWindowStart();
 
-  // Atomic transaction: read + conditional increment
+  // Atomic transaction: check count from usage_logs
   return sqlite.transaction(() => {
-    // Check current state
-    const row = sqlite
-      .query<{ call_count: number; window_start: number }, [string]>(
-        "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+    // Get current count from usage_logs (single source of truth)
+    // Note: created_at is stored as Unix timestamp (seconds)
+    const result = sqlite
+      .query<{ call_count: number }, [string, number]>(
+        `SELECT COUNT(*) as call_count 
+         FROM usage_logs 
+         WHERE user_id = ? 
+         AND created_at >= ?`,
       )
-      .get(auth.userId);
+      .get(auth.userId, windowStart);
 
-    if (!row || row.window_start < windowStart) {
-      // New window or first time — reset/create with count=1 (this call)
-      if (row) {
-        sqlite.run(
-          "UPDATE rate_limits SET window_start = ?, call_count = 1 WHERE user_id = ?",
-          [windowStart, auth.userId],
-        );
-      } else {
-        sqlite.run(
-          "INSERT INTO rate_limits (user_id, api_key_id, window_start, call_count) VALUES (?, ?, ?, 1)",
-          [auth.userId, auth.apiKeyId, windowStart],
-        );
-      }
-      return { allowed: true, used: 1, limit, remaining: limit - 1 };
-    }
+    const currentCount = result?.call_count || 0;
 
-    // Same window — check limit before incrementing
-    if (row.call_count >= limit) {
+    // Check limit
+    if (currentCount >= limit) {
       return {
         allowed: false,
-        used: row.call_count,
+        used: currentCount,
         limit,
         remaining: 0,
       };
     }
 
-    // Under limit — increment
-    const newCount = row.call_count + 1;
-    sqlite.run(
-      "UPDATE rate_limits SET call_count = ? WHERE user_id = ?",
-      [newCount, auth.userId],
-    );
-
+    // Allowed — return current status (actual increment happens in logUsage after call)
     return {
       allowed: true,
-      used: newCount,
+      used: currentCount,
       limit,
-      remaining: Math.max(0, limit - newCount),
+      remaining: Math.max(0, limit - currentCount),
     };
   })();
 }
 
 /**
- * Get current rate limit status without incrementing (for usage endpoint).
+ * Get current rate limit status from usage_logs (single source of truth).
  * Accepts full AuthContext to correctly apply unverified-user limits.
  */
 export function getRateLimitStatus(auth: AuthContext): {
@@ -116,21 +100,23 @@ export function getRateLimitStatus(auth: AuthContext): {
   if (limit === Infinity) return { used: 0, limit: Infinity, remaining: Infinity };
 
   const windowStart = getCurrentWindowStart();
-
-  const row = sqlite
-    .query<{ call_count: number; window_start: number }, [string]>(
-      "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+  // Query usage_logs directly for single source of truth
+  // Note: created_at is stored as Unix timestamp (seconds)
+  const result = sqlite
+    .query<{ call_count: number }, [string, number]>(
+      `SELECT COUNT(*) as call_count 
+       FROM usage_logs 
+       WHERE user_id = ? 
+       AND created_at >= ?`,
     )
-    .get(auth.userId);
+    .get(auth.userId, windowStart);
 
-  if (!row || row.window_start < windowStart) {
-    return { used: 0, limit, remaining: limit };
-  }
+  const used = result?.call_count || 0;
 
   return {
-    used: row.call_count,
+    used,
     limit,
-    remaining: Math.max(0, limit - row.call_count),
+    remaining: Math.max(0, limit - used),
   };
 }
 
@@ -164,7 +150,7 @@ export function getTeamRateContext(userId: string): {
 
   const limit = planLimits.callsPerMonth;
 
-  // Get aggregate team usage
+  // Get aggregate team usage from usage_logs (single source of truth)
   const windowStart = getCurrentWindowStart();
   const teamMembers = sqlite
     .query("SELECT user_id FROM team_members WHERE team_id = ? AND user_id IS NOT NULL")
@@ -172,14 +158,15 @@ export function getTeamRateContext(userId: string): {
 
   let totalUsed = 0;
   for (const m of teamMembers) {
-    const row = sqlite
-      .query<{ call_count: number; window_start: number }, [string]>(
-        "SELECT call_count, window_start FROM rate_limits WHERE user_id = ?",
+    const result = sqlite
+      .query<{ call_count: number }, [string, number]>(
+        `SELECT COUNT(*) as call_count 
+         FROM usage_logs 
+         WHERE user_id = ? 
+         AND created_at >= ?`,
       )
-      .get(m.user_id);
-    if (row && row.window_start >= windowStart) {
-      totalUsed += row.call_count;
-    }
+      .get(m.user_id, windowStart);
+    totalUsed += result?.call_count || 0;
   }
 
   return {

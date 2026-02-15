@@ -217,3 +217,10 @@ export const userAgentMappings = sqliteTable("user_agent_mappings", {
   createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 });
+
+export const waitlist = sqliteTable("waitlist", {
+  id: text("id").primaryKey(), // ULID
+  email: text("email").notNull().unique(),
+  source: text("source").notNull().default("pinchy-hero"), // pinchy-hero, pinchy-bottom, etc
+  createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
+});

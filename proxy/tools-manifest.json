@@ -143,6 +143,24 @@
       }
     },
     {
+      "name": "ga4_list_properties",
+      "description": "List all configured GA4 properties with their domain mappings. Returns properties configured in GA4_PROPERTIES environment variable. No property_id required - use this first to see what properties are available before running other GA4 reports.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
+      "name": "validate_properties",
+      "description": "Validate and diagnose property configuration. Checks your GSC and GA4 property setup for common issues and returns helpful error messages if something is misconfigured. Use this if tools are failing with property-related errors.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "required": []
+      }
+    },
+    {
       "name": "ga4_report",
       "description": "Run a flexible Google Analytics 4 report with ANY dimensions and metrics combination. Supports presets (landing_pages, engagement, conversions, channels, content) or fully custom dim/metric combos. Use ga4_metadata to discover available dimensions and metrics.",
       "inputSchema": {

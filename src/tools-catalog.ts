@@ -167,6 +167,22 @@ export const TOOLS: ToolInfo[] = [
 
   // GA4
   {
+    name: "ga4_list_properties",
+    description: "List all GA4 properties accessible to the service account — use this to discover properties before running reports",
+    category: "ga4",
+    categoryIcon: "📈",
+    params: [],
+    tier: "all",
+  },
+  {
+    name: "validate_properties",
+    description: "Validate GSC and GA4 property configuration — diagnose setup issues and get helpful fix instructions",
+    category: "utility",
+    categoryIcon: "🔧",
+    params: [],
+    tier: "all",
+  },
+  {
     name: "ga4_report",
     description: "Universal GA4 report — 5 presets (channels, landing_pages, engagement, content, conversions) + full custom mode",
     category: "ga4",

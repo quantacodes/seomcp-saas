@@ -41,16 +41,20 @@ export async function verifyClerkSession(req: Request): Promise<ClerkSessionData
   try {
     // Try to verify from multiple sources
     const { isSignedIn, toAuth } = await clerk.authenticateRequest(req, {
-      // Accept sessions from our domain
+      // Accept sessions from our domains + frontend dev server
       authorizedParties: [
         config.baseUrl,
         "https://seomcp.dev",
+        "https://www.seomcp.dev",
         "https://api.seomcp.dev",
         "http://localhost:3456",
+        "http://localhost:5173",  // Vite dev server
+        "http://localhost:3000",
       ].filter(Boolean),
     });
 
     if (!isSignedIn) {
+      console.log('[Clerk Debug] Not signed in');
       return null;
     }
 
@@ -259,7 +263,8 @@ function getClerkDomain(): string {
   try {
     // Remove the $ suffix if present and decode
     const cleaned = encoded.replace(/\$+$/, "");
-    const decoded = atob(cleaned);
+    // Use Buffer for Node.js (atob is browser-only)
+    const decoded = Buffer.from(cleaned, 'base64').toString('utf-8');
     return decoded;
   } catch {
     // Fallback: construct from key pattern

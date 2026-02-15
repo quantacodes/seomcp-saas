@@ -1,6 +1,6 @@
 # @seomcp/proxy
 
-Local MCP proxy for [seo-mcp](https://github.com/quantacodes/seo-mcp) — 37 SEO tools in your AI assistant.
+Local MCP proxy for [seo-mcp](https://github.com/quantacodes/seo-mcp) — 38 SEO tools in your AI assistant.
 
 Reads your Google service account credentials from disk and forwards MCP tool calls to `api.seomcp.dev` over HTTPS. Zero runtime dependencies, single-file bundle, ~11KB.
 
@@ -22,8 +22,8 @@ Add to your Claude Desktop, Cursor, or other MCP client config:
       "env": {
         "SEOMCP_API_KEY": "sk_live_...",
         "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
-        "GSC_PROPERTY": "sc-domain:example.com",
-        "GA4_PROPERTY": "properties/123456"
+        "GSC_PROPERTIES": "example.com,blog.example.com",
+        "GA4_PROPERTIES": "123456789:example.com,987654321:blog.example.com"
       }
     }
   }
@@ -44,10 +44,20 @@ seomcp-proxy test
 |----------|----------|-------------|
 | `SEOMCP_API_KEY` | ✅ | API key from [seomcp.dev/dashboard](https://seomcp.dev/dashboard) |
 | `GOOGLE_SERVICE_ACCOUNT` | ✅ | Path to Google service account JSON file |
-| `GSC_PROPERTY` | Optional | Google Search Console property (e.g., `sc-domain:example.com`) |
-| `GA4_PROPERTY` | Optional | GA4 property ID (e.g., `properties/123456`) |
+| `GSC_PROPERTIES` | Required for GSC tools | Comma-separated domain names (e.g., `example.com,blog.example.com`) - we auto-add `sc-domain:` |
+| `GA4_PROPERTIES` | Required for GA4 tools | Comma-separated with domain mapping: `propertyID:domain` (e.g., `123:example.com,456:blog.example.com`) |
 | `SEOMCP_API_URL` | Optional | Override API URL (default: `https://api.seomcp.dev`) |
 | `SEOMCP_TIMEOUT` | Optional | Request timeout in ms (default: `30000`) |
+
+**Property Mapping:** 
+- `GA4_PROPERTIES`: Use `propertyID:domain` format for explicit mapping
+- `GSC_PROPERTIES`: Just list domain names, we automatically format them as `sc-domain:example.com`
+
+```
+GSC_PROPERTIES=example.com,blog.example.com
+GA4_PROPERTIES=123456789:example.com,987654321:blog.example.com
+# example.com ↔ 123456789, blog.example.com ↔ 987654321
+```
 
 ## CLI Commands
 
@@ -58,7 +68,7 @@ seomcp-proxy version      # Print version
 seomcp-proxy --help       # Print help
 ```
 
-## 37 Tools Available
+## 38 Tools Available
 
 ### Crawling & Audit (3)
 `site_audit` · `crawl_page` · `test_robots_txt`
@@ -66,8 +76,8 @@ seomcp-proxy --help       # Print help
 ### Google Search Console (8)
 `gsc_performance` · `gsc_list_sites` · `gsc_list_sitemaps` · `gsc_submit_sitemap` · `gsc_delete_sitemap` · `gsc_inspect_url` · `gsc_bulk_inspect` · `gsc_search_appearances`
 
-### Google Analytics 4 (10)
-`ga4_report` · `ga4_batch_report` · `ga4_funnel_report` · `ga4_realtime` · `ga4_metadata` · `ga4_overview` · `ga4_top_pages` · `ga4_traffic_sources` · `ga4_devices` · `ga4_geography`
+### Google Analytics 4 (11)
+`ga4_list_properties` · `ga4_report` · `ga4_batch_report` · `ga4_funnel_report` · `ga4_realtime` · `ga4_metadata` · `ga4_overview` · `ga4_top_pages` · `ga4_traffic_sources` · `ga4_devices` · `ga4_geography`
 
 ### Core Web Vitals (1)
 `core_web_vitals`

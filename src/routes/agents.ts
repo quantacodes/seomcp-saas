@@ -185,9 +185,12 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     return c.json({ error: "Invalid JSON body" }, 400);
   }
 
-  if (!body.site_url) {
-    return c.json({ error: "site_url is required" }, 400);
+  if (!body.bot_name && !body.site_url) {
+    return c.json({ error: "bot_name or site_url is required" }, 400);
   }
+
+  // Use bot_name as primary identifier, fall back to site_url
+  const agentLabel = body.bot_name || body.site_url || "";
 
   // telegram_chat_id is optional at provision time — dashboard flow provides it at deploy
   const telegramChatId = body.telegram_chat_id || `pending-${session.userId}`;
@@ -197,22 +200,23 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
     return c.json({ error: "Too many requests. Please wait a moment." }, 429);
   }
 
-  // Idempotency: check if user already has an active agent for this site_url
-  const existing = db
+  // Idempotency: check if user already has an active agent with this label
+  const lookupField = body.site_url || body.bot_name || "";
+  const existing = lookupField ? db
     .select()
     .from(schema.userAgentMappings)
     .where(
       and(
         eq(schema.userAgentMappings.userId, session.userId),
-        eq(schema.userAgentMappings.siteUrl, body.site_url)
+        eq(schema.userAgentMappings.siteUrl, lookupField)
       )
     )
     .limit(1)
-    .all()[0];
+    .all()[0] : undefined;
 
   if (existing && existing.status !== "cancelled") {
     return c.json({
-      error: "Agent already exists for this site",
+      error: "Agent already exists with this name",
       id: existing.id,
       agentCustomerId: existing.agentCustomerId,
       status: existing.status,
@@ -235,7 +239,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
         userId: session.userId,
         keyHash: agentKeyHash,
         keyPrefix: agentKeyPrefix,
-        name: `Agent — ${body.site_url}`,
+        name: `Agent — ${agentLabel}`,
         isActive: true,
         scopes: null, // Full access — agent needs all tools
         createdAt: new Date(),
@@ -244,7 +248,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
 
     // Encrypt the raw key for storage (needed during deploy injection)
     const agentKeyEnc = encryptToken(agentKeyRaw);
-    console.log(`[agent] API key created for ${body.site_url}: ${agentKeyPrefix}`);
+    console.log(`[agent] API key created for ${agentLabel}: ${agentKeyPrefix}`);
 
     // Create local mapping record with API key reference
     const mappingId = ulid();
@@ -253,7 +257,7 @@ agentRoutes.post("/dashboard/api/agents/provision", async (c) => {
         id: mappingId,
         userId: session.userId,
         agentCustomerId,
-        siteUrl: body.site_url,
+        siteUrl: agentLabel,
         plan: body.plan || "starter",
         status: "provisioning",
         agentApiKeyId: agentKeyId,

@@ -47,12 +47,22 @@ This is the user-facing client. It must be:
 
 ### Environment Variables (read from MCP client config)
 ```
-SEOMCP_API_KEY        (required) — API key for authentication (sk-xxx format)
+SEOMCP_API_KEY        (required) — API key for authentication (sk_live_REDACTED format)
 GOOGLE_SERVICE_ACCOUNT (required) — Path to Google service account JSON file
-GSC_PROPERTY          (optional) — Google Search Console property (e.g., sc-domain:example.com)
-GA4_PROPERTY          (optional) — GA4 property ID (e.g., properties/123456)
+GSC_PROPERTIES        (required for GSC) — Comma-separated domain names (e.g., example.com,blog.example.com)
+GA4_PROPERTIES        (required for GA4) — Comma-separated propertyID:domain (e.g., 123:example.com,456:blog.example.com)
 SEOMCP_API_URL        (optional) — Override API URL (default: https://api.seomcp.dev)
 SEOMCP_TIMEOUT        (optional) — Request timeout in ms (default: 30000)
+```
+
+**Property Format:**
+- `GSC_PROPERTIES`: Just domain names - we auto-add `sc-domain:` prefix
+- `GA4_PROPERTIES`: Use `propertyID:domain` format for explicit mapping
+
+Example:
+```
+GSC_PROPERTIES=example.com,blog.example.com
+GA4_PROPERTIES=123456789:example.com,987654321:blog.example.com
 ```
 
 ### Core Behaviors

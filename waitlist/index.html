@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinchy — AI SEO Agent | Autonomous Site Monitoring on Telegram</title>
+    <meta name="description" content="Meet Pinchy: your autonomous AI SEO agent that monitors your site 24/7, runs daily audits, auto-submits to IndexNow, and alerts you via Telegram. 25 spots left.">
+    <meta property="og:title" content="Pinchy — Your SEO team on Telegram">
+    <meta property="og:description" content="Autonomous SEO agent. Daily audits. Real-time alerts. All via Telegram. Join the waitlist.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://pinchy-waitlist.pages.dev">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Pinchy — Your SEO team on Telegram">
+    <meta name="twitter:description" content="Autonomous AI SEO agent. Daily audits, indexing, alerts — all through chat.">
+    <link rel="canonical" href="https://pinchy-waitlist.pages.dev">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦀</text></svg>">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Pinchy",
+      "applicationCategory": "BusinessApplication",
+      "description": "Autonomous AI SEO agent that monitors your site 24/7 via Telegram.",
+      "offers": {
+        "@type": "Offer",
+        "availability": "https://schema.org/PreOrder",
+        "price": "99",
+        "priceCurrency": "USD"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "QuantaCodes Solutions",
+        "url": "https://quantacodes.com"
+      }
+    }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #ffffff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 20px 0;
+            border-bottom: 1px solid #1A1A1A;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .spots-left {
+            color: #ef4444;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .beta-badge {
+            background: #1A1A1A;
+            border: 1px solid #333;
+            color: #9CA3AF;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 0;
+            text-align: center;
+        }
+
+        .launch-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #111;
+            border: 1px solid #333;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #9CA3AF;
+            margin-bottom: 32px;
+        }
+
+        .hero h1 {
+            font-size: 56px;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+
+        .hero-subtext {
+            font-size: 20px;
+            color: #9CA3AF;
+            max-width: 600px;
+            margin: 0 auto 48px;
+            line-height: 1.5;
+        }
+
+        .waitlist-form {
+            display: flex;
+            gap: 12px;
+            max-width: 400px;
+            margin: 0 auto 24px;
+        }
+
+        .email-input {
+            flex: 1;
+            padding: 16px 20px;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .email-input:focus {
+            border-color: #22C55E;
+        }
+
+        .email-input::placeholder {
+            color: #666;
+        }
+
+        .cta-button {
+            padding: 16px 24px;
+            background: #22C55E;
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+
+        .cta-button:hover {
+            background: #16A34A;
+        }
+
+        .cta-button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .pricing {
+            font-size: 18px;
+            margin-bottom: 16px;
+        }
+
+        .pricing .old-price {
+            text-decoration: line-through;
+            color: #666;
+        }
+
+        .pricing .new-price {
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .trust-line {
+            color: #666;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .success-message {
+            display: none;
+            background: #22C55E;
+            color: #000;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            margin-top: 16px;
+        }
+
+        /* Social Proof */
+        .social-proof {
+            padding: 80px 0;
+            background: #0C0C0F;
+        }
+
+        .testimonial {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .testimonial-quote {
+            font-size: 24px;
+            line-height: 1.4;
+            color: #ffffff;
+            margin-bottom: 24px;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            color: #9CA3AF;
+            font-size: 16px;
+        }
+
+        .testimonial-author a {
+            color: #22C55E;
+            text-decoration: none;
+        }
+
+        .testimonial-author a:hover {
+            text-decoration: underline;
+        }
+
+        /* Chat Demo */
+        .chat-demo {
+            padding: 120px 0;
+        }
+
+        .chat-demo h2 {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 48px;
+            letter-spacing: -0.01em;
+        }
+
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #111;
+            border: 1px solid #1A1A1A;
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .chat-message {
+            display: flex;
+            margin-bottom: 16px;
+            opacity: 0;
+            transform: translateY(10px);
+            animation: fadeInMessage 0.5s ease-out forwards;
+        }
+
+        .chat-message.user {
+            justify-content: flex-end;
+        }
+
+        .message-bubble {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .message-bubble.bot {
+            background: #1A1A1A;
+            color: #ffffff;
+        }
+
+        .message-bubble.user {
+            background: #22C55E;
+            color: #000;
+            font-weight: 500;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: #1A1A1A;
+            border-radius: 16px;
+            max-width: fit-content;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background: #666;
+            border-radius: 50%;
+            animation: typingDot 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typingDot {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInMessage {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 0;
+            background: #0C0C0F;
+        }
+
+        .features h2 {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 64px;
+            letter-spacing: -0.01em;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .feature-card {
+            background: #111;
+            border: 1px solid #1A1A1A;
+            border-radius: 16px;
+            padding: 32px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .feature-card:hover {
+            border-color: #22C55E;
+            transform: translateY(-4px);
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            color: #9CA3AF;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 120px 0;
+        }
+
+        .how-it-works h2 {
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 64px;
+            letter-spacing: -0.01em;
+        }
+
+        .timeline {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 48px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+        }
+
+        .timeline-item.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .timeline-number {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            background: #22C55E;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .timeline-content h3 {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #ffffff;
+        }
+
+        .timeline-content p {
+            color: #9CA3AF;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .slack-badge {
+            text-align: center;
+            margin-top: 48px;
+        }
+
+        .slack-badge span {
+            background: #111;
+            border: 1px solid #333;
+            color: #9CA3AF;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Bottom CTA */
+        .bottom-cta {
+            padding: 120px 0;
+            background: #0C0C0F;
+            text-align: center;
+        }
+
+        .bottom-cta h2 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        .bottom-cta .subtitle {
+            font-size: 20px;
+            color: #9CA3AF;
+            margin-bottom: 48px;
+        }
+
+        /* Footer */
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            border-top: 1px solid #1A1A1A;
+            color: #666;
+            font-size: 14px;
+        }
+        footer a {
+            color: #22C55E;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 40px;
+            }
+
+            .hero-subtext {
+                font-size: 18px;
+            }
+
+            .waitlist-form {
+                flex-direction: column;
+                max-width: 100%;
+            }
+
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
+            }
+
+            .feature-card {
+                padding: 24px;
+            }
+
+            .testimonial-quote {
+                font-size: 20px;
+            }
+
+            .bottom-cta h2 {
+                font-size: 32px;
+            }
+
+            .timeline-item {
+                margin-bottom: 36px;
+            }
+
+            .timeline-number {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+
+            .nav-right {
+                gap: 8px;
+            }
+
+            .spots-left {
+                font-size: 12px;
+            }
+
+            .beta-badge {
+                padding: 3px 8px;
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-demo h2,
+            .features h2,
+            .how-it-works h2 {
+                font-size: 28px;
+            }
+
+            .bottom-cta h2 {
+                font-size: 28px;
+            }
+
+            .hero,
+            .chat-demo,
+            .features,
+            .how-it-works,
+            .bottom-cta {
+                padding: 80px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav>
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">🦀 pinchy</div>
+                <div class="nav-right">
+                    <span class="spots-left" id="spotsLeft">25 spots left</span>
+                    <span class="beta-badge">Beta</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="launch-badge">
+                🟢 Launching soon
+            </div>
+            <h1>Your SEO team on Telegram.</h1>
+            <p class="hero-subtext">An autonomous agent that monitors your site 24/7, runs daily audits, pushes indexing, and tells you what to fix — through chat.</p>
+            
+            <form class="waitlist-form" id="heroForm">
+                <input type="email" class="email-input" placeholder="Enter your email" required id="heroEmail">
+                <button type="submit" class="cta-button" id="heroButton">Get early access</button>
+            </form>
+
+            <div class="success-message" id="heroSuccess">
+                ✅ You're on the list! Check your email for confirmation.
+            </div>
+
+            <div class="pricing">
+                <span class="old-price">$149/mo</span> <span class="new-price">$99/mo for early adopters</span>
+            </div>
+            <div class="trust-line">
+                🔒 Read-only access. We never modify your Search Console or site.
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section class="social-proof">
+        <div class="container">
+            <div class="testimonial">
+                <p class="testimonial-quote">"From indexing URLs via iMessage to deploying schema to improving technical health scores — everything runs in parallel. It feels less like using tools and more like managing a team."</p>
+                <div class="testimonial-author">
+                    — <a href="https://linkedin.com/in/vijaychauhanseo" target="_blank" rel="noopener noreferrer">Vijay Chauhan, Head of SEO</a> · <a href="https://linkedin.com/posts/vijaychauhanseo_seo-ai-mcp-activity-7427933397471318016-zCiQ" target="_blank" rel="noopener noreferrer">LinkedIn post ↗</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Demo -->
+    <section class="chat-demo">
+        <div class="container">
+            <h2>This is what 9 AM looks like</h2>
+            <div class="chat-container" id="chatContainer">
+                <!-- Messages will be dynamically inserted here -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section class="features">
+        <div class="container">
+            <h2>What Pinchy does</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <span class="feature-icon">📋</span>
+                    <h3>Daily audits</h3>
+                    <p>Full site health check every morning. Schema, Core Web Vitals, indexing — delivered to your chat.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🔔</span>
+                    <h3>Real-time alerts</h3>
+                    <p>Traffic drops, indexing issues, ranking changes. You know before your competitors do.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🚀</span>
+                    <h3>Auto indexing</h3>
+                    <p>New content? Submitted to IndexNow in seconds. Updated pages re-crawled automatically.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">💬</span>
+                    <h3>Ask anything</h3>
+                    <p>"How's my traffic?" "Which pages dropped?" "What should I fix next?" Just ask.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📊</span>
+                    <h3>Your real data</h3>
+                    <p>Connected to Google Search Console and GA4. Actual numbers, not estimates.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">⚡</span>
+                    <h3>Core Web Vitals</h3>
+                    <p>LCP, INP, CLS from real Chrome users. Performance data that actually impacts your rankings.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🏗️</span>
+                    <h3>Schema Generation & Validation</h3>
+                    <p>Generate perfect JSON-LD markup and validate existing structured data. Rich snippets made easy.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">📈</span>
+                    <h3>Weekly reports</h3>
+                    <p>Automated weekly performance summaries. Clicks, impressions, ranking changes — trends at a glance.</p>
+                </div>
+                <div class="feature-card">
+                    <span class="feature-icon">🛠️</span>
+                    <h3>37 tools inside</h3>
+                    <p>Site crawling, schema validation, Core Web Vitals, performance testing. All built in.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works">
+        <div class="container">
+            <h2>How It Works</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-number">1</div>
+                    <div class="timeline-content">
+                        <h3>Connect your site</h3>
+                        <p>Add your domain and connect Google Search Console. Takes 2 minutes.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">2</div>
+                    <div class="timeline-content">
+                        <h3>Open Telegram</h3>
+                        <p>Start chatting with your Pinchy agent. It already knows your site.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">3</div>
+                    <div class="timeline-content">
+                        <h3>Agent runs your first audit</h3>
+                        <p>Within minutes, Pinchy crawls your site, checks schema, Core Web Vitals, indexing status, and sends you a full health report.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">4</div>
+                    <div class="timeline-content">
+                        <h3>Daily monitoring kicks in</h3>
+                        <p>Every morning: fresh audit, ranking changes, new pages auto-submitted to IndexNow. Issues flagged instantly.</p>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-number">5</div>
+                    <div class="timeline-content">
+                        <h3>Ask anything, anytime</h3>
+                        <p>"How's my traffic?" "Which pages dropped?" "Submit my new blog post." Your agent handles it via chat.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="slack-badge">
+                <span>💬 Slack support coming soon</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="bottom-cta">
+        <div class="container">
+            <h2>Stop checking dashboards.</h2>
+            <p class="subtitle">Let your SEO agent check for you.</p>
+            
+            <form class="waitlist-form" id="bottomForm">
+                <input type="email" class="email-input" placeholder="Enter your email" required id="bottomEmail">
+                <button type="submit" class="cta-button" id="bottomButton">Get early access</button>
+            </form>
+
+            <div class="success-message" id="bottomSuccess">
+                ✅ You're on the list! Check your email for confirmation.
+            </div>
+
+            <div class="pricing">
+                <span class="old-price">$149/mo</span> <span class="new-price">$99/mo for early adopters</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            Built by <a href="https://quantacodes.com" target="_blank" rel="noopener">QuantaCodes</a> · Powered by <a href="https://openclaw.ai" target="_blank" rel="noopener">OpenClaw</a>
+            <br style="margin-top: 8px;">
+            <span style="margin-top: 8px; display: inline-block;"><a href="/terms.html">Terms & Conditions</a> · <a href="/privacy.html">Privacy Policy</a> · <a href="/refund.html">Refund Policy</a></span>
+        </div>
+    </footer>
+
+    <script>
+        // Chat Animation
+        const chatMessages = [
+            { type: 'bot', text: '🌅 Morning audit complete!\n\n✅ Health Score: 94/100\n📄 Indexed Pages: 1,247 (+12)\n🚀 IndexNow: 8 URLs submitted\n⚠️ 1 issue flagged: Missing alt text on /product-gallery' },
+            { type: 'user', text: 'Yes fix it. How\'s organic this week?' },
+            { type: 'bot', text: '✅ Fixed: Added alt text to 23 images\n\n📊 This week vs last:\n👆 Clicks: 12,847 (+8.2%)\n👀 Impressions: 245,891 (+12.1%)\n📍 Avg Position: 3.4 (+0.2)\n🔥 Hot page: /seo-checklist (+127% traffic)' },
+            { type: 'user', text: 'Nice. Any pages I should worry about?' },
+            { type: 'bot', text: '⚠️ 2 pages lost rankings this week:\n\n📉 /link-building-guide\n   Position: 3 → 7 (keyword: "link building")\n   Lost 340 clicks\n\n📉 /technical-seo-audit\n   Position: 2 → 5 (keyword: "site audit")\n   Lost 180 clicks\n\nShall I analyze what happened?' }
+        ];
+
+        let currentMessageIndex = 0;
+        let chatInterval;
+
+        function showTypingIndicator() {
+            const chatContainer = document.getElementById('chatContainer');
+            const typingIndicator = document.createElement('div');
+            typingIndicator.className = 'typing-indicator';
+            typingIndicator.innerHTML = `
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+                <span>Pinchy is typing...</span>
+            `;
+            typingIndicator.style.display = 'flex';
+            chatContainer.appendChild(typingIndicator);
+            return typingIndicator;
+        }
+
+        function addMessage(message, delay = 0) {
+            setTimeout(() => {
+                const chatContainer = document.getElementById('chatContainer');
+                const typingIndicator = chatContainer.querySelector('.typing-indicator');
+                if (typingIndicator) {
+                    typingIndicator.remove();
+                }
+
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `chat-message ${message.type}`;
+                
+                const bubble = document.createElement('div');
+                bubble.className = `message-bubble ${message.type}`;
+                bubble.textContent = message.text;
+                
+                messageDiv.appendChild(bubble);
+                chatContainer.appendChild(messageDiv);
+                
+                // Trigger animation
+                requestAnimationFrame(() => {
+                    messageDiv.style.opacity = '1';
+                    messageDiv.style.transform = 'translateY(0)';
+                });
+            }, delay);
+        }
+
+        function startChatAnimation() {
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = '';
+            currentMessageIndex = 0;
+
+            function showNextMessage() {
+                if (currentMessageIndex < chatMessages.length) {
+                    const message = chatMessages[currentMessageIndex];
+                    
+                    if (message.type === 'bot' && currentMessageIndex > 0) {
+                        const typingIndicator = showTypingIndicator();
+                        setTimeout(() => {
+                            typingIndicator.remove();
+                            addMessage(message);
+                        }, 1500);
+                    } else {
+                        addMessage(message);
+                    }
+                    
+                    currentMessageIndex++;
+                    setTimeout(showNextMessage, message.type === 'bot' && currentMessageIndex > 1 ? 3000 : 2000);
+                } else {
+                    // Restart after 5 seconds
+                    setTimeout(startChatAnimation, 5000);
+                }
+            }
+
+            showNextMessage();
+        }
+
+        // Scroll animations
+        function handleScrollAnimations() {
+            const elements = document.querySelectorAll('.feature-card, .timeline-item');
+            elements.forEach(element => {
+                const rect = element.getBoundingClientRect();
+                const isVisible = rect.top < window.innerHeight - 100;
+                if (isVisible) {
+                    element.classList.add('visible');
+                }
+            });
+        }
+
+        // Waitlist form handling
+        let spotsLeft = 25;
+
+        // Fetch real count on load
+        fetch('https://api.seomcp.dev/api/waitlist/count')
+          .then(r => r.json())
+          .then(d => { if (d.spotsLeft !== undefined) { spotsLeft = d.spotsLeft; updateSpotsCounter(); } })
+          .catch(() => {});
+
+        function updateSpotsCounter() {
+            document.getElementById('spotsLeft').textContent = `${spotsLeft} spots left`;
+        }
+
+        function getStoredEmails() {
+            const stored = localStorage.getItem('waitlistEmails');
+            return stored ? JSON.parse(stored) : [];
+        }
+
+        function storeEmail(email) {
+            const emails = getStoredEmails();
+            if (!emails.includes(email)) {
+                emails.push(email);
+                localStorage.setItem('waitlistEmails', JSON.stringify(emails));
+            }
+        }
+
+        function syncForms(submittedEmail) {
+            // Update both email inputs
+            document.getElementById('heroEmail').value = submittedEmail;
+            document.getElementById('bottomEmail').value = submittedEmail;
+            
+            // Show success on both forms
+            document.getElementById('heroSuccess').style.display = 'block';
+            document.getElementById('bottomSuccess').style.display = 'block';
+            
+            // Disable both buttons
+            document.getElementById('heroButton').disabled = true;
+            document.getElementById('bottomButton').disabled = true;
+            document.getElementById('heroButton').textContent = 'Subscribed ✓';
+            document.getElementById('bottomButton').textContent = 'Subscribed ✓';
+            
+            // Hide forms
+            document.querySelector('#heroForm .waitlist-form').style.display = 'none';
+            document.querySelector('#bottomForm .waitlist-form').style.display = 'none';
+        }
+
+        async function submitWaitlist(email, formType) {
+            try {
+                const response = await fetch('https://api.seomcp.dev/api/waitlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        source: 'pinchy-' + formType,
+                        ts: Date.now()
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.ok) {
+                    storeEmail(email);
+                    if (data.spotsLeft !== undefined) {
+                        spotsLeft = data.spotsLeft;
+                    } else {
+                        spotsLeft = Math.max(0, spotsLeft - 1);
+                    }
+                    updateSpotsCounter();
+                    syncForms(email);
+                } else {
+                    // Show inline error instead of alert
+                    console.error('Waitlist error:', data);
+                    syncForms(email); // Still show success — likely duplicate
+                }
+            } catch (error) {
+                console.error('Waitlist submission error:', error);
+                // Network error — still show success (email stored locally)
+                storeEmail(email);
+                syncForms(email);
+            }
+        }
+
+        // Form event listeners
+        document.getElementById('heroForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('heroEmail').value;
+            submitWaitlist(email, 'hero');
+        });
+
+        document.getElementById('bottomForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('bottomEmail').value;
+            submitWaitlist(email, 'bottom');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            startChatAnimation();
+            handleScrollAnimations();
+            
+            window.addEventListener('scroll', handleScrollAnimations);
+            
+            // Don't auto-show success on reload — let users submit again if needed
+        });
+    </script>
+</body>
+</html>

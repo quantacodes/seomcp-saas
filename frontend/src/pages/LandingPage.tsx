@@ -107,7 +107,7 @@ function HeroSection() {
   const copyCode = () => {
     navigator.clipboard.writeText(`{
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "command": "npx",
       "args": ["-y", "@seomcp/proxy"],
       "env": {

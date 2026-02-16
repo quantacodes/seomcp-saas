@@ -191,7 +191,7 @@ export default function Docs() {
                   id="direct-config"
                   code={`{
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "url": "https://api.seomcp.dev/mcp",
       "headers": {
         "Authorization": "Bearer sk_live_REDACTED_key_here"
@@ -256,7 +256,7 @@ export default function Docs() {
                   id="proxy-config"
                   code={`{
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "command": "npx",
       "args": ["-y", "github:quantacodes/seomcp-proxy"],
       "env": {
@@ -362,7 +362,7 @@ export default function Docs() {
               id="claude-snippet"
               code={`{
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "url": "https://api.seomcp.dev/mcp",
       "headers": {
         "Authorization": "Bearer sk_live_..."
@@ -377,7 +377,7 @@ export default function Docs() {
               id="cursor-snippet"
               code={`{
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "url": "https://api.seomcp.dev/mcp",
       "headers": {
         "Authorization": "Bearer sk_live_..."

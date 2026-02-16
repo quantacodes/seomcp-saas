@@ -19,16 +19,18 @@ import {
 } from 'lucide-react';
 
 // Sidebar Component
-function Sidebar({ 
-  activeTab, 
-  setActiveTab, 
-  isOpen, 
-  onClose 
-}: { 
-  activeTab: string; 
+function Sidebar({
+  activeTab,
+  setActiveTab,
+  isOpen,
+  onClose,
+  plan = 'free'
+}: {
+  activeTab: string;
   setActiveTab: (t: string) => void;
   isOpen: boolean;
   onClose: () => void;
+  plan?: string;
 }) {
   const { user } = useUser();
   const { signOut } = useClerk();
@@ -49,9 +51,6 @@ function Sidebar({
     setActiveTab(tabId);
     onClose();
   };
-
-  // Get plan from user metadata or default to free
-  const plan = (user?.publicMetadata?.plan as string) || 'free';
 
   return (
     <>
@@ -325,7 +324,9 @@ function OverviewTab() {
     );
   }
 
-  const usagePercent = stats.limit === 'unlimited' ? 0 : Math.min(100, (stats.used / stats.limit) * 100);
+  const isUnlimited = typeof stats.limit === 'string' && (stats.limit === 'unlimited' || stats.limit === '∞');
+  const limitNum = typeof stats.limit === 'number' ? stats.limit : 0;
+  const usagePercent = isUnlimited ? 0 : Math.min(100, (stats.used / limitNum) * 100);
 
   return (
     <div>
@@ -374,7 +375,7 @@ function OverviewTab() {
           <p style={{ fontSize: '36px', fontWeight: 700, marginBottom: '16px' }}>
             {stats?.used.toLocaleString()}
             <span style={{ fontSize: '16px', color: 'var(--text-tertiary)', marginLeft: '4px' }}>
-              / {stats?.limit === Infinity ? '∞' : stats?.limit.toLocaleString()}
+              / {isUnlimited ? '∞' : limitNum.toLocaleString()}
             </span>
           </p>
           
@@ -394,7 +395,7 @@ function OverviewTab() {
             }} />
           </div>
           <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginTop: '8px' }}>
-            {stats?.remaining === Infinity ? 'Unlimited' : `${stats?.remaining} calls remaining`}
+            {isUnlimited ? 'Unlimited' : `${stats?.remaining} calls remaining`}
           </p>
         </div>
 
@@ -856,7 +857,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
 // %APPDATA%/Claude/claude_desktop_config.json (Windows)
 {
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "command": "npx",
       "args": ["-y", "@seomcp/proxy"],
       "env": {
@@ -871,7 +872,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
     cursor: `// .cursor/mcp.json (project) or ~/.cursor/mcp.json (global)
 {
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "command": "npx",
       "args": ["-y", "@seomcp/proxy"],
       "env": {
@@ -887,7 +888,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
 {
   "mcp": {
     "servers": {
-      "seo": {
+      "seo-mcp": {
         "command": "npx",
         "args": ["-y", "@seomcp/proxy"],
         "env": {
@@ -1034,26 +1035,41 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [userPlan, setUserPlan] = useState<string>('free');
+  const api = useApiClient();
+
+  // Fetch user plan from API on mount
+  useEffect(() => {
+    api.getStats()
+      .then((data) => {
+        if (data.plan) {
+          setUserPlan(data.plan);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-deep)' }}>
       {/* Desktop Sidebar */}
       <div className="desktop-sidebar">
-        <Sidebar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
           isOpen={true}
           onClose={() => setSidebarOpen(false)}
+          plan={userPlan}
         />
       </div>
-      
+
       {/* Mobile Sidebar */}
       <div className="mobile-sidebar">
-        <Sidebar 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          plan={userPlan}
         />
       </div>
       

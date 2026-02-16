@@ -45,7 +45,7 @@ SETUP
 
      {
        "mcpServers": {
-         "seo": {
+         "seo-mcp": {
            "command": "seomcp-proxy",
            "env": {
              "SEOMCP_API_KEY": "sk_live_...",

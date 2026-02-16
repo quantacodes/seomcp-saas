@@ -17,7 +17,7 @@ Add to your Claude Desktop, Cursor, or other MCP client config:
 ```json
 {
   "mcpServers": {
-    "seo": {
+    "seo-mcp": {
       "command": "seomcp-proxy",
       "env": {
         "SEOMCP_API_KEY": "sk_live_...",

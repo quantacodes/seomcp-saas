@@ -30,7 +30,7 @@ export default function Refund() {
 
       {/* Content */}
       <main style={{ paddingTop: '120px', paddingBottom: '80px' }}>
-        <div style={{ maxWidth: '800px', margin: '0 auto', padding: '0 24px' }}>
+        <div className="legal-content">
           <h1 style={{ fontSize: '42px', fontWeight: 700, marginBottom: '16px' }}>
             Refund Policy
           </h1>

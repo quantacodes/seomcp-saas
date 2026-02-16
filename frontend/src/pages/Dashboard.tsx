@@ -349,12 +349,9 @@ function OverviewTab() {
       </p>
 
       {/* Stats Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-        gap: '24px',
+      <div className="stats-grid" style={{
         marginBottom: '32px',
-      }} className="stats-grid">
+      }}>
         {/* Usage Card */}
         <div style={{
           background: 'var(--bg-surface)',
@@ -697,7 +694,7 @@ function KeysTab() {
             No API keys yet. Create one above.
           </div>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div className="dashboard-table-wrapper">
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
               <thead>
               <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
@@ -1072,12 +1069,10 @@ export default function Dashboard() {
           plan={userPlan}
         />
       </div>
-      
-      <main style={{
+
+      <main className="main-content" style={{
         flex: 1,
-        marginLeft: '0',
-        padding: '32px 40px',
-      }} className="main-content">
+      }}>
         {/* Mobile Header */}
         <div className="mobile-header" style={{
           display: 'none',
@@ -1107,26 +1102,6 @@ export default function Dashboard() {
         {activeTab === 'keys' && <KeysTab />}
         {activeTab === 'settings' && <SettingsTab />}
       </main>
-      
-      {/* Responsive Styles */}
-      <style>{`
-        @media (min-width: 1024px) {
-          .desktop-sidebar { display: block; }
-          .mobile-sidebar { display: none; }
-          .mobile-header { display: none !important; }
-          .main-content { margin-left: 240px !important; }
-          .mobile-close-btn { display: none !important; }
-          .mobile-overlay { display: none !important; }
-        }
-        
-        @media (max-width: 1023px) {
-          .desktop-sidebar { display: none; }
-          .mobile-sidebar { display: block; }
-          .mobile-header { display: flex !important; }
-          .main-content { margin-left: 0 !important; padding: 24px !important; }
-          .mobile-close-btn { display: block !important; }
-        }
-      `}</style>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { useState, useEffect, useLayoutEffect } from 'react';
 export default function Docs() {
   const [copied, setCopied] = useState<string | null>(null);
   const [activeSection, setActiveSection] = useState('quickstart');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const copyCode = (code: string, id: string) => {
     navigator.clipboard.writeText(code);
@@ -98,13 +99,47 @@ export default function Docs() {
         </div>
       </nav>
 
-      <div style={{ display: 'flex', paddingTop: '64px' }}>
+      <div style={{ display: 'flex', paddingTop: '64px', position: 'relative' }}>
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            right: '24px',
+            width: '56px',
+            height: '56px',
+            borderRadius: '50%',
+            background: 'var(--amber)',
+            color: '#000',
+            border: 'none',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(229, 164, 48, 0.4)',
+            zIndex: 99,
+            display: 'none',
+          }}
+          className="docs-mobile-menu-btn"
+        >
+          {sidebarOpen ? '✕' : '☰'}
+        </button>
+
+        {/* Mobile Overlay */}
+        <div
+          onClick={() => setSidebarOpen(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            zIndex: 98,
+            opacity: sidebarOpen ? 1 : 0,
+            pointerEvents: sidebarOpen ? 'auto' : 'none',
+            transition: 'opacity 0.3s ease',
+          }}
+          className="docs-mobile-overlay"
+        />
+
         {/* Sidebar */}
-        <aside style={{
-          width: '280px', position: 'fixed', left: 0, top: '64px', bottom: 0,
-          borderRight: '1px solid var(--border-subtle)', padding: '32px 24px',
-          overflowY: 'auto', background: 'var(--bg-deep)',
-        }}>
+        <aside className={`docs-sidebar ${sidebarOpen ? 'open' : ''}`}>
           <p style={{ fontSize: '12px', color: 'var(--text-tertiary)', fontWeight: 600, marginBottom: '16px', letterSpacing: '0.05em' }}>
             Documentation
           </p>
@@ -113,7 +148,11 @@ export default function Docs() {
               <a
                 key={item.id}
                 href={`#${item.id}`}
-                onClick={(e) => { e.preventDefault(); document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' }); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' });
+                  setSidebarOpen(false);
+                }}
                 style={{
                   fontSize: '14px', color: activeSection === item.id ? 'var(--amber)' : 'var(--text-secondary)',
                   padding: '8px 12px', borderRadius: '6px',
@@ -128,7 +167,7 @@ export default function Docs() {
         </aside>
 
         {/* Content */}
-        <main style={{ marginLeft: '280px', flex: 1, maxWidth: '800px', padding: '48px', paddingBottom: '120px' }}>
+        <main className="docs-content">
           <h1 style={{ fontSize: '42px', fontWeight: 800, marginBottom: '48px' }}>Documentation</h1>
 
           {/* Quick Start */}
@@ -138,8 +177,9 @@ export default function Docs() {
               Two ways to connect — pick what fits your needs.
             </p>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '32px' }}>
-              <thead>
+            <div className="docs-table-wrapper">
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '32px', minWidth: '500px' }}>
+                <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Method</th>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Tools</th>
@@ -158,7 +198,8 @@ export default function Docs() {
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>Full power — your Google creds stay local</td>
                 </tr>
               </tbody>
-            </table>
+              </table>
+            </div>
 
             <h3 style={{ fontSize: '20px', fontWeight: 600, marginBottom: '16px', marginTop: '32px' }}>Option A: Direct Connection (30 seconds)</h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
@@ -581,10 +622,11 @@ export default function Docs() {
               </p>
             </div>
 
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
-                  <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Plan</th>
+            <div className="docs-table-wrapper">
+              <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '24px', minWidth: '500px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                    <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Plan</th>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Calls/month</th>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Sites</th>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>API Keys</th>
@@ -616,7 +658,8 @@ export default function Docs() {
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>Unlimited</td>
                 </tr>
               </tbody>
-            </table>
+              </table>
+            </div>
 
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px' }}>When rate limited</h3>
             <p style={{ color: 'var(--text-secondary)' }}>
@@ -646,8 +689,9 @@ export default function Docs() {
             />
 
             <h3 style={{ fontSize: '18px', fontWeight: 600, marginBottom: '16px', marginTop: '32px' }}>HTTP Status Codes</h3>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
+            <div className="docs-table-wrapper">
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '400px' }}>
+                <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Code</th>
                   <th style={{ textAlign: 'left', padding: '12px', fontSize: '14px', fontWeight: 600 }}>Meaning</th>
@@ -675,7 +719,8 @@ export default function Docs() {
                   <td style={{ padding: '12px', fontSize: '14px', color: 'var(--text-secondary)' }}>Rate limit exceeded</td>
                 </tr>
               </tbody>
-            </table>
+              </table>
+            </div>
           </section>
 
           {/* Billing */}
@@ -715,6 +760,14 @@ export default function Docs() {
             </div>
           </footer>
         </main>
+
+        {/* Mobile-specific styles */}
+        <style>{`
+          @media (max-width: 1024px) {
+            .docs-mobile-menu-btn { display: flex !important; align-items: center; justify-content: center; font-size: 24px; }
+            .docs-mobile-overlay { display: block !important; }
+          }
+        `}</style>
       </div>
     </div>
   );

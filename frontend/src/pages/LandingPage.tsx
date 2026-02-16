@@ -126,7 +126,7 @@ function HeroSection() {
   return (
     <section className="hero" style={{
       position: 'relative',
-      padding: '168px 0 120px',
+      padding: 'clamp(80px, 20vh, 168px) 0 clamp(60px, 15vh, 120px)',
       textAlign: 'center',
       overflow: 'hidden',
     }}>
@@ -199,7 +199,7 @@ function HeroSection() {
         </p>
 
         {/* Code Block */}
-        <div style={{ maxWidth: '520px', margin: '0 auto 40px', textAlign: 'left' }}>
+        <div style={{ maxWidth: '520px', width: '100%', margin: '0 auto 40px', textAlign: 'left' }}>
           <div className="code-block">
             <div className="code-header">
               <div className="code-dots">
@@ -221,10 +221,6 @@ function HeroSection() {
 
         {/* CTAs */}
         <div className="hero-ctas" style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '8px',
           marginBottom: '32px',
         }}>
           {isSignedIn ? (
@@ -242,12 +238,7 @@ function HeroSection() {
         </div>
 
         {/* Subline */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '12px',
-          flexWrap: 'wrap',
+        <div className="hero-subline" style={{
           marginTop: '20px',
         }}>
           <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>✓ No credit card</span>
@@ -260,12 +251,7 @@ function HeroSection() {
         </div>
 
         {/* Trust line */}
-        <div style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '16px',
-          flexWrap: 'wrap',
+        <div className="hero-trust" style={{
           marginTop: '32px',
         }}>
           <span style={{ fontSize: '14px', color: 'var(--text-tertiary)' }}>Works with</span>
@@ -358,11 +344,7 @@ function ToolsSection() {
           <p className="body-lg text-secondary">Organized by workflow. Your agent picks the right tool automatically.</p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, 1fr)',
-          gap: '20px',
-        }}>
+        <div className="tools-grid">
           {categories.map((cat) => (
             <div key={cat.name} style={{
               background: 'var(--bg-surface)',
@@ -425,13 +407,7 @@ function PricingSection() {
           <p className="body-lg text-secondary">No credit card required. Get your API key in 30 seconds.</p>
         </div>
 
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-          gap: '32px',
-          maxWidth: '820px',
-          margin: '0 auto',
-        }}>
+        <div className="pricing-grid">
           {/* Free */}
           <div style={{
             background: 'var(--bg-surface)',

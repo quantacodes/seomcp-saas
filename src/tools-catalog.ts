@@ -17,6 +17,7 @@ export const TOOL_CATEGORIES = [
   { id: "reports", name: "Reports", icon: "📋", description: "One-command full SEO audits" },
   { id: "crawl", name: "Crawling & Audit", icon: "🔍", description: "Crawl pages, test robots, find issues" },
   { id: "gsc", name: "Google Search Console", icon: "📊", description: "Search performance, indexing, sitemaps" },
+  { id: "indexing", name: "Google Indexing API", icon: "📨", description: "Submit URLs to Google for immediate indexing" },
   { id: "ga4", name: "Google Analytics 4", icon: "📈", description: "Traffic, engagement, conversions" },
   { id: "cwv", name: "Core Web Vitals", icon: "⚡", description: "PageSpeed, LCP, INP, CLS scores" },
   { id: "schema", name: "Schema & Structured Data", icon: "🏗️", description: "JSON-LD validation & robots.txt analysis" },
@@ -161,6 +162,53 @@ export const TOOLS: ToolInfo[] = [
       { name: "site_url", type: "string", required: true, description: "GSC property URL" },
       { name: "start_date", type: "string", required: true, description: "Start date (YYYY-MM-DD)" },
       { name: "end_date", type: "string", required: true, description: "End date (YYYY-MM-DD)" },
+    ],
+    tier: "all",
+  },
+
+  // Google Indexing API
+  {
+    name: "google_indexing_submit_url",
+    description: "Submit a URL to Google for immediate indexing. The URL must belong to a verified Search Console property.",
+    category: "indexing",
+    categoryIcon: "📨",
+    params: [
+      { name: "url", type: "string", required: true, description: "URL to submit" },
+      { name: "notification_type", type: "string", required: false, description: "URL_UPDATED or URL_DELETED (default: URL_UPDATED)" },
+    ],
+    tier: "all",
+  },
+  {
+    name: "google_indexing_batch_submit",
+    description: "Submit multiple URLs to Google for indexing (max 100 URLs per batch). Use dry_run=true to preview.",
+    category: "indexing",
+    categoryIcon: "📨",
+    params: [
+      { name: "urls", type: "string[]", required: true, description: "URLs to submit (max 100)" },
+      { name: "notification_type", type: "string", required: false, description: "URL_UPDATED or URL_DELETED" },
+      { name: "dry_run", type: "boolean", required: false, description: "Preview without submitting" },
+    ],
+    tier: "all",
+  },
+  {
+    name: "google_indexing_submit_sitemap",
+    description: "Fetch a sitemap.xml and submit all URLs to Google for indexing (max 100 URLs).",
+    category: "indexing",
+    categoryIcon: "📨",
+    params: [
+      { name: "sitemap_url", type: "string", required: true, description: "Sitemap URL" },
+      { name: "max_urls", type: "number", required: false, description: "Max URLs to submit (default 100)" },
+    ],
+    tier: "all",
+  },
+  {
+    name: "google_indexing_submit_file",
+    description: "Read URLs from a local file (txt/csv) and submit to Google for indexing (max 100 URLs).",
+    category: "indexing",
+    categoryIcon: "📨",
+    params: [
+      { name: "file_path", type: "string", required: true, description: "Path to URL list file" },
+      { name: "max_urls", type: "number", required: false, description: "Max URLs to submit (default 100)" },
     ],
     tier: "all",
   },
@@ -380,6 +428,22 @@ export const TOOLS: ToolInfo[] = [
   },
 
   // Meta
+  {
+    name: "quota_status",
+    description: "Check API quota status: Google Indexing (200/day per property) and GSC rate limit (1,200/minute)",
+    category: "meta",
+    categoryIcon: "ℹ️",
+    params: [],
+    tier: "all",
+  },
+  {
+    name: "healthcheck",
+    description: "Check server health, version, uptime, and configuration status",
+    category: "meta",
+    categoryIcon: "ℹ️",
+    params: [],
+    tier: "free",
+  },
   {
     name: "version",
     description: "Server version, tool count, uptime, and architecture info",

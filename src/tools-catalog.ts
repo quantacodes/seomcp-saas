@@ -327,6 +327,31 @@ export const TOOLS: ToolInfo[] = [
     ],
     tier: "all",
   },
+  {
+    name: "ga4_batch_report",
+    description: "Run multiple GA4 reports in a single API call (max 5) — reduces quota usage and latency vs sequential calls",
+    category: "ga4",
+    categoryIcon: "📈",
+    params: [
+      { name: "property_id", type: "string", required: true, description: "GA4 property ID or domain name" },
+      { name: "reports", type: "array", required: true, description: "Array of report configurations (max 5 per batch)" },
+    ],
+    tier: "all",
+  },
+  {
+    name: "ga4_funnel_report",
+    description: "Run a GA4 funnel report (v1alpha API) — define funnel steps and analyze user drop-off with breakdown by dimension",
+    category: "ga4",
+    categoryIcon: "📈",
+    params: [
+      { name: "property_id", type: "string", required: true, description: "GA4 property ID or domain name" },
+      { name: "start_date", type: "string", required: true, description: "Start date (YYYY-MM-DD)" },
+      { name: "end_date", type: "string", required: true, description: "End date (YYYY-MM-DD)" },
+      { name: "funnel", type: "object", required: true, description: "Funnel definition JSON with steps and filters" },
+      { name: "funnel_breakdown", type: "object", required: false, description: "Optional breakdown dimension configuration" },
+    ],
+    tier: "all",
+  },
 
   // CWV
   {

@@ -97,21 +97,25 @@ export function getRateLimitStatus(auth: AuthContext): {
   if (!planLimits) return { used: 0, limit: 0, remaining: 0 };
 
   const limit = getEffectiveLimit(auth);
-  if (limit === Infinity) return { used: 0, limit: Infinity, remaining: Infinity };
-
   const windowStart = getCurrentWindowStart();
+
   // Query usage_logs directly for single source of truth
   // Note: created_at is stored as Unix timestamp (seconds)
   const result = sqlite
     .query<{ call_count: number }, [string, number]>(
-      `SELECT COUNT(*) as call_count 
-       FROM usage_logs 
-       WHERE user_id = ? 
+      `SELECT COUNT(*) as call_count
+       FROM usage_logs
+       WHERE user_id = ?
        AND created_at >= ?`,
     )
     .get(auth.userId, windowStart);
 
   const used = result?.call_count || 0;
+
+  // For unlimited plans, still show usage count
+  if (limit === Infinity) {
+    return { used, limit: Infinity, remaining: Infinity };
+  }
 
   return {
     used,

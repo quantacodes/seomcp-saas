@@ -859,7 +859,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
   "mcpServers": {
     "seo-mcp": {
       "command": "npx",
-      "args": ["-y", "@seomcp/proxy"],
+      "args": ["-y", "github:quantacodes/seomcp-proxy"],
       "env": {
         "SEOMCP_API_KEY": "${apiKey}",
         "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
@@ -874,7 +874,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
   "mcpServers": {
     "seo-mcp": {
       "command": "npx",
-      "args": ["-y", "@seomcp/proxy"],
+      "args": ["-y", "github:quantacodes/seomcp-proxy"],
       "env": {
         "SEOMCP_API_KEY": "${apiKey}",
         "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
@@ -890,7 +890,7 @@ function SetupGuide({ apiKey }: { apiKey: string }) {
     "servers": {
       "seo-mcp": {
         "command": "npx",
-        "args": ["-y", "@seomcp/proxy"],
+        "args": ["-y", "github:quantacodes/seomcp-proxy"],
         "env": {
           "SEOMCP_API_KEY": "${apiKey}",
           "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",

@@ -109,7 +109,7 @@ function HeroSection() {
   "mcpServers": {
     "seo-mcp": {
       "command": "npx",
-      "args": ["-y", "@seomcp/proxy"],
+      "args": ["-y", "github:quantacodes/seomcp-proxy"],
       "env": {
         "SEOMCP_API_KEY": "YOUR_API_KEY_HERE",
         "GOOGLE_SERVICE_ACCOUNT": "/path/to/service-account.json",
@@ -213,7 +213,7 @@ function HeroSection() {
             </div>
             <div className="code-body" style={{ padding: '16px 20px' }}>
               <pre style={{ margin: 0, fontSize: '14px', lineHeight: 1.5, fontFamily: 'var(--font-mono)' }}>
-<span className="punct">{'{'}</span> <span className="key">&quot;mcpServers&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;seo&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;command&quot;</span><span className="punct">:</span> <span className="str">&quot;npx&quot;</span><span className="punct">, </span><span className="key">&quot;args&quot;</span><span className="punct">: [</span><span className="str">&quot;-y&quot;</span><span className="punct">, </span><span className="str">&quot;@seomcp/proxy&quot;</span><span className="punct">], </span><span className="key">&quot;env&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;SEOMCP_API_KEY&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GOOGLE_SERVICE_ACCOUNT&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GA4_PROPERTIES&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GSC_PROPERTIES&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span> <span className="punct">{'}'}{'}'}{'}'}</span> <span className="punct">{'}'}</span>
+<span className="punct">{'{'}</span> <span className="key">&quot;mcpServers&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;seo&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;command&quot;</span><span className="punct">:</span> <span className="str">&quot;npx&quot;</span><span className="punct">, </span><span className="key">&quot;args&quot;</span><span className="punct">: [</span><span className="str">&quot;-y&quot;</span><span className="punct">, </span><span className="str">&quot;github:quantacodes/seomcp-proxy&quot;</span><span className="punct">], </span><span className="key">&quot;env&quot;</span><span className="punct">: {'{'}</span> <span className="key">&quot;SEOMCP_API_KEY&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GOOGLE_SERVICE_ACCOUNT&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GA4_PROPERTIES&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span><span className="punct">, </span><span className="key">&quot;GSC_PROPERTIES&quot;</span><span className="punct">:</span> <span className="str">&quot;...&quot;</span> <span className="punct">{'}'}{'}'}{'}'}</span> <span className="punct">{'}'}</span>
               </pre>
             </div>
           </div>

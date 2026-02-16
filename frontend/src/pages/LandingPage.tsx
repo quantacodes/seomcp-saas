@@ -70,7 +70,7 @@ function Navigation() {
       <div className={`mobile-nav ${isMobileNavOpen ? 'open' : ''}`}>
         <a href="#tools" onClick={() => setIsMobileNavOpen(false)}>Tools</a>
         <a href="#pricing" onClick={() => setIsMobileNavOpen(false)}>Pricing</a>
-        <a href="http://localhost:3456/docs" target="_blank" rel="noopener noreferrer" onClick={() => setIsMobileNavOpen(false)}>Docs</a>
+        <Link to="/docs" onClick={() => setIsMobileNavOpen(false)}>Docs</Link>
         {isSignedIn ? (
           <>
             <Link to="/dashboard" onClick={() => setIsMobileNavOpen(false)}>Dashboard</Link>
